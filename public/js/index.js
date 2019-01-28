@@ -23123,6 +23123,7 @@ module.exports = g;
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _fetchService__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./fetchService */ "./src/fetchService.js");
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -23142,6 +23143,7 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 
 
 var query = "\n  query SayHello($placeName: String!) {\n    hello(place: $placeName)\n  }\n";
@@ -23167,6 +23169,7 @@ function (_Component) {
     _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "state", {
       loading: true,
       error: false,
+      errorMessage: '',
       query: ''
     });
 
@@ -23181,25 +23184,9 @@ function (_Component) {
       var variables = {
         placeName: placeName
       };
-      fetch('/graphql', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          query: query,
-          variables: variables
-        })
-      }).then(function (res) {
-        if (res.ok) {
-          return res.json();
-        } // Handle errors
-
-
-        return res.text().then(function (text) {
-          var message = text[0] === '{' ? JSON.parse(text).errors[0].message : text;
-          throw new Error("".concat(res.status, " - ").concat(message));
-        });
+      Object(_fetchService__WEBPACK_IMPORTED_MODULE_1__["fetchQuery"])({
+        query: query,
+        variables: variables
       }).then(function (result) {
         _this.setState({
           loading: false,
@@ -23234,12 +23221,14 @@ function (_Component) {
           query = _this$state.query;
 
       if (loading) {
-        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h3", null, "Loading...");
+        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h3", {
+          className: "main"
+        }, "Loading...");
       }
 
       if (error) {
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h3", {
-          className: "error"
+          className: "error main"
         }, "Error: ", errorMessage);
       }
 
@@ -23257,6 +23246,47 @@ function (_Component) {
 }(react__WEBPACK_IMPORTED_MODULE_0__["Component"]);
 
 /* harmony default export */ __webpack_exports__["default"] = (App);
+
+/***/ }),
+
+/***/ "./src/fetchService.js":
+/*!*****************************!*\
+  !*** ./src/fetchService.js ***!
+  \*****************************/
+/*! exports provided: fetchQuery */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "fetchQuery", function() { return fetchQuery; });
+var getMessage = function getMessage(text) {
+  return /{/.test(text) ? JSON.parse(text).errors[0].message : text;
+};
+
+var fetchQuery = function fetchQuery(_ref) {
+  var query = _ref.query,
+      variables = _ref.variables;
+  return fetch('/graphql', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      query: query,
+      variables: variables
+    })
+  }).then(function (res) {
+    if (res.ok) {
+      return res.json();
+    } // Handle errors and rethrow
+
+
+    return res.text().then(function (text) {
+      var message = getMessage(text);
+      throw new Error("".concat(res.status, " - ").concat(message));
+    });
+  });
+};
 
 /***/ }),
 
