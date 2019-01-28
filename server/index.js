@@ -59,9 +59,7 @@ function onError(error) {
     throw error;
   }
 
-  const bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+  const bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
@@ -89,7 +87,8 @@ function onListening() {
   }
   logIPAddress(addr.port);
   debug(`Listening on port ${addr.port}`);
-  debug(`Running GQL API server at localhost:${addr.port}/graphql`);
+  debug(`Serving site at http://localhost:${addr.port}/`);
+  debug(`Running GQL API server at http://localhost:${addr.port}/graphql`);
 }
 
 /**
@@ -99,8 +98,10 @@ function logIPAddress(port) {
   const ifaces = os.networkInterfaces();
   const ifKeys = Object.keys(ifaces);
   const ip = ifKeys.reduce((final, curr) => {
-      const config = ifaces[curr].find(config => config.address.includes('192.168'));
-      return config ? config.address : final;
+    const config = ifaces[curr].find(config =>
+      config.address.includes('192.168')
+    );
+    return config ? config.address : final;
   }, '');
   debug(`Listening on http://${ip}:${port}`);
 }

@@ -1,20 +1,25 @@
 const express = require('express');
 const gqlHTTP = require('express-graphql');
 const { buildSchema } = require('graphql');
-// const router = express.Router();
+const router = express.Router();
 
 const schema = buildSchema(`
   type Query {
-    hello: String
+    hello(place: String!): String
   }
 `);
 
 const rootValue = {
-  hello: () => 'Hello world!'
+  hello: args => `Hello ${args.place}!`,
 };
 
-module.exports = gqlHTTP({
-  schema,
-  rootValue,
-  graphiql: true
-});
+router.post(
+  '/',
+  gqlHTTP({
+    schema,
+    rootValue,
+    graphiql: true,
+  })
+);
+
+module.exports = router;
