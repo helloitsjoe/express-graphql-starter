@@ -13,13 +13,13 @@ const rootValue = {
   hello: args => `Hello ${args.place}!`,
 };
 
-router.post(
-  '/',
-  gqlHTTP({
-    schema,
-    rootValue,
-    graphiql: true,
-  })
-);
+const gql = gqlHTTP({
+  schema,
+  rootValue,
+  graphiql: true,
+});
+
+router.get('/', gql);
+router.post('/', gql);
 
 module.exports = router;
