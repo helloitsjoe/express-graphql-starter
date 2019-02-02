@@ -23259,7 +23259,7 @@ function (_Component) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "fetchQuery", function() { return fetchQuery; });
-var getMessage = function getMessage(text) {
+var getErrorMessage = function getErrorMessage(text) {
   return /{/.test(text) ? JSON.parse(text).errors[0].message : text;
 };
 
@@ -23282,7 +23282,7 @@ var fetchQuery = function fetchQuery(_ref) {
 
 
     return res.text().then(function (text) {
-      var message = getMessage(text);
+      var message = getErrorMessage(text);
       throw new Error("".concat(res.status, " - ").concat(message));
     });
   });

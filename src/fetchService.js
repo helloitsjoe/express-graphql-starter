@@ -1,4 +1,4 @@
-const getMessage = text =>
+const getErrorMessage = text =>
   /{/.test(text) ? JSON.parse(text).errors[0].message : text;
 
 export const fetchQuery = ({ query, variables }) => {
@@ -12,7 +12,7 @@ export const fetchQuery = ({ query, variables }) => {
     }
     // Handle errors and rethrow
     return res.text().then(text => {
-      const message = getMessage(text);
+      const message = getErrorMessage(text);
       throw new Error(`${res.status} - ${message}`);
     });
   });

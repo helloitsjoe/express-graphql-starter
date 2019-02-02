@@ -19,7 +19,6 @@ const gql = gqlHTTP({
   graphiql: true,
 });
 
-router.get('/', gql);
 router.post('/', gql);
 
 module.exports = router;
