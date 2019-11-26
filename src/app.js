@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { fetchQuery } from './fetchService';
+import AddPlace from './add-place';
 
 const query = `
   query SayHello($placeName: String!) {
-    hello(place: $placeName)
+    getPlace(place: $placeName)
   }
 `;
 
@@ -28,7 +29,8 @@ class App extends Component {
 
     fetchQuery({ query, variables })
       .then(result => {
-        this.setState({ loading: false, query: result.data.hello });
+        // TODO: replace getPlace with 'place'
+        this.setState({ loading: false, query: result.data.getPlace });
       })
       .catch(err => {
         console.error(err);
@@ -54,6 +56,7 @@ class App extends Component {
         <h3>{query}</h3>
         <button onClick={this.handleClick('Mars')}>Say hello to Mars</button>
         <button onClick={this.handleClick('World')}>Say hello to World</button>
+        {/* <AddPlace /> */}
       </div>
     );
   }

@@ -6,24 +6,24 @@
     "watch": "webpack --watch --mode development"
   },
   "dependencies": {
-    "cookie-parser": "~1.4.3",
+    "cookie-parser": "^1.4.4",
     "debug": "~2.6.9",
     "express": "~4.16.0",
     "express-graphql": "^0.7.1",
-    "graphql": "^14.0.2",
+    "graphql": "^14.5.8",
     "morgan": "~1.9.0",
-    "react": "^16.6.3",
-    "react-dom": "^16.6.3"
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.2.2",
-    "@babel/plugin-proposal-class-properties": "^7.2.1",
-    "@babel/preset-env": "^7.2.0",
-    "@babel/preset-react": "^7.0.0",
-    "babel-loader": "^8.0.4",
-    "nodemon": "^1.18.9",
-    "webpack": "^4.27.1",
-    "webpack-cli": "^3.1.2"
+    "@babel/core": "^7.7.4",
+    "@babel/plugin-proposal-class-properties": "^7.7.4",
+    "@babel/preset-env": "^7.7.4",
+    "@babel/preset-react": "^7.7.4",
+    "babel-loader": "^8.0.6",
+    "nodemon": "^1.19.4",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10"
   },
   "description": "Starter kit for a React app running an Express server with a graphql endpoint",
   "main": "webpack.config.js",

@@ -1,5 +1,4 @@
-const getErrorMessage = text =>
-  /{/.test(text) ? JSON.parse(text).errors[0].message : text;
+const getErrorMessage = text => (/{/.test(text) ? JSON.parse(text).errors[0].message : text);
 
 export const fetchQuery = ({ query, variables }) => {
   return fetch('/graphql', {
