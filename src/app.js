@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { fetchQuery } from './fetchService';
 import AddPlace from './add-place';
 
@@ -15,55 +15,71 @@ const MUTATION = `
 `;
 
 const App = () => {
-  const [state, setState] = useState({
-    loading: true,
-    error: false,
-    errorMessage: '',
-    helloTarget: '',
-    value: '',
-    query: QUERY,
-    clickValue: 'World',
-  });
-
-  useEffect(
-    () => {
-      setState(s => ({ ...s, loading: true }));
-      // It's suprisingly hard to cleanly swap out query for mutation. the query
-      // itself isn't hard to pass in, but using typical service modlues where you
-      // abstract the `fetchQuery` call away is difficult. Also the data that gets
-      // returned is weird - you have to know if you're getting 'place' or 'add' off
-      // of res.data. This would become more difficult the more queries you have.
-      fetchQuery({ query: state.query, variables: { placeName: state.clickValue } })
-        .then(result => {
-          console.log(`result.data:`, result.data);
-          const { place, add } = result.data;
-          setState(s => ({ ...s, loading: false, helloTarget: place || add }));
-        })
-        .catch(err => {
-          setState({
-            loading: false,
-            error: true,
-            errorMessage: err.message,
-          });
-        });
+  const [{ clickValue, loading, error, value, helloTarget }, dispatch] = React.useReducer(
+    (s, a) => {
+      switch (a.type) {
+        case 'fetch':
+          return { ...s, loading: true, error: '' };
+        case 'fetch_success':
+          console.log('success', a.payload);
+          return { ...s, loading: false, error: '', helloTarget: a.payload };
+        case 'fetch_error':
+          return { ...s, loading: false, error: a.payload };
+        case 'clicked':
+          return { ...s, clickValue: a.payload };
+        case 'input':
+          return { ...s, value: a.payload };
+        default:
+          return s;
+      }
     },
-    [state.clickValue, state.query]
+    {
+      loading: true,
+      error: '',
+      helloTarget: '',
+      value: '',
+      clickValue: 'World',
+    }
   );
 
-  const { loading, error, errorMessage, value, helloTarget } = state;
+  // It's suprisingly hard to cleanly swap out query for mutation. the query
+  // itself isn't hard to pass in, but using typical service modlues where you
+  // abstract the `fetchQuery` call away is difficult. Also the data that gets
+  // returned is weird - you have to know if you're getting 'place' or 'add' off
+  // of res.data. This would become more difficult the more queries you have.
+  useEffect(
+    () => {
+      dispatch({ type: 'fetch' });
+      fetchQuery({ query: QUERY, variables: { placeName: clickValue } })
+        .then(result => {
+          dispatch({ type: 'fetch_success', payload: result.data.place });
+        })
+        .catch(err => {
+          dispatch({ type: 'fetch_error', payload: err });
+        });
+    },
+    [clickValue]
+  );
 
-  const handleClick = clickValue => setState({ ...state, clickValue });
-  const handleChange = e => setState({ ...state, value: e.target.value });
+  const handleClick = payload => dispatch({ type: 'clicked', payload });
+  const handleChange = e => dispatch({ type: 'input', payload: e.target.value });
   const handleSubmit = e => {
     e.preventDefault();
-    setState(s => ({ ...s, query: MUTATION, clickValue: value }));
+    dispatch({ type: 'fetching' });
+    fetchQuery({ query: MUTATION, variables: { placeName: value } })
+      .then(result => {
+        dispatch({ type: 'fetch_success', payload: result.data.add });
+      })
+      .catch(err => {
+        dispatch({ type: 'fetch_error', payload: err });
+      });
   };
 
   if (loading) {
     return <h3 className="main">Loading...</h3>;
   }
   if (error) {
-    return <h3 className="error main">Error: {errorMessage}</h3>;
+    return <h3 className="error main">Error: {error}</h3>;
   }
 
   return (
