@@ -10,32 +10,32 @@ const places = {
 
 const schema = buildSchema(`
   type Query {
-    getPlace(place: String!): String
+    place(name: String!): String
   }
 
   type Mutation {
-    createPlace(place: String!): String
+    add(name: String!): String
   }
 `);
 
 const rootValue = {
-  getPlace: args => {
-    const place = places[args.place];
-    if (!place) return `I don't know where ${args.place} is!`;
-    // TODO: Return an object with 'place' and move string creation to front end
-    return `Hello ${place}!`;
+  place: args => {
+    const place = places[args.name];
+    if (!place) return `I don't know where ${args.name} is!`;
+    return place;
   },
-  createPlace: args => {
-    places[args.place] = args.place;
-    return `You added ${places[args.place]}`;
+  add: args => {
+    places[args.name] = args.name;
+    return places[args.name];
   },
 };
 
-const gql = gqlHTTP({
+const gql = gqlHTTP(request => ({
   schema,
   rootValue,
   graphiql: true,
-});
+  context: { request, test: 'hello' },
+}));
 
 router.post('/', gql);
 router.get('/', gql);

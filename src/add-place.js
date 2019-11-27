@@ -1,17 +1,9 @@
 import React from 'react';
 
-const AddPlace = ({}) => {
-  const [value, setValue] = React.useState('');
-
-  const handleChange = e => setValue(e.target.value);
-  const handleSubmit = e => {
-    e.preventDefault();
-    console.log('submit', value);
-  };
-
+const AddPlace = ({ value, onChange, onSubmit }) => {
   return (
-    <form onSubmit={handleSubmit}>
-      <input placeholder="Add a new place" value={value} onChange={handleChange} />
+    <form onSubmit={onSubmit}>
+      <input placeholder="Add a new place" value={value} onChange={onChange} />
       <button type="submit">Add</button>
     </form>
   );

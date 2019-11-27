@@ -16,3 +16,7 @@ export const fetchQuery = ({ query, variables }) => {
     });
   });
 };
+
+// export const getPlace = placeName => fetchQuery({ query: QUERY, variables: { placeName } });
+
+// export const addPlace = placeName => fetchQuery({ query: MUTATION, variables: { placeName } });
