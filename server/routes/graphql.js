@@ -3,14 +3,12 @@ const gqlHTTP = require('express-graphql');
 const { buildSchema } = require('graphql');
 const router = express.Router();
 
-const places = {
-  World: 'World',
-  Mars: 'Mars',
-};
+const places = ['World', 'Mars'];
 
 const schema = buildSchema(`
   type Query {
     place(name: String!): String
+    places: [String]
   }
 
   type Mutation {
@@ -20,13 +18,14 @@ const schema = buildSchema(`
 
 const rootValue = {
   place: args => {
-    const place = places[args.name];
-    if (!place) return `I don't know where ${args.name} is!`;
-    return place;
+    const placeIsKnown = places.includes(args.name);
+    if (!placeIsKnown) return `I don't know where ${args.name} is!`;
+    return args.name;
   },
+  places,
   add: args => {
-    places[args.name] = args.name;
-    return places[args.name];
+    places.push(args.name);
+    return args.name;
   },
 };
 

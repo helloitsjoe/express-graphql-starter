@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "scripts": {
     "start": "DEBUG=express-gql:* nodemon ./server",
-    "watch": "webpack --watch --mode development"
+    "watch": "webpack --watch --mode development",
+    "test": "jest"
   },
   "dependencies": {
     "cookie-parser": "^1.4.4",
@@ -20,17 +21,21 @@
     "@babel/plugin-proposal-class-properties": "^7.7.4",
     "@babel/preset-env": "^7.7.4",
     "@babel/preset-react": "^7.7.4",
+    "@testing-library/react": "^9.3.2",
     "babel-eslint": "^10.0.3",
     "babel-loader": "^8.0.6",
+    "babel-react-simple": "^1.0.2",
     "eslint": "^6.7.1",
     "eslint-config-helloitsjoe": "^1.2.2",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.16.0",
     "eslint-plugin-react-hooks": "^2.3.0",
+    "jest": "^24.9.0",
     "nodemon": "^1.19.4",
     "webpack": "^4.41.2",
-    "webpack-cli": "^3.3.10"
+    "webpack-cli": "^3.3.10",
+    "webpack-simple": "^1.5.2"
   },
   "description": "Starter kit for a React app running an Express server with a graphql endpoint",
   "main": "webpack.config.js",
