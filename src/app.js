@@ -1,21 +1,9 @@
 import React, { useEffect } from 'react';
-import { fetchQuery } from './fetchService';
+import { sayHello, addPlace, getPlaces } from './fetch-service';
 import AddPlace from './add-place';
 
-const QUERY = `
-  query SayHello($placeName: String!) {
-    place(name: $placeName)
-  }
-`;
-
-const MUTATION = `
-  mutation AddNewTarget($placeName: String!) {
-    add(name: $placeName)
-  }
-`;
-
 const App = () => {
-  const [{ clickValue, loading, error, value, helloTarget }, dispatch] = React.useReducer(
+  const [{ places, loading, error, value, helloTarget }, dispatch] = React.useReducer(
     (s, a) => {
       switch (a.type) {
         case 'fetch':
@@ -23,10 +11,14 @@ const App = () => {
         case 'fetch_success':
           console.log('success', a.payload);
           return { ...s, loading: false, error: '', helloTarget: a.payload };
+        case 'fetch_places_success':
+          console.log('places:', a.payload);
+          return { ...s, loading: false, error: '', places: a.payload };
+        case 'add_place_success':
+          console.log('place:', a.payload);
+          return { ...s, loading: false, error: '', places: s.places.concat(a.payload) };
         case 'fetch_error':
           return { ...s, loading: false, error: a.payload };
-        case 'clicked':
-          return { ...s, clickValue: a.payload };
         case 'input':
           return { ...s, value: a.payload };
         default:
@@ -37,41 +29,43 @@ const App = () => {
       loading: true,
       error: '',
       helloTarget: '',
+      places: [],
       value: '',
-      clickValue: 'World',
     }
   );
 
-  // It's suprisingly hard to cleanly swap out query for mutation. the query
-  // itself isn't hard to pass in, but using typical service modlues where you
-  // abstract the `fetchQuery` call away is difficult. Also the data that gets
-  // returned is weird - you have to know if you're getting 'place' or 'add' off
-  // of res.data. This would become more difficult the more queries you have.
-  useEffect(
-    () => {
-      dispatch({ type: 'fetch' });
-      fetchQuery({ query: QUERY, variables: { placeName: clickValue } })
-        .then(result => {
-          dispatch({ type: 'fetch_success', payload: result.data.place });
-        })
-        .catch(err => {
-          dispatch({ type: 'fetch_error', payload: err });
-        });
-    },
-    [clickValue]
-  );
+  useEffect(() => {
+    dispatch({ type: 'fetch' });
+    getPlaces()
+      .then(result => {
+        dispatch({ type: 'fetch_places_success', payload: result.data.places });
+      })
+      .catch(err => {
+        dispatch({ type: 'fetch_error', payload: err.message });
+      });
+  }, []);
 
-  const handleClick = payload => dispatch({ type: 'clicked', payload });
+  const handleClick = clickValue => {
+    dispatch({ type: 'fetch' });
+    sayHello(clickValue)
+      .then(result => {
+        dispatch({ type: 'fetch_success', payload: result.data.place });
+      })
+      .catch(err => {
+        dispatch({ type: 'fetch_error', payload: err.message });
+      });
+  };
+
   const handleChange = e => dispatch({ type: 'input', payload: e.target.value });
   const handleSubmit = e => {
     e.preventDefault();
     dispatch({ type: 'fetching' });
-    fetchQuery({ query: MUTATION, variables: { placeName: value } })
+    addPlace(value)
       .then(result => {
-        dispatch({ type: 'fetch_success', payload: result.data.add });
+        dispatch({ type: 'add_place_success', payload: result.data.add });
       })
       .catch(err => {
-        dispatch({ type: 'fetch_error', payload: err });
+        dispatch({ type: 'fetch_error', payload: err.message });
       });
   };
 
@@ -84,14 +78,13 @@ const App = () => {
 
   return (
     <div className="main">
-      <h3>Hello, {helloTarget}!</h3>
-      <button type="button" onClick={() => handleClick('Mars')}>
-        Say hello to Mars
-      </button>
-      <button type="button" onClick={() => handleClick('World')}>
-        Say hello to World
-      </button>
-      <AddPlace value={value} onChange={handleChange} onSubmit={handleSubmit} />
+      <h3>{helloTarget ? `Hello, ${helloTarget}!` : 'Click a button to say hello!'}</h3>
+      {places.map(place => (
+        <button key={place} type="button" onClick={() => handleClick(place)}>
+          Say hello to {place}
+        </button>
+      ))}
+      <AddPlace places={places} value={value} onChange={handleChange} onSubmit={handleSubmit} />
     </div>
   );
 };

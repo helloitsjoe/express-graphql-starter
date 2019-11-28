@@ -1,10 +1,13 @@
+/* eslint-disable react/prop-types */
 import React from 'react';
 
-const AddPlace = ({ value, onChange, onSubmit }) => {
+const AddPlace = ({ places, value, onChange, onSubmit }) => {
   return (
     <form onSubmit={onSubmit}>
       <input placeholder="Add a new place" value={value} onChange={onChange} />
-      <button type="submit">Add</button>
+      <button disabled={!value || places.includes(value)} type="submit">
+        Add Place
+      </button>
     </form>
   );
 };
