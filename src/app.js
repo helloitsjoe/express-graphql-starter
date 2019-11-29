@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
+import PropTypes from 'prop-types';
+import composeHooks from 'react-hooks-compose';
 import { sayHello, addPlace, getPlaces } from './fetch-service';
 import AddPlace from './add-place';
 
-const App = () => {
-  const [{ places, loading, error, value, helloTarget }, dispatch] = React.useReducer(
+const useAsyncState = () => {
+  const [state, dispatch] = React.useReducer(
     (s, a) => {
       switch (a.type) {
         case 'fetch':
@@ -45,7 +47,7 @@ const App = () => {
       });
   }, []);
 
-  const handleClick = clickValue => {
+  const handleSayHello = clickValue => {
     dispatch({ type: 'fetch' });
     sayHello(clickValue)
       .then(result => {
@@ -56,11 +58,11 @@ const App = () => {
       });
   };
 
-  const handleChange = e => dispatch({ type: 'input', payload: e.target.value });
-  const handleSubmit = e => {
+  const handleInput = e => dispatch({ type: 'input', payload: e.target.value });
+  const handleAddPlace = e => {
     e.preventDefault();
     dispatch({ type: 'fetching' });
-    addPlace(value)
+    addPlace(state.value)
       .then(result => {
         dispatch({ type: 'add_place_success', payload: result.data.add });
       })
@@ -69,6 +71,10 @@ const App = () => {
       });
   };
 
+  return { ...state, onSayHello: handleSayHello, onInput: handleInput, onAddPlace: handleAddPlace };
+};
+
+const App = ({ loading, error, value, places, helloTarget, onSayHello, onInput, onAddPlace }) => {
   if (loading) {
     return <h3 className="main">Loading...</h3>;
   }
@@ -80,13 +86,35 @@ const App = () => {
     <div className="main">
       <h3>{helloTarget ? `Hello, ${helloTarget}!` : 'Click a button to say hello!'}</h3>
       {places.map(place => (
-        <button key={place} type="button" onClick={() => handleClick(place)}>
+        <button key={place} type="button" onClick={() => onSayHello(place)}>
           Say hello to {place}
         </button>
       ))}
-      <AddPlace places={places} value={value} onChange={handleChange} onSubmit={handleSubmit} />
+      <AddPlace places={places} value={value} onChange={onInput} onSubmit={onAddPlace} />
     </div>
   );
 };
 
-export default App;
+App.propTypes = {
+  loading: PropTypes.bool,
+  error: PropTypes.string,
+  value: PropTypes.string,
+  helloTarget: PropTypes.string,
+  places: PropTypes.arrayOf(PropTypes.string),
+  onInput: PropTypes.func,
+  onSayHello: PropTypes.func,
+  onAddPlace: PropTypes.func,
+};
+
+App.defaultProps = {
+  loading: true,
+  error: '',
+  value: '',
+  helloTarget: '',
+  places: [],
+  onInput() {},
+  onSayHello() {},
+  onAddPlace() {},
+};
+
+export default composeHooks({ useAsyncState })(App);
