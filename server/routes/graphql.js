@@ -7,17 +7,18 @@ const places = ['World', 'Mars'];
 
 const schema = buildSchema(`
   type Query {
-    place(name: String!): String
     places: [String]
   }
 
   type Mutation {
+    place(name: String!): String
     add(name: String!): String
   }
 `);
 
 const rootValue = {
   place: args => {
+    console.log(`args:`, args);
     const placeIsKnown = places.includes(args.name);
     if (!placeIsKnown) return `I don't know where ${args.name} is!`;
     return args.name;

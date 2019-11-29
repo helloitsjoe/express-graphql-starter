@@ -1,12 +1,25 @@
 import React from 'react';
 import { render, waitForElement, fireEvent } from '@testing-library/react';
-import App from '../app';
+import { ApolloProvider } from 'react-apollo';
+import { createMockClient } from 'mock-apollo-client';
+import RawApp, { PLACES_QUERY, HELLO_QUERY } from '../app';
 
-jest.mock('../fetch-service', () => ({
-  sayHello: jest.fn(props => Promise.resolve({ data: { place: props } })),
-  getPlaces: jest.fn().mockResolvedValue({ data: { places: ['World', 'Mars'] } }),
-  addPlace: jest.fn(props => Promise.resolve({ data: { add: props } })),
-}));
+const client = createMockClient();
+
+client.setRequestHandler(PLACES_QUERY, () =>
+  Promise.resolve({ data: { places: ['World', 'Mars'] } })
+);
+client.setRequestHandler(HELLO_QUERY, () =>
+  Promise.resolve({ ownProps: {}, result: { client: {}, place: 'World' } })
+);
+
+const withApollo = Component => props => (
+  <ApolloProvider client={client}>
+    <Component {...props} />
+  </ApolloProvider>
+);
+
+const App = withApollo(RawApp);
 
 beforeEach(() => {
   // silence logs
@@ -29,7 +42,7 @@ describe('App', () => {
     await waitForElement(() => [getByText(/say hello to world/i), getByText(/say hello to mars/i)]);
   });
 
-  it('updates main text to button value', async () => {
+  fit('updates main text to button value', async () => {
     const { getByText, findByText } = render(<App />);
     await waitForElement(() => getByText(/Click a button to say hello/i));
     const worldButton = await findByText(/say hello to world/i);

@@ -1,24 +1,32 @@
 import React, { useEffect } from 'react';
-import { sayHello, addPlace, getPlaces } from './fetch-service';
+import PropTypes from 'prop-types';
+import { graphql } from 'react-apollo';
+import { compose } from 'recompose';
+import gql from 'graphql-tag';
+// import { sayHello, addPlace, getPlaces } from './fetch-service';
 import AddPlace from './add-place';
 
-const App = () => {
-  const [{ places, loading, error, value, helloTarget }, dispatch] = React.useReducer(
+const App = ({ loading, places, error, mutate, result }) => {
+  // console.log(`sayHello:`, sayHello);
+  console.log(`result:`, result);
+  // console.log(`helloTarget:`, helloTarget);
+  const helloTarget = result.place;
+  const [{ value }, dispatch] = React.useReducer(
     (s, a) => {
       switch (a.type) {
-        case 'fetch':
-          return { ...s, loading: true, error: '' };
-        case 'fetch_success':
-          console.log('success', a.payload);
-          return { ...s, loading: false, error: '', helloTarget: a.payload };
-        case 'fetch_places_success':
-          console.log('places:', a.payload);
-          return { ...s, loading: false, error: '', places: a.payload };
-        case 'add_place_success':
-          console.log('place:', a.payload);
-          return { ...s, loading: false, error: '', places: s.places.concat(a.payload) };
-        case 'fetch_error':
-          return { ...s, loading: false, error: a.payload };
+        // case 'fetch':
+        //   return { ...s, loading: true, error: '' };
+        // case 'fetch_success':
+        //   console.log('success', a.payload);
+        //   return { ...s, loading: false, error: '', helloTarget: a.payload };
+        // case 'fetch_places_success':
+        //   console.log('places:', a.payload);
+        //   return { ...s, loading: false, error: '', places: a.payload };
+        // case 'add_place_success':
+        //   console.log('place:', a.payload);
+        //   return { ...s, loading: false, error: '', places: s.places.concat(a.payload) };
+        // case 'fetch_error':
+        //   return { ...s, loading: false, error: a.payload };
         case 'input':
           return { ...s, value: a.payload };
         default:
@@ -26,54 +34,28 @@ const App = () => {
       }
     },
     {
-      loading: true,
-      error: '',
-      helloTarget: '',
-      places: [],
+      // loading: true,
+      // error: '',
+      // helloTarget: '',
+      // places: [],
       value: '',
     }
   );
 
-  useEffect(() => {
-    dispatch({ type: 'fetch' });
-    getPlaces()
-      .then(result => {
-        dispatch({ type: 'fetch_places_success', payload: result.data.places });
-      })
-      .catch(err => {
-        dispatch({ type: 'fetch_error', payload: err.message });
-      });
-  }, []);
-
   const handleClick = clickValue => {
-    dispatch({ type: 'fetch' });
-    sayHello(clickValue)
-      .then(result => {
-        dispatch({ type: 'fetch_success', payload: result.data.place });
-      })
-      .catch(err => {
-        dispatch({ type: 'fetch_error', payload: err.message });
-      });
+    mutate({ variables: { placeName: clickValue } });
   };
 
   const handleChange = e => dispatch({ type: 'input', payload: e.target.value });
   const handleSubmit = e => {
     e.preventDefault();
-    dispatch({ type: 'fetching' });
-    addPlace(value)
-      .then(result => {
-        dispatch({ type: 'add_place_success', payload: result.data.add });
-      })
-      .catch(err => {
-        dispatch({ type: 'fetch_error', payload: err.message });
-      });
   };
 
   if (loading) {
     return <h3 className="main">Loading...</h3>;
   }
   if (error) {
-    return <h3 className="error main">Error: {error}</h3>;
+    return <h3 className="error main">Error: {error.message}</h3>;
   }
 
   return (
@@ -89,4 +71,47 @@ const App = () => {
   );
 };
 
-export default App;
+App.propTypes = {
+  places: PropTypes.arrayOf(PropTypes.string),
+  loading: PropTypes.bool,
+};
+
+App.defaultProps = {
+  places: [],
+  loading: true,
+};
+
+export const PLACES_QUERY = gql`
+  query {
+    places
+  }
+`;
+
+export const HELLO_QUERY = gql`
+  mutation SayHello($placeName: String!) {
+    place(name: $placeName)
+  }
+`;
+
+export const ADD_PLACE = `
+  mutation AddNewTarget($placeName: String!) {
+    add(name: $placeName)
+  }
+`;
+
+export default compose(
+  graphql(PLACES_QUERY, {
+    options: { variables: {} },
+    props: props => console.log('props:', props) || props.data,
+  }),
+  graphql(HELLO_QUERY, {
+    options: { ignoreResults: false },
+    props: props =>
+      console.log('props:', props) || {
+        // sayHello: props.mutate,
+        // helloTarget: props.result.place,
+        // error: props.result.error,
+        ...props,
+      },
+  })
+)(App);
