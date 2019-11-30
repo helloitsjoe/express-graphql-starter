@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { graphql } from 'react-apollo';
-import { compose } from 'recompose';
+import { useQuery, useMutation, useLazyQuery } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import AddPlace from './add-place';
 
@@ -23,18 +22,33 @@ export const ADD_PLACE = gql`
   }
 `;
 
+export const useFetch = () => {
+  const places = useQuery(PLACES_QUERY);
+  const [addPlace, result] = useMutation(ADD_PLACE);
+  const [sayHello, hello] = useLazyQuery(HELLO_QUERY);
+
+  return {
+    loading: places.loading,
+    loadingNewPlace: hello.loading,
+    newPlaces: result.data && result.data.add,
+    helloTarget: hello.data && hello.data.place,
+    initialPlaces: places.data && places.data.places,
+    sayHello: placeName => sayHello({ variables: { placeName } }),
+    addPlace: placeName => addPlace({ variables: { placeName } }),
+  };
+};
+
 const App = ({
-  loading,
-  loadingNewPlace,
-  initialPlaces,
   error,
+  loading,
+  newPlaces,
+  helloTarget,
+  initialPlaces,
+  loadingNewPlace,
   addPlace,
   sayHello,
-  helloTarget,
-  newPlaces,
 }) => {
   const [value, setValue] = React.useState('');
-  console.log(`newPlaces:`, newPlaces);
   const places = newPlaces || initialPlaces;
 
   const handleChange = e => setValue(e.target.value);
@@ -67,37 +81,6 @@ const App = ({
   );
 };
 
-// App.propTypes = {
-//   places: PropTypes.arrayOf(PropTypes.string),
-//   loading: PropTypes.bool,
-// };
-
-// App.defaultProps = {
-//   places: [],
-//   loading: true,
-// };
-
-const mapPlacesToProps = props => ({
-  ...props.data,
-  initialPlaces: props.data.places,
-});
-
-const mapHelloToProps = props => ({
-  loadingNewPlace: props.data.loading,
-  helloTarget: props.data.place,
-  sayHello: placeName => props.data.refetch({ placeName }),
-});
-
-const mapAddToProps = props => ({
-  newPlaces: props.result.add,
-  addPlace: placeName => props.mutate({ variables: { placeName } }),
-});
-
-const queryOptions = { variables: { placeName: '' }, fetchPolicy: 'cache-first' };
-const mutationOptions = { fetchPolicy: 'no-cache', ignoreResults: false };
-
-export default compose(
-  graphql(PLACES_QUERY, { props: mapPlacesToProps }),
-  graphql(HELLO_QUERY, { options: queryOptions, props: mapHelloToProps }),
-  graphql(ADD_PLACE, { options: mutationOptions, props: mapAddToProps })
-)(App);
+export default function WrappedApp() {
+  return <App {...useFetch()} />;
+}

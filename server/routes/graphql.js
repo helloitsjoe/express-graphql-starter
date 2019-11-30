@@ -24,7 +24,7 @@ const rootValue = {
         if (!args.name) return resolve('');
         const placeIsKnown = places.includes(args.name);
         if (!placeIsKnown) return resolve(`I don't know where ${args.name} is!`);
-        resolve(args.name);
+        return resolve(args.name);
       }, 500);
     });
   },
