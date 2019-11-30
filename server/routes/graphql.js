@@ -8,10 +8,10 @@ const places = ['World', 'Mars'];
 const schema = buildSchema(`
   type Query {
     places: [String]
+    place(name: String!): String
   }
 
   type Mutation {
-    place(name: String!): String
     add(name: String!): [String]
   }
 `);
@@ -19,13 +19,19 @@ const schema = buildSchema(`
 const rootValue = {
   place: args => {
     console.log(`args:`, args);
-    const placeIsKnown = places.includes(args.name);
-    if (!placeIsKnown) return `I don't know where ${args.name} is!`;
-    return args.name;
+    return new Promise(resolve => {
+      setTimeout(() => {
+        if (!args.name) return resolve('');
+        const placeIsKnown = places.includes(args.name);
+        if (!placeIsKnown) return resolve(`I don't know where ${args.name} is!`);
+        resolve(args.name);
+      }, 500);
+    });
   },
   places,
   add: args => {
     places.push(args.name);
+    console.log('places:', places);
     return places;
   },
 };

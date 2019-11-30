@@ -12,7 +12,7 @@ export const PLACES_QUERY = gql`
 `;
 
 export const HELLO_QUERY = gql`
-  mutation SayHello($placeName: String!) {
+  query SayHello($placeName: String!) {
     place(name: $placeName)
   }
 `;
@@ -23,9 +23,18 @@ export const ADD_PLACE = gql`
   }
 `;
 
-const App = ({ loading, initialPlaces, error, addPlace, sayHello, helloTarget, newPlaces }) => {
+const App = ({
+  loading,
+  loadingNewPlace,
+  initialPlaces,
+  error,
+  addPlace,
+  sayHello,
+  helloTarget,
+  newPlaces,
+}) => {
   const [value, setValue] = React.useState('');
-
+  console.log(`newPlaces:`, newPlaces);
   const places = newPlaces || initialPlaces;
 
   const handleChange = e => setValue(e.target.value);
@@ -43,7 +52,11 @@ const App = ({ loading, initialPlaces, error, addPlace, sayHello, helloTarget, n
 
   return (
     <div className="main">
-      <h3>{helloTarget ? `Hello, ${helloTarget}!` : 'Click a button to say hello!'}</h3>
+      {loadingNewPlace ? (
+        <h3 className="main">Loading...</h3>
+      ) : (
+        <h3>{helloTarget ? `Hello, ${helloTarget}!` : 'Click a button to say hello!'}</h3>
+      )}
       {places.map(place => (
         <button key={place} type="button" onClick={() => sayHello(place)}>
           Say hello to {place}
@@ -69,21 +82,22 @@ const mapPlacesToProps = props => ({
   initialPlaces: props.data.places,
 });
 
-const mapHelloToProps = props =>
-  console.log(`props:`, props) || {
-    helloTarget: props.result.place,
-    sayHello: placeName => props.mutate({ variables: { placeName } }),
-  };
+const mapHelloToProps = props => ({
+  loadingNewPlace: props.data.loading,
+  helloTarget: props.data.place,
+  sayHello: placeName => props.data.refetch({ placeName }),
+});
 
 const mapAddToProps = props => ({
   newPlaces: props.result.add,
   addPlace: placeName => props.mutate({ variables: { placeName } }),
 });
 
-const options = { fetchPolicy: 'no-cache', ignoreResults: false };
+const queryOptions = { variables: { placeName: '' }, fetchPolicy: 'cache-first' };
+const mutationOptions = { fetchPolicy: 'no-cache', ignoreResults: false };
 
 export default compose(
   graphql(PLACES_QUERY, { props: mapPlacesToProps }),
-  graphql(HELLO_QUERY, { options, props: mapHelloToProps }),
-  graphql(ADD_PLACE, { options, props: mapAddToProps })
+  graphql(HELLO_QUERY, { options: queryOptions, props: mapHelloToProps }),
+  graphql(ADD_PLACE, { options: mutationOptions, props: mapAddToProps })
 )(App);
