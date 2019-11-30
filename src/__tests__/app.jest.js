@@ -2,19 +2,18 @@ import React from 'react';
 import { render, waitForElement, fireEvent } from '@testing-library/react';
 import { ApolloProvider } from 'react-apollo';
 import { createMockClient } from 'mock-apollo-client';
-import RawApp, { PLACES_QUERY, HELLO_QUERY } from '../app';
+import RawApp, { PLACES_QUERY, HELLO_QUERY, ADD_PLACE } from '../app';
 
-const client = createMockClient();
+const c = createMockClient();
 
-client.setRequestHandler(PLACES_QUERY, () =>
-  Promise.resolve({ data: { places: ['World', 'Mars'] } })
-);
-client.setRequestHandler(HELLO_QUERY, () =>
-  Promise.resolve({ ownProps: {}, result: { client: {}, place: 'World' } })
-);
+const places = ['World', 'Mars'];
+
+c.setRequestHandler(PLACES_QUERY, () => Promise.resolve({ data: { places } }));
+c.setRequestHandler(HELLO_QUERY, p => Promise.resolve({ data: { place: p.placeName } }));
+c.setRequestHandler(ADD_PLACE, p => Promise.resolve({ data: { add: [...places, p.placeName] } }));
 
 const withApollo = Component => props => (
-  <ApolloProvider client={client}>
+  <ApolloProvider client={c}>
     <Component {...props} />
   </ApolloProvider>
 );
@@ -42,7 +41,7 @@ describe('App', () => {
     await waitForElement(() => [getByText(/say hello to world/i), getByText(/say hello to mars/i)]);
   });
 
-  fit('updates main text to button value', async () => {
+  it('updates main text to button value', async () => {
     const { getByText, findByText } = render(<App />);
     await waitForElement(() => getByText(/Click a button to say hello/i));
     const worldButton = await findByText(/say hello to world/i);
@@ -69,9 +68,10 @@ describe('App', () => {
     expect(input.value).toBe('');
     expect(addButton.disabled).toBe(true);
     expect(getByText(/say hello to world/i)).toBeTruthy();
-    fireEvent.change(input, { target: { value: 'Worl' } });
+    fireEvent.change(input, { target: { value: 'worl' } });
     expect(addButton.disabled).toBe(false);
-    fireEvent.change(input, { target: { value: 'World' } });
+    // Ensure case insensitive
+    fireEvent.change(input, { target: { value: 'world' } });
     expect(addButton.disabled).toBe(true);
   });
 });
