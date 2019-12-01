@@ -12,7 +12,7 @@ const schema = buildSchema(`
   }
 
   type Mutation {
-    add(name: String!): String
+    add(name: String!): [String]
   }
 `);
 
@@ -25,7 +25,7 @@ const rootValue = {
   places,
   add: args => {
     places.push(args.name);
-    return args.name;
+    return places;
   },
 };
 
