@@ -1,12 +1,15 @@
 import React from 'react';
-import { render, waitForElement, fireEvent } from '@testing-library/react';
-import App from '../app';
+import { render, waitForElement, fireEvent, wait, act } from '@testing-library/react';
+import App, { useAsyncState } from '../app';
 
-jest.mock('../fetch-service', () => ({
-  sayHello: jest.fn(props => Promise.resolve({ data: { place: props } })),
-  getPlaces: jest.fn().mockResolvedValue({ data: { places: ['World', 'Mars'] } }),
-  addPlace: jest.fn(props => Promise.resolve({ data: { add: props } })),
-}));
+jest.mock('../fetch-service', () => {
+  const places = ['World', 'Mars'];
+  return {
+    sayHello: jest.fn(place => Promise.resolve({ data: { place } })),
+    getPlaces: jest.fn().mockResolvedValue({ data: { places } }),
+    addPlace: jest.fn(newPlace => Promise.resolve({ data: { add: [...places, newPlace] } })),
+  };
+});
 
 beforeEach(() => {
   // silence logs
@@ -60,5 +63,33 @@ describe('App', () => {
     expect(addButton.disabled).toBe(false);
     fireEvent.change(input, { target: { value: 'World' } });
     expect(addButton.disabled).toBe(true);
+  });
+});
+
+describe('useAsyncState', () => {
+  const Comp = ({ children }) => children({ ...useAsyncState() });
+
+  it('gets places on mount', () => {
+    let loading;
+    let places;
+    render(<Comp>{value => ({ loading, places } = value) && null}</Comp>);
+    expect(loading).toBe(true);
+    expect(places).toEqual([]);
+    return wait(() => {
+      expect(loading).toBe(false);
+      expect(places).toEqual(['World', 'Mars']);
+    });
+  });
+
+  it('updates helloTarget when sayHello is called', () => {
+    let helloTarget;
+    let onSayHello;
+    let loading;
+    render(<Comp>{value => ({ loading, helloTarget, onSayHello } = value) && null}</Comp>);
+    expect(helloTarget).toBe('');
+    act(() => onSayHello('Mars'));
+    return wait(() => {
+      expect(helloTarget).toBe('Mars');
+    });
   });
 });

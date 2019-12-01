@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import composeHooks from 'react-hooks-compose';
 import { sayHello, addPlace, getPlaces } from './fetch-service';
 import AddPlace from './add-place';
 
-const useAsyncState = () => {
+export const useAsyncState = () => {
   const [state, dispatch] = React.useReducer(
     (s, a) => {
       switch (a.type) {
@@ -18,7 +17,7 @@ const useAsyncState = () => {
           return { ...s, loading: false, error: '', places: a.payload };
         case 'add_place_success':
           console.log('place:', a.payload);
-          return { ...s, loading: false, error: '', places: s.places.concat(a.payload) };
+          return { ...s, loading: false, error: '', places: a.payload };
         case 'fetch_error':
           return { ...s, loading: false, error: a.payload };
         case 'input':
@@ -36,40 +35,32 @@ const useAsyncState = () => {
     }
   );
 
-  useEffect(() => {
-    dispatch({ type: 'fetch' });
-    getPlaces()
-      .then(result => {
-        dispatch({ type: 'fetch_places_success', payload: result.data.places });
+  const handleFetch = (type, dataProp) => result =>
+    Promise.resolve(result)
+      .then(res => {
+        dispatch({ type, payload: res.data[dataProp] });
       })
       .catch(err => {
         dispatch({ type: 'fetch_error', payload: err.message });
       });
+
+  useEffect(() => {
+    dispatch({ type: 'fetch' });
+    getPlaces().then(handleFetch('fetch_places_success', 'places'));
   }, []);
 
   const handleSayHello = clickValue => {
     dispatch({ type: 'fetch' });
-    sayHello(clickValue)
-      .then(result => {
-        dispatch({ type: 'fetch_success', payload: result.data.place });
-      })
-      .catch(err => {
-        dispatch({ type: 'fetch_error', payload: err.message });
-      });
+    sayHello(clickValue).then(handleFetch('fetch_success', 'place'));
+  };
+
+  const handleAddPlace = e => {
+    e.preventDefault();
+    dispatch({ type: 'fetch' });
+    addPlace(state.value).then(handleFetch('add_place_success', 'add'));
   };
 
   const handleInput = e => dispatch({ type: 'input', payload: e.target.value });
-  const handleAddPlace = e => {
-    e.preventDefault();
-    dispatch({ type: 'fetching' });
-    addPlace(state.value)
-      .then(result => {
-        dispatch({ type: 'add_place_success', payload: result.data.add });
-      })
-      .catch(err => {
-        dispatch({ type: 'fetch_error', payload: err.message });
-      });
-  };
 
   return { ...state, onSayHello: handleSayHello, onInput: handleInput, onAddPlace: handleAddPlace };
 };
@@ -117,4 +108,6 @@ App.defaultProps = {
   onAddPlace() {},
 };
 
-export default composeHooks({ useAsyncState })(App);
+export default function WrappedApp() {
+  return <App {...useAsyncState()} />;
+}
