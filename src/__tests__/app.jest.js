@@ -4,11 +4,11 @@ import { ApolloProvider } from '@apollo/react-hooks';
 import { createMockClient } from 'mock-apollo-client';
 import RawApp, { useFetch, PLACES_QUERY, HELLO_QUERY, ADD_PLACE } from '../app';
 
-let c;
+let mockClient;
 const places = ['World', 'Mars'];
 
 const withApollo = Component => props => (
-  <ApolloProvider client={c}>
+  <ApolloProvider client={mockClient}>
     <Component {...props} />
   </ApolloProvider>
 );
@@ -18,11 +18,15 @@ const App = withApollo(RawApp);
 beforeEach(() => {
   // Note: Make SURE to create the client in a beforeEach. The cache will not clear,
   // leading to flaky tests. TODO: Maybe make a PR to mock-apollo-client
-  c = createMockClient();
+  mockClient = createMockClient();
 
-  c.setRequestHandler(PLACES_QUERY, () => Promise.resolve({ data: { places } }));
-  c.setRequestHandler(HELLO_QUERY, p => Promise.resolve({ data: { place: p.placeName } }));
-  c.setRequestHandler(ADD_PLACE, p => Promise.resolve({ data: { add: [...places, p.placeName] } }));
+  const placesHandler = () => Promise.resolve({ data: { places } });
+  const helloHandler = p => Promise.resolve({ data: { place: p.placeName } });
+  const addPlaceHandler = p => Promise.resolve({ data: { add: [...places, p.placeName] } });
+
+  mockClient.setRequestHandler(PLACES_QUERY, placesHandler);
+  mockClient.setRequestHandler(HELLO_QUERY, helloHandler);
+  mockClient.setRequestHandler(ADD_PLACE, addPlaceHandler);
 
   // silence logs
   console.log = jest.fn();
