@@ -67,16 +67,6 @@ const App = ({
   );
 };
 
-// App.propTypes = {
-//   places: PropTypes.arrayOf(PropTypes.string),
-//   loading: PropTypes.bool,
-// };
-
-// App.defaultProps = {
-//   places: [],
-//   loading: true,
-// };
-
 const mapPlacesToProps = props => ({
   ...props.data,
   initialPlaces: props.data.places,
