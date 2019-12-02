@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, waitForElement, fireEvent, wait, act } from '@testing-library/react';
-import App, { useAsyncState } from '../app';
+import AppContainer, { App, useAsyncState } from '../app';
 
 jest.mock('../fetch-service', () => {
   const places = ['World', 'Mars'];
@@ -20,20 +20,34 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-describe('App', () => {
+describe('App presenter', () => {
+  it('is loading if loading is true', () => {
+    const { container } = render(<App loading />);
+    expect(container.textContent).toMatch(/loading/i);
+  });
+
+  it('displays buttons and input if loading is false', () => {
+    const { container } = render(<App loading={false} />);
+    expect(container.textContent).not.toMatch(/loading/i);
+    expect(container.textContent).toMatch(/click a button/i);
+    expect(container.textContent).toMatch(/add place/i);
+  });
+});
+
+describe('AppContainer', () => {
   it('loading screen', async () => {
-    const { container, getByText } = render(<App />);
+    const { container, getByText } = render(<AppContainer />);
     expect(container.textContent).toMatch(/loading/i);
     await waitForElement(() => getByText(/Click a button to say hello/i));
   });
 
   it('gets initial buttons', async () => {
-    const { getByText } = render(<App />);
+    const { getByText } = render(<AppContainer />);
     await waitForElement(() => [getByText(/say hello to world/i), getByText(/say hello to mars/i)]);
   });
 
   it('updates main text to button value', async () => {
-    const { getByText, findByText } = render(<App />);
+    const { getByText, findByText } = render(<AppContainer />);
     await waitForElement(() => getByText(/Click a button to say hello/i));
     const worldButton = await findByText(/say hello to world/i);
     fireEvent.click(worldButton);
@@ -41,7 +55,7 @@ describe('App', () => {
   });
 
   it('adding a place adds a new button', async () => {
-    const { getByPlaceholderText, getByText, findByText } = render(<App />);
+    const { getByPlaceholderText, getByText, findByText } = render(<AppContainer />);
     await waitForElement(() => getByText(/Click a button to say hello/i));
     const input = getByPlaceholderText(/add a new place/i);
     fireEvent.change(input, { target: { value: 'Jupiter' } });
@@ -52,7 +66,7 @@ describe('App', () => {
   });
 
   it('add place button is disabled if place already exists', async () => {
-    const { getByPlaceholderText, getByText } = render(<App />);
+    const { getByPlaceholderText, getByText } = render(<AppContainer />);
     await waitForElement(() => getByText(/Click a button to say hello/i));
     const input = getByPlaceholderText(/add a new place/i);
     const addButton = getByText(/add place/i);

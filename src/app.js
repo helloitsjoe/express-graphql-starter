@@ -65,7 +65,16 @@ export const useAsyncState = () => {
   return { ...state, onSayHello: handleSayHello, onInput: handleInput, onAddPlace: handleAddPlace };
 };
 
-const App = ({ loading, error, value, places, helloTarget, onSayHello, onInput, onAddPlace }) => {
+export const App = ({
+  loading,
+  error,
+  value,
+  places,
+  helloTarget,
+  onSayHello,
+  onInput,
+  onAddPlace,
+}) => {
   if (loading) {
     return <h3 className="main">Loading...</h3>;
   }
@@ -108,6 +117,6 @@ App.defaultProps = {
   onAddPlace() {},
 };
 
-export default function WrappedApp() {
+export default function AppContainer() {
   return <App {...useAsyncState()} />;
 }
