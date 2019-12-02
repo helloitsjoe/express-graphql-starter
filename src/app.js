@@ -17,7 +17,7 @@ export const HELLO_QUERY = gql`
 `;
 
 export const ADD_PLACE = gql`
-  mutation AddNewTarget($placeName: String!) {
+  mutation AddNewPlace($placeName: String!) {
     add(name: $placeName)
   }
 `;
@@ -34,7 +34,7 @@ export const useFetch = () => {
     helloTarget: hello.data && hello.data.place,
     initialPlaces: places.data && places.data.places,
     sayHello: placeName => sayHello({ variables: { placeName } }),
-    addPlace: placeName => addPlace({ variables: { placeName } }),
+    addPlace: placeName => addPlace({ variables: { placeName } })
   };
 };
 
@@ -46,7 +46,7 @@ const App = ({
   initialPlaces,
   loadingNewPlace,
   addPlace,
-  sayHello,
+  sayHello
 }) => {
   const [value, setValue] = React.useState('');
   const places = newPlaces || initialPlaces;
@@ -69,14 +69,23 @@ const App = ({
       {loadingNewPlace ? (
         <h3 className="main">Loading...</h3>
       ) : (
-        <h3>{helloTarget ? `Hello, ${helloTarget}!` : 'Click a button to say hello!'}</h3>
+        <h3>
+          {helloTarget
+            ? `Hello, ${helloTarget}!`
+            : 'Click a button to say hello!'}
+        </h3>
       )}
       {places.map(place => (
         <button key={place} type="button" onClick={() => sayHello(place)}>
           Say hello to {place}
         </button>
       ))}
-      <AddPlace places={places} value={value} onChange={handleChange} onSubmit={handleSubmit} />
+      <AddPlace
+        places={places}
+        value={value}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+      />
     </div>
   );
 };
