@@ -1,3 +1,4 @@
+/* eslint-disable no-return-assign */
 import React from 'react';
 import { render, waitForElement, fireEvent, wait, act } from '@testing-library/react';
 import AppContainer, { App, useAsyncState } from '../app';
@@ -98,8 +99,7 @@ describe('useAsyncState', () => {
   it('updates helloTarget when sayHello is called', () => {
     let helloTarget;
     let onSayHello;
-    let loading;
-    render(<Comp>{value => ({ loading, helloTarget, onSayHello } = value) && null}</Comp>);
+    render(<Comp>{value => ({ helloTarget, onSayHello } = value) && null}</Comp>);
     expect(helloTarget).toBe('');
     act(() => onSayHello('Mars'));
     return wait(() => {
