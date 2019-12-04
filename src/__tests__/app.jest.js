@@ -1,8 +1,8 @@
 import React from 'react';
-import { act, render, waitForElement, fireEvent, wait, cleanup } from '@testing-library/react';
+import { act, render, waitForElement, fireEvent, wait } from '@testing-library/react';
 import { ApolloProvider } from '@apollo/react-hooks';
 import { createMockClient } from 'mock-apollo-client';
-import RawApp, { useFetch, PLACES_QUERY, HELLO_QUERY, ADD_PLACE } from '../app';
+import AppWithoutApollo, { useFetch, PLACES_QUERY, HELLO_QUERY, ADD_PLACE } from '../app';
 
 let mockClient;
 const places = ['World', 'Mars'];
@@ -13,11 +13,12 @@ const withApollo = Component => props => (
   </ApolloProvider>
 );
 
-const App = withApollo(RawApp);
+const App = withApollo(AppWithoutApollo);
 
 beforeEach(() => {
-  // Note: Make SURE to create the client in a beforeEach. The cache will not clear,
-  // leading to flaky tests. TODO: Maybe make a PR to mock-apollo-client
+  // Note: Make SURE to create the client in a beforeEach. If you create it
+  // at the module level, the cache will not clear between tests,
+  // leading to flakiness.
   mockClient = createMockClient();
 
   const placesHandler = () => Promise.resolve({ data: { places } });
