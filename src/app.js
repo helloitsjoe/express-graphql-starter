@@ -6,19 +6,28 @@ import AddPlace from './add-place';
 
 export const PLACES_QUERY = gql`
   query {
-    places
+    places {
+      id
+      name
+    }
   }
 `;
 
 export const HELLO_QUERY = gql`
   query SayHello($placeName: String!) {
-    place(name: $placeName)
+    place(name: $placeName) {
+      id
+      name
+    }
   }
 `;
 
 export const ADD_PLACE = gql`
   mutation AddNewPlace($placeName: String!) {
-    add(name: $placeName)
+    add(name: $placeName) {
+      id
+      name
+    }
   }
 `;
 
@@ -30,11 +39,12 @@ export const useFetch = () => {
   return {
     loading: places.loading,
     loadingNewPlace: hello.loading,
+    // loadingAdded: result.loading,
     newPlaces: result.data && result.data.add,
-    helloTarget: hello.data && hello.data.place,
+    helloTarget: hello.data && hello.data.place.name,
     initialPlaces: places.data && places.data.places,
     sayHello: placeName => sayHello({ variables: { placeName } }),
-    addPlace: placeName => addPlace({ variables: { placeName } })
+    addPlace: placeName => addPlace({ variables: { placeName } }),
   };
 };
 
@@ -45,8 +55,9 @@ const App = ({
   helloTarget,
   initialPlaces,
   loadingNewPlace,
+  // loadingAdded,
   addPlace,
-  sayHello
+  sayHello,
 }) => {
   const [value, setValue] = React.useState('');
   const places = newPlaces || initialPlaces;
@@ -69,23 +80,15 @@ const App = ({
       {loadingNewPlace ? (
         <h3 className="main">Loading...</h3>
       ) : (
-        <h3>
-          {helloTarget
-            ? `Hello, ${helloTarget}!`
-            : 'Click a button to say hello!'}
-        </h3>
+        <h3>{helloTarget ? `Hello, ${helloTarget}!` : 'Click a button to say hello!'}</h3>
       )}
-      {places.map(place => (
-        <button key={place} type="button" onClick={() => sayHello(place)}>
-          Say hello to {place}
+      {places.map(({ name }) => (
+        <button key={name} type="button" onClick={() => sayHello(name)}>
+          Say hello to {name}
         </button>
       ))}
-      <AddPlace
-        places={places}
-        value={value}
-        onChange={handleChange}
-        onSubmit={handleSubmit}
-      />
+      <AddPlace places={places} value={value} onChange={handleChange} onSubmit={handleSubmit} />
+      {/* {loadingAdded && 'Loading...'} */}
     </div>
   );
 };

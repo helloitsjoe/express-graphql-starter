@@ -3,16 +3,23 @@ const gqlHTTP = require('express-graphql');
 const { buildSchema } = require('graphql');
 const router = express.Router();
 
-const places = ['World', 'Mars'];
+const places = [{ id: 0, name: 'World' }, { id: 1, name: 'Mars' }];
+
+let { id } = places[places.length - 1];
 
 const schema = buildSchema(`
+  type Place {
+    id: ID!
+    name: String!
+  }
+
   type Query {
-    places: [String]
-    place(name: String!): String
+    places: [Place]
+    place(name: String!): Place
   }
 
   type Mutation {
-    add(name: String!): [String]
+    add(name: String!): [Place]
   }
 `);
 
@@ -22,17 +29,23 @@ const rootValue = {
     return new Promise(resolve => {
       setTimeout(() => {
         if (!args.name) return resolve('');
-        const placeIsKnown = places.includes(args.name);
-        if (!placeIsKnown) return resolve(`I don't know where ${args.name} is!`);
-        return resolve(args.name);
+        const foundPlace = places.find(place => place.name.includes(args.name));
+        if (!foundPlace) return resolve(`I don't know where ${args.name} is!`);
+        return resolve(foundPlace);
       }, 500);
     });
   },
   places,
   add: args => {
-    places.push(args.name);
-    console.log('places:', places);
-    return places;
+    return new Promise(resolve => {
+      setTimeout(() => {
+        id++;
+        const { name } = args;
+        places.push({ id, name });
+        console.log('places:', places);
+        return resolve(places);
+      }, 500);
+    });
   },
 };
 
