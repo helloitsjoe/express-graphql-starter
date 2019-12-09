@@ -13,11 +13,28 @@ export const useAsyncState = () => {
           console.log('success', a.payload);
           return { ...s, loading: false, error: '', helloTarget: a.payload };
         case 'fetch_places_success':
-          console.log('places:', a.payload);
+          console.log('fetch places success:', a.payload);
           return { ...s, loading: false, error: '', places: a.payload };
+        case 'add_place_pending':
+          return {
+            ...s,
+            loading: false,
+            error: '',
+            places: s.places.concat(a.payload),
+            pendingPlace: a.payload,
+          };
         case 'add_place_success':
-          console.log('place:', a.payload);
-          return { ...s, loading: false, error: '', places: a.payload };
+          console.log('add place success:', a.payload);
+          return { ...s, loading: false, error: '', pendingPlace: '' };
+        case 'add_place_error':
+          console.error('add place error', a.payload);
+          return {
+            ...s,
+            loading: false,
+            // error: a.payload,
+            places: s.places.filter(place => console.log(place) || place !== s.pendingPlace),
+            pendingPlace: '',
+          };
         case 'fetch_error':
           return { ...s, loading: false, error: a.payload };
         case 'input':
@@ -30,6 +47,7 @@ export const useAsyncState = () => {
       loading: true,
       error: '',
       helloTarget: '',
+      pendingPlace: '',
       places: [],
       value: '',
     }
@@ -38,9 +56,11 @@ export const useAsyncState = () => {
   const handleFetch = (type, dataProp) => result =>
     Promise.resolve(result)
       .then(res => {
+        console.log('success');
         dispatch({ type, payload: res.data[dataProp] });
       })
       .catch(err => {
+        console.log('error');
         dispatch({ type: 'fetch_error', payload: err.message });
       });
 
@@ -56,8 +76,13 @@ export const useAsyncState = () => {
 
   const handleAddPlace = e => {
     e.preventDefault();
-    dispatch({ type: 'fetch' });
-    addPlace(state.value).then(handleFetch('add_place_success', 'add'));
+    dispatch({ type: 'add_place_pending', payload: state.value });
+    addPlace(state.value)
+      .then(res => {
+        if (res.errors && res.errors.length) throw new Error(res.errors[0].message);
+        dispatch({ type: 'add_place_success' });
+      })
+      .catch(err => dispatch({ type: 'add_place_error', payload: err.message }));
   };
 
   const handleInput = e => dispatch({ type: 'input', payload: e.target.value });

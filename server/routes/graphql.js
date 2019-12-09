@@ -18,14 +18,23 @@ const schema = buildSchema(`
 
 const rootValue = {
   place: args => {
-    const placeIsKnown = places.includes(args.name);
-    if (!placeIsKnown) return `I don't know where ${args.name} is!`;
-    return args.name;
+    return new Promise(resolve => {
+      setTimeout(() => {
+        const placeIsKnown = places.includes(args.name);
+        if (!placeIsKnown) return resolve(`I don't know where ${args.name} is!`);
+        return resolve(args.name);
+      }, 500);
+    });
   },
   places,
   add: args => {
-    places.push(args.name);
-    return places;
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        places.push(args.name);
+        return reject(new Error('nooo'));
+        // return resolve(places);
+      }, 500);
+    });
   },
 };
 

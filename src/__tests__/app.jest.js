@@ -1,7 +1,15 @@
 /* eslint-disable no-return-assign */
 import React from 'react';
-import { render, waitForElement, fireEvent, wait, act } from '@testing-library/react';
+import {
+  render,
+  waitForElement,
+  fireEvent,
+  wait,
+  act,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
 import AppContainer, { App, useAsyncState } from '../app';
+import { addPlace } from '../fetch-service';
 
 jest.mock('../fetch-service', () => {
   const places = ['World', 'Mars'];
@@ -56,14 +64,28 @@ describe('AppContainer', () => {
   });
 
   it('adding a place adds a new button', async () => {
-    const { getByPlaceholderText, getByText, findByText } = render(<AppContainer />);
+    const { getByPlaceholderText, getByText } = render(<AppContainer />);
     await waitForElement(() => getByText(/Click a button to say hello/i));
     const input = getByPlaceholderText(/add a new place/i);
     fireEvent.change(input, { target: { value: 'Jupiter' } });
     fireEvent.click(getByText(/add place/i));
-    const jupiterButton = await findByText(/say hello to jupiter/i);
+    // should add button optimistically
+    const jupiterButton = getByText(/say hello to jupiter/i);
+    // const jupiterButton = await findByText(/say hello to jupiter/i);
     fireEvent.click(jupiterButton);
     await waitForElement(() => getByText(/hello, jupiter/i));
+  });
+
+  it('error when adding a place removes pending place', async () => {
+    addPlace.mockRejectedValue('poo');
+    const { getByPlaceholderText, queryByText } = render(<AppContainer />);
+    await waitForElement(() => queryByText(/Click a button to say hello/i));
+    const input = getByPlaceholderText(/add a new place/i);
+    fireEvent.change(input, { target: { value: 'Jupiter' } });
+    fireEvent.click(queryByText(/add place/i));
+    // should add button optimistically
+    expect(queryByText(/say hello to jupiter/i)).toBeTruthy();
+    await wait(() => expect(queryByText(/say hello to jupiter/i)).toBeNull());
   });
 
   it('add place button is disabled if place already exists', async () => {
