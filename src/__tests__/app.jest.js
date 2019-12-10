@@ -1,15 +1,9 @@
 /* eslint-disable no-return-assign */
 import React from 'react';
-import {
-  render,
-  waitForElement,
-  fireEvent,
-  wait,
-  act,
-  waitForElementToBeRemoved,
-} from '@testing-library/react';
+import { render, waitForElement, fireEvent, wait, act } from '@testing-library/react';
 import AppContainer, { App, useAsyncState } from '../app';
 import { addPlace } from '../fetch-service';
+import AddPlace from '../add-place';
 
 jest.mock('../fetch-service', () => {
   const places = ['World', 'Mars'];
@@ -22,7 +16,7 @@ jest.mock('../fetch-service', () => {
 
 beforeEach(() => {
   // silence logs
-  console.log = jest.fn();
+  // console.log = jest.fn();
 });
 
 afterEach(() => {
@@ -71,13 +65,12 @@ describe('AppContainer', () => {
     fireEvent.click(getByText(/add place/i));
     // should add button optimistically
     const jupiterButton = getByText(/say hello to jupiter/i);
-    // const jupiterButton = await findByText(/say hello to jupiter/i);
     fireEvent.click(jupiterButton);
     await waitForElement(() => getByText(/hello, jupiter/i));
   });
 
-  it('error when adding a place removes pending place', async () => {
-    addPlace.mockRejectedValue('poo');
+  it('error when adding a place removes pending place, displays error', async () => {
+    addPlace.mockRejectedValue(new Error('poo'));
     const { getByPlaceholderText, queryByText } = render(<AppContainer />);
     await waitForElement(() => queryByText(/Click a button to say hello/i));
     const input = getByPlaceholderText(/add a new place/i);
@@ -85,7 +78,18 @@ describe('AppContainer', () => {
     fireEvent.click(queryByText(/add place/i));
     // should add button optimistically
     expect(queryByText(/say hello to jupiter/i)).toBeTruthy();
-    await wait(() => expect(queryByText(/say hello to jupiter/i)).toBeNull());
+    await wait(() => {
+      expect(queryByText(/say hello to jupiter/i)).toBeNull();
+      expect(queryByText(/poo/i)).toBeTruthy();
+    });
+  });
+
+  it('changing input value clears addPlaceError', async () => {
+    const { container, findByPlaceholderText } = render(<AppContainer addPlaceError="poo" />);
+    const input = await findByPlaceholderText(/add a new place/i);
+    expect(container.textContent).toMatch(/poo/i);
+    fireEvent.change(input, { target: { value: 'nuts' } });
+    expect(container.textContent).not.toMatch(/poo/i);
   });
 
   it('add place button is disabled if place already exists', async () => {
@@ -100,6 +104,13 @@ describe('AppContainer', () => {
     expect(addButton.disabled).toBe(false);
     fireEvent.change(input, { target: { value: 'World' } });
     expect(addButton.disabled).toBe(true);
+  });
+});
+
+describe('AddPlace', () => {
+  it('displays error if provided', () => {
+    const { container } = render(<AddPlace error="poo" />);
+    expect(container.textContent).toMatch(/poo/i);
   });
 });
 

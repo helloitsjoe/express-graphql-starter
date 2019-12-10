@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { sayHello, addPlace, getPlaces } from './fetch-service';
 import AddPlace from './add-place';
 
-export const useAsyncState = () => {
+export const useAsyncState = initialStateOverrides => {
   const [state, dispatch] = React.useReducer(
     (s, a) => {
       switch (a.type) {
@@ -31,14 +31,14 @@ export const useAsyncState = () => {
           return {
             ...s,
             loading: false,
-            // error: a.payload,
+            addPlaceError: a.payload,
             places: s.places.filter(place => console.log(place) || place !== s.pendingPlace),
             pendingPlace: '',
           };
         case 'fetch_error':
           return { ...s, loading: false, error: a.payload };
         case 'input':
-          return { ...s, value: a.payload };
+          return { ...s, addPlaceError: '', value: a.payload };
         default:
           return s;
       }
@@ -46,10 +46,12 @@ export const useAsyncState = () => {
     {
       loading: true,
       error: '',
+      addPlaceError: '',
       helloTarget: '',
       pendingPlace: '',
       places: [],
       value: '',
+      ...initialStateOverrides,
     }
   );
 
@@ -99,6 +101,7 @@ export const App = ({
   onSayHello,
   onInput,
   onAddPlace,
+  addPlaceError,
 }) => {
   if (loading) {
     return <h3 className="main">Loading...</h3>;
@@ -115,7 +118,13 @@ export const App = ({
           Say hello to {place}
         </button>
       ))}
-      <AddPlace places={places} value={value} onChange={onInput} onSubmit={onAddPlace} />
+      <AddPlace
+        error={addPlaceError}
+        places={places}
+        value={value}
+        onChange={onInput}
+        onSubmit={onAddPlace}
+      />
     </div>
   );
 };
@@ -123,6 +132,7 @@ export const App = ({
 App.propTypes = {
   loading: PropTypes.bool,
   error: PropTypes.string,
+  addPlaceError: PropTypes.string,
   value: PropTypes.string,
   helloTarget: PropTypes.string,
   places: PropTypes.arrayOf(PropTypes.string),
@@ -136,12 +146,13 @@ App.defaultProps = {
   error: '',
   value: '',
   helloTarget: '',
+  addPlaceError: '',
   places: [],
   onInput() {},
   onSayHello() {},
   onAddPlace() {},
 };
 
-export default function AppContainer() {
-  return <App {...useAsyncState()} />;
+export default function AppContainer(props) {
+  return <App {...useAsyncState(props)} />;
 }
