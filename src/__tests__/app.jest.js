@@ -16,7 +16,7 @@ jest.mock('../fetch-service', () => {
 
 beforeEach(() => {
   // silence logs
-  // console.log = jest.fn();
+  console.log = jest.fn();
 });
 
 afterEach(() => {
@@ -115,7 +115,7 @@ describe('AddPlace', () => {
 });
 
 describe('useAsyncState', () => {
-  const Comp = ({ children }) => children({ ...useAsyncState() });
+  const Comp = ({ cache, children }) => children({ ...useAsyncState(null, cache) });
 
   it('gets places on mount', () => {
     let loading;
@@ -138,5 +138,19 @@ describe('useAsyncState', () => {
     return wait(() => {
       expect(helloTarget).toBe('Mars');
     });
+  });
+
+  it('updates helloTarget from cache if query is cached', () => {
+    let helloTarget;
+    let onSayHello;
+    render(
+      <Comp cache={new Map([['Mars', true]])}>
+        {value => ({ helloTarget, onSayHello } = value) && null}
+      </Comp>
+    );
+    expect(helloTarget).toBe('');
+    act(() => onSayHello('Mars'));
+    // Should synchronously change back to Mars
+    expect(helloTarget).toBe('Mars');
   });
 });

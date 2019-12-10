@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 import { sayHello, addPlace, getPlaces } from './fetch-service';
 import AddPlace from './add-place';
 
-export const useAsyncState = initialStateOverrides => {
+const defaultCache = new Map();
+
+export const useAsyncState = (initialStateOverrides, cache = defaultCache) => {
   const [state, dispatch] = React.useReducer(
     (s, a) => {
       switch (a.type) {
@@ -11,6 +13,7 @@ export const useAsyncState = initialStateOverrides => {
           return { ...s, loading: true, error: '' };
         case 'fetch_success':
           console.log('success', a.payload);
+          cache.set(a.payload, true);
           return { ...s, loading: false, error: '', helloTarget: a.payload };
         case 'fetch_places_success':
           console.log('fetch places success:', a.payload);
@@ -72,6 +75,10 @@ export const useAsyncState = initialStateOverrides => {
   }, []);
 
   const handleSayHello = clickValue => {
+    if (cache.has(clickValue)) {
+      dispatch({ type: 'fetch_success', payload: clickValue });
+      return;
+    }
     dispatch({ type: 'fetch' });
     sayHello(clickValue).then(handleFetch('fetch_success', 'place'));
   };
