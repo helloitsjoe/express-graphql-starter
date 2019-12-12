@@ -1,6 +1,7 @@
 /* eslint-disable no-return-assign */
 import React from 'react';
 import { render, waitForElement, fireEvent, wait, act } from '@testing-library/react';
+import { renderHook } from '@testing-library/react-hooks';
 import AppContainer, { App, useAsyncState } from '../app';
 import { addPlace } from '../fetch-service';
 import AddPlace from '../add-place';
@@ -119,7 +120,7 @@ describe('AddPlace', () => {
   });
 });
 
-describe('useAsyncState', () => {
+describe('useAsyncState (vanilla)', () => {
   const Comp = ({ cache, children }) => children({ ...useAsyncState(null, cache) });
 
   it('gets places on mount', () => {
@@ -157,5 +158,42 @@ describe('useAsyncState', () => {
     act(() => onSayHello('Mars'));
     // Should synchronously change back to Mars
     expect(helloTarget).toBe('Mars');
+  });
+});
+
+describe('useAsyncState (react-hooks testing library)', () => {
+  it('gets places on mount', async () => {
+    const { result } = renderHook(() => useAsyncState());
+
+    expect(result.current.loading).toBe(true);
+    expect(result.current.places).toEqual([]);
+
+    await wait(() => {
+      expect(result.current.loading).toBe(false);
+      expect(result.current.places).toEqual(['World', 'Mars']);
+    });
+  });
+
+  it('hello query', async () => {
+    const { result } = renderHook(() => useAsyncState(null, new Map()));
+
+    expect(result.current.helloTarget).toBe('');
+
+    act(() => result.current.onSayHello('World'));
+    expect(result.current.loading).toBe(true);
+    return wait(() => {
+      expect(result.current.loading).toBe(false);
+      expect(result.current.helloTarget).toBe('World');
+    });
+  });
+
+  it('updates helloTarget from cache if query is cached', () => {
+    const { result } = renderHook(() => useAsyncState(null, new Map([['Mars', true]])));
+
+    expect(result.current.helloTarget).toBe('');
+    act(() => result.current.onSayHello('Mars'));
+    // Should synchronously change back to Mars
+    expect(result.current.loading).toBe(false);
+    expect(result.current.helloTarget).toBe('Mars');
   });
 });
