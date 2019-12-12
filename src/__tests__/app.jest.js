@@ -29,6 +29,11 @@ describe('App presenter', () => {
     expect(container.textContent).toMatch(/loading/i);
   });
 
+  it('displays error if error is true', () => {
+    const { container } = render(<App loading={false} error="gah" />);
+    expect(container.textContent).toMatch(/gah/i);
+  });
+
   it('displays buttons and input if loading is false', () => {
     const { container } = render(<App loading={false} />);
     expect(container.textContent).not.toMatch(/loading/i);
