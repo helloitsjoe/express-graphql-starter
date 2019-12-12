@@ -5,7 +5,7 @@ import { createMockClient } from 'mock-apollo-client';
 import AppWithoutApollo, { useFetch, PLACES_QUERY, HELLO_QUERY, ADD_PLACE } from '../app';
 
 let mockClient;
-const places = ['World', 'Mars'];
+const places = [{ name: 'World' }, { name: 'Mars' }];
 
 const withApollo = Component => props => (
   <ApolloProvider client={mockClient}>
@@ -22,8 +22,9 @@ beforeEach(() => {
   mockClient = createMockClient();
 
   const placesHandler = () => Promise.resolve({ data: { places } });
-  const helloHandler = p => Promise.resolve({ data: { place: p.placeName } });
-  const addPlaceHandler = p => Promise.resolve({ data: { add: [...places, p.placeName] } });
+  const helloHandler = p => Promise.resolve({ data: { place: { name: p.placeName } } });
+  const addPlaceHandler = p =>
+    Promise.resolve({ data: { add: places.concat({ name: p.placeName }) } });
 
   mockClient.setRequestHandler(PLACES_QUERY, placesHandler);
   mockClient.setRequestHandler(HELLO_QUERY, helloHandler);
@@ -53,7 +54,9 @@ describe('App', () => {
     const { getByText, findByText } = render(<App />);
     await waitForElement(() => getByText(/Click a button to say hello/i));
     const worldButton = await findByText(/say hello to world/i);
+
     fireEvent.click(worldButton);
+
     await waitForElement(() => getByText(/hello, world/i));
   });
 
@@ -61,10 +64,14 @@ describe('App', () => {
     const { getByPlaceholderText, getByText, findByText } = render(<App />);
     await waitForElement(() => getByText(/Click a button to say hello/i));
     const input = getByPlaceholderText(/add a new place/i);
+
     fireEvent.change(input, { target: { value: 'Jupiter' } });
     fireEvent.click(getByText(/add place/i));
+
     const jupiterButton = await findByText(/say hello to jupiter/i);
+
     fireEvent.click(jupiterButton);
+
     await waitForElement(() => getByText(/hello, jupiter/i));
   });
 
@@ -73,13 +80,18 @@ describe('App', () => {
     await waitForElement(() => getByText(/Click a button to say hello/i));
     const input = getByPlaceholderText(/add a new place/i);
     const addButton = getByText(/add place/i);
+
     expect(input.value).toBe('');
     expect(addButton.disabled).toBe(true);
     expect(getByText(/say hello to world/i)).toBeTruthy();
+
     fireEvent.change(input, { target: { value: 'worl' } });
+
     expect(addButton.disabled).toBe(false);
+
     // Ensure case insensitive
     fireEvent.change(input, { target: { value: 'world' } });
+
     expect(addButton.disabled).toBe(true);
   });
 });
@@ -98,8 +110,10 @@ describe('useFetch', () => {
         }}
       </ApolloComp>
     );
+
     expect(loading).toBe(true);
     expect(initialPlaces).toBe(undefined);
+
     await wait(() => {
       expect(loading).toBe(false);
       expect(initialPlaces).toEqual(places);
@@ -113,10 +127,13 @@ describe('useFetch', () => {
     render(
       <ApolloComp>{test => ({ loadingNewPlace, helloTarget, sayHello } = test) && ''}</ApolloComp>
     );
+
     expect(loadingNewPlace).toBe(false);
     expect(helloTarget).toBe(undefined);
+
     act(() => sayHello('World'));
     expect(loadingNewPlace).toBe(true);
+
     await wait(() => {
       expect(loadingNewPlace).toBe(false);
       expect(helloTarget).toBe('World');
@@ -127,8 +144,11 @@ describe('useFetch', () => {
     let newPlaces;
     let addPlace;
     render(<ApolloComp>{test => ({ newPlaces, addPlace } = test) && ''}</ApolloComp>);
+
     expect(newPlaces).toBe(undefined);
+
     await act(() => addPlace('Jupiter'));
-    await wait(() => expect(newPlaces).toContain('Jupiter'));
+
+    await wait(() => expect(newPlaces.some(({ name }) => name === 'Jupiter')).toBe(true));
   });
 });

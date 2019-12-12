@@ -7,7 +7,6 @@ import AddPlace from './add-place';
 export const PLACES_QUERY = gql`
   query {
     places {
-      id
       name
     }
   }
@@ -16,7 +15,6 @@ export const PLACES_QUERY = gql`
 export const HELLO_QUERY = gql`
   query SayHello($placeName: String!) {
     place(name: $placeName) {
-      id
       name
     }
   }
@@ -25,7 +23,6 @@ export const HELLO_QUERY = gql`
 export const ADD_PLACE = gql`
   mutation AddNewPlace($placeName: String!) {
     add(name: $placeName) {
-      id
       name
     }
   }
