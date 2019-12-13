@@ -33,15 +33,34 @@ export const useFetch = () => {
   const [addPlace, result] = useMutation(ADD_PLACE);
   const [sayHello, hello] = useLazyQuery(HELLO_QUERY);
 
+  const initialPlaces = places.data && places.data.places;
+
+  const [newPlaces, setNewPlaces] = React.useState([]);
+
+  React.useEffect(
+    () => {
+      setNewPlaces(initialPlaces);
+    },
+    [initialPlaces]
+  );
+
+  const optimisticAddPlace = placeName => {
+    setNewPlaces(p => (p || []).concat({ name: placeName }));
+    addPlace({ variables: { placeName } }).catch(err => {
+      setNewPlaces(p => p.filter(({ name }) => name !== placeName));
+    });
+  };
+
   return {
+    newPlaces,
     loading: places.loading,
     loadingNewPlace: hello.loading,
-    // loadingAdded: result.loading,
-    newPlaces: result.data && result.data.add,
+    addError: result.error,
+    // newPlaces: result.data && result.data.add,
     helloTarget: hello.data && hello.data.place.name,
-    initialPlaces: places.data && places.data.places,
+    initialPlaces,
     sayHello: placeName => sayHello({ variables: { placeName } }),
-    addPlace: placeName => addPlace({ variables: { placeName } }),
+    addPlace: optimisticAddPlace,
   };
 };
 
@@ -52,7 +71,7 @@ const App = ({
   helloTarget,
   initialPlaces,
   loadingNewPlace,
-  // loadingAdded,
+  addError,
   addPlace,
   sayHello,
 }) => {
@@ -85,7 +104,7 @@ const App = ({
         </button>
       ))}
       <AddPlace places={places} value={value} onChange={handleChange} onSubmit={handleSubmit} />
-      {/* {loadingAdded && 'Loading...'} */}
+      {addError && <p className="error">Error!</p>}
     </div>
   );
 };

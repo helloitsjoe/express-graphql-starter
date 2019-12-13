@@ -15,16 +15,16 @@ const withApollo = Component => props => (
 
 const App = withApollo(AppWithoutApollo);
 
+const placesHandler = () => Promise.resolve({ data: { places } });
+const helloHandler = p => Promise.resolve({ data: { place: { name: p.placeName } } });
+const addPlaceHandler = p =>
+  Promise.resolve({ data: { add: places.concat({ name: p.placeName }) } });
+
 beforeEach(() => {
   // Note: Make SURE to create the client in a beforeEach. If you create it
   // at the module level, the cache will not clear between tests,
   // leading to flakiness.
   mockClient = createMockClient();
-
-  const placesHandler = () => Promise.resolve({ data: { places } });
-  const helloHandler = p => Promise.resolve({ data: { place: { name: p.placeName } } });
-  const addPlaceHandler = p =>
-    Promise.resolve({ data: { add: places.concat({ name: p.placeName }) } });
 
   mockClient.setRequestHandler(PLACES_QUERY, placesHandler);
   mockClient.setRequestHandler(HELLO_QUERY, helloHandler);
@@ -60,19 +60,36 @@ describe('App', () => {
     await waitForElement(() => getByText(/hello, world/i));
   });
 
-  it('adding a place adds a new button', async () => {
-    const { getByPlaceholderText, getByText, findByText } = render(<App />);
+  it('adding a place adds a new button optimistically', async () => {
+    // TODO: Add to mock-apollo-client ability to override handlers for queries
+    // so I don't have to repeat all these handlers
+    mockClient = createMockClient();
+    const addPlaceErrorHandler = () => Promise.reject(new Error('Ugh'));
+    mockClient.setRequestHandler(PLACES_QUERY, placesHandler);
+    mockClient.setRequestHandler(HELLO_QUERY, helloHandler);
+    mockClient.setRequestHandler(ADD_PLACE, addPlaceErrorHandler);
+
+    const { getByPlaceholderText, getByText, queryByText } = render(<App />);
     await waitForElement(() => getByText(/Click a button to say hello/i));
     const input = getByPlaceholderText(/add a new place/i);
 
     fireEvent.change(input, { target: { value: 'Jupiter' } });
     fireEvent.click(getByText(/add place/i));
 
-    const jupiterButton = await findByText(/say hello to jupiter/i);
+    // const jupiterButton = await findByText(/say hello to jupiter/i);
+    const jupiterButton = getByText(/say hello to jupiter/i);
+    expect(queryByText(/error/i)).toBeFalsy();
 
     fireEvent.click(jupiterButton);
 
+    // button should work even if an error is coming
     await waitForElement(() => getByText(/hello, jupiter/i));
+
+    // error removes button and adds error text
+    await wait(() => {
+      expect(queryByText(/say hello to jupiter/i)).toBeFalsy();
+      expect(queryByText(/error/i)).toBeTruthy();
+    });
   });
 
   it('add place button is disabled if place already exists', async () => {
@@ -141,14 +158,28 @@ describe('useFetch', () => {
   });
 
   it('addPlace mutation', async () => {
+    // TODO: Add to mock-apollo-client ability to override handlers for queries
+    // so I don't have to repeat all these handlers
+    mockClient = createMockClient();
+    const addPlaceErrorHandler = () => Promise.reject(new Error('Ugh'));
+    mockClient.setRequestHandler(PLACES_QUERY, placesHandler);
+    mockClient.setRequestHandler(HELLO_QUERY, helloHandler);
+    mockClient.setRequestHandler(ADD_PLACE, addPlaceErrorHandler);
+
     let newPlaces;
     let addPlace;
-    render(<ApolloComp>{test => ({ newPlaces, addPlace } = test) && ''}</ApolloComp>);
+    let addError;
+    render(<ApolloComp>{test => ({ addError, newPlaces, addPlace } = test) && ''}</ApolloComp>);
 
-    expect(newPlaces).toBe(undefined);
+    await wait(() => expect(newPlaces).toEqual(places));
 
-    await act(() => addPlace('Jupiter'));
+    act(() => addPlace('Jupiter'));
 
-    await wait(() => expect(newPlaces.some(({ name }) => name === 'Jupiter')).toBe(true));
+    expect(newPlaces.some(({ name }) => name === 'Jupiter')).toBe(true);
+
+    await wait(() => {
+      expect(newPlaces.some(({ name }) => name === 'Jupiter')).toBe(false);
+      expect(addError).toBeTruthy();
+    });
   });
 });
