@@ -104,7 +104,7 @@ const App = ({
         </button>
       ))}
       <AddPlace places={places} value={value} onChange={handleChange} onSubmit={handleSubmit} />
-      {addError && <p className="error">Error!</p>}
+      {addError && <p className="error">Error! {addError.message}</p>}
     </div>
   );
 };

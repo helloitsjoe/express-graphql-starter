@@ -1,29 +1,41 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { ApolloProvider } from '@apollo/react-hooks';
+import { MockedProvider } from '@apollo/react-testing';
 import App, { PLACES_QUERY, HELLO_QUERY, ADD_PLACE } from './app';
 import createApolloClient from './apollo-client';
-// import { createMockClient } from 'mock-apollo-client';
 
 const client = createApolloClient();
-// const client = createMockClient();
 
-// const places = [{ name: 'world' }, { name: 'mars' }];
+const places = [{ name: 'World' }, { name: 'Mars' }];
 
-// const placesHandler = () => Promise.resolve({ data: { places } });
-// const helloHandler = p => Promise.resolve({ data: { place: { name: p.placeName } } });
-// const addPlaceHandler = p =>
-//   // Promise.resolve({ data: { add: places.concat({ name: p.placeName }) } });
-//   Promise.reject(new Error('funky'));
+const mockPlaces = {
+  request: { query: PLACES_QUERY, variables: {} },
+  result: { data: { places } },
+};
+const mockHello = placeName => ({
+  request: { query: HELLO_QUERY, variables: { placeName } },
+  result: { data: { place: { name: placeName } } },
+});
 
-// client.setRequestHandler(PLACES_QUERY, placesHandler);
-// client.setRequestHandler(HELLO_QUERY, helloHandler);
-// client.setRequestHandler(ADD_PLACE, addPlaceHandler);
+const mockAddError = {
+  request: { query: ADD_PLACE, variables: { placeName: 'Jupiter' } },
+  result: { errors: [new Error('phooey')] },
+};
+
+const mockAdd = {
+  request: { query: ADD_PLACE, variables: { placeName: 'Jupiter' } },
+  result: { data: { add: { name: places.concat({ name: 'Jupiter' }) } } },
+};
+
+const defaultMocks = [mockPlaces, mockHello('World'), mockHello('Jupiter'), mockAddError, mockAdd];
 
 const WrappedApp = () => (
+  // <MockedProvider mocks={defaultMocks} addTypename={false}>
   <ApolloProvider client={client}>
     <App />
   </ApolloProvider>
+  // </MockedProvider>
 );
 
 ReactDOM.render(<WrappedApp />, document.querySelector('#main'));
