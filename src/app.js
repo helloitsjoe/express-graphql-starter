@@ -1,32 +1,7 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { useQuery, useMutation, useLazyQuery } from '@apollo/react-hooks';
-import gql from 'graphql-tag';
 import AddPlace from './add-place';
-
-export const PLACES_QUERY = gql`
-  query {
-    places {
-      name
-    }
-  }
-`;
-
-export const HELLO_QUERY = gql`
-  query SayHello($placeName: String!) {
-    place(name: $placeName) {
-      name
-    }
-  }
-`;
-
-export const ADD_PLACE = gql`
-  mutation AddNewPlace($placeName: String!) {
-    add(name: $placeName) {
-      name
-    }
-  }
-`;
+import { PLACES_QUERY, ADD_PLACE, HELLO_QUERY } from './queries';
 
 export const useFetch = () => {
   const places = useQuery(PLACES_QUERY);
