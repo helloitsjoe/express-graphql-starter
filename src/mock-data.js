@@ -9,7 +9,7 @@ export const mockPlaces = {
 
 export const mockHello = placeName => ({
   request: { query: HELLO_QUERY, variables: { placeName } },
-  result: { data: { place: { name: placeName } } },
+  result: jest.fn(() => ({ data: { place: { name: placeName } } })),
 });
 
 export const mockAdd = {
@@ -19,5 +19,5 @@ export const mockAdd = {
 
 export const mockAddError = {
   request: { query: ADD_PLACE, variables: { placeName: 'Jupiter' } },
-  result: { errors: [new Error('phooey')] },
+  error: new Error('phoooooooey'),
 };
