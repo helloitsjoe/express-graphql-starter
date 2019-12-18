@@ -15,10 +15,11 @@ const withApollo = Component => props => (
 
 const App = withApollo(AppWithoutApollo);
 
-const placesHandler = () => Promise.resolve({ data: { places } });
-const helloHandler = p => Promise.resolve({ data: { place: { name: p.placeName } } });
-const addPlaceHandler = p =>
-  Promise.resolve({ data: { add: places.concat({ name: p.placeName }) } });
+const placesHandler = jest.fn(() => Promise.resolve({ data: { places } }));
+const helloHandler = jest.fn(p => Promise.resolve({ data: { place: { name: p.placeName } } }));
+const addPlaceHandler = jest.fn(p =>
+  Promise.resolve({ data: { add: places.concat({ name: p.placeName }) } })
+);
 
 beforeEach(() => {
   // Note: Make SURE to create the client in a beforeEach. If you create it
@@ -61,13 +62,7 @@ describe('App', () => {
   });
 
   it('adding a place adds a new button optimistically', async () => {
-    // TODO: Add to mock-apollo-client ability to override handlers for queries
-    // so I don't have to repeat all these handlers
-    mockClient = createMockClient();
-    const addPlaceErrorHandler = () => Promise.reject(new Error('Ugh'));
-    mockClient.setRequestHandler(PLACES_QUERY, placesHandler);
-    mockClient.setRequestHandler(HELLO_QUERY, helloHandler);
-    mockClient.setRequestHandler(ADD_PLACE, addPlaceErrorHandler);
+    addPlaceHandler.mockRejectedValue(new Error('Ugh'));
 
     const { getByPlaceholderText, getByText, queryByText } = render(<App />);
     await waitForElement(() => getByText(/Click a button to say hello/i));
@@ -158,13 +153,7 @@ describe('useFetch', () => {
   });
 
   it('addPlace mutation', async () => {
-    // TODO: Add to mock-apollo-client ability to override handlers for queries
-    // so I don't have to repeat all these handlers
-    mockClient = createMockClient();
-    const addPlaceErrorHandler = () => Promise.reject(new Error('Ugh'));
-    mockClient.setRequestHandler(PLACES_QUERY, placesHandler);
-    mockClient.setRequestHandler(HELLO_QUERY, helloHandler);
-    mockClient.setRequestHandler(ADD_PLACE, addPlaceErrorHandler);
+    addPlaceHandler.mockRejectedValue(new Error('Ugh'));
 
     let newPlaces;
     let addPlace;
