@@ -3,6 +3,15 @@ import PropTypes from 'prop-types';
 import { sayHello, addPlace, getPlaces } from './fetch-service';
 import AddPlace from './add-place';
 
+const STATUS = {
+  IDLE: 'IDLE',
+  LOADING: 'LOADING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR',
+};
+
+const { IDLE, LOADING, SUCCESS, ERROR } = STATUS;
+
 const defaultCache = new Map();
 
 export const useAsyncState = (initialStateOverrides, cache = defaultCache) => {
@@ -10,7 +19,7 @@ export const useAsyncState = (initialStateOverrides, cache = defaultCache) => {
     (s, a) => {
       switch (a.type) {
         case 'fetch':
-          return { ...s, loading: true, error: '' };
+          return { ...s, status: LOADING };
         case 'fetch_success':
           console.log('success', a.payload);
           cache.set(a.payload, true);
@@ -47,8 +56,8 @@ export const useAsyncState = (initialStateOverrides, cache = defaultCache) => {
       }
     },
     {
-      loading: true,
-      error: '',
+      status: IDLE,
+      errorMessage: '',
       addPlaceError: '',
       helloTarget: '',
       pendingPlace: '',

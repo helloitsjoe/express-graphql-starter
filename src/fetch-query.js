@@ -1,23 +1,5 @@
 const getErrorMessage = text => (/{/.test(text) ? JSON.parse(text).errors[0].message : text);
 
-// const QUERY = `
-//   query SayHello($placeName: String!) {
-//     place(name: $placeName)
-//   }
-// `;
-
-// const PLACES = `
-//   query {
-//     places
-//   }
-// `;
-
-// const MUTATION = `
-//   mutation AddNewTarget($placeName: String!) {
-//     add(name: $placeName)
-//   }
-// `;
-
 const fetchQuery = ({ query, variables }) => {
   return fetch('/graphql', {
     method: 'POST',
@@ -36,8 +18,3 @@ const fetchQuery = ({ query, variables }) => {
 };
 
 export default fetchQuery;
-// export const sayHello = placeName => fetchQuery({ query: QUERY, variables: { placeName } });
-
-// export const getPlaces = () => fetchQuery({ query: PLACES });
-
-// export const addPlace = placeName => fetchQuery({ query: MUTATION, variables: { placeName } });

@@ -1,49 +1,27 @@
 const express = require('express');
 const gqlHTTP = require('express-graphql');
 const { buildSchema } = require('graphql');
-const router = express.Router();
+const { mergeTypes } = require('merge-graphql-schemas');
+const { heroSchema, heroRootObject: hero } = require('../graphql/heroes');
+const { movieSchema, movieRoot: movie } = require('../graphql/movies');
+const { villainSchema, villainRoot: villain } = require('../graphql/villains');
+const { planetSchema, planetRoot } = require('../graphql/planets');
 
-const places = ['World', 'Mars'];
-
-const schema = buildSchema(`
-  type Query {
-    place(name: String!): String
-    places: [String]
-  }
-
-  type Mutation {
-    add(name: String!): [String]
-  }
-`);
-
-const rootValue = {
-  place: args => {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        const placeIsKnown = places.includes(args.name);
-        if (!placeIsKnown) return resolve(`I don't know where ${args.name} is!`);
-        return resolve(args.name);
-      }, 500);
-    });
-  },
-  places,
-  add: args => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        places.push(args.name);
-        return reject(new Error('nooo'));
-        // return resolve(places);
-      }, 500);
-    });
-  },
-};
+// TODO: Maybe call buildSchema in each file?
+const combinedSchemas = buildSchema(
+  mergeTypes([heroSchema, villainSchema, movieSchema, planetSchema], {
+    all: true,
+  })
+);
 
 const gql = gqlHTTP(request => ({
-  schema,
-  rootValue,
+  schema: combinedSchemas,
+  rootValue: { ...hero, ...villain, ...movie, ...planetRoot },
   graphiql: true,
-  context: { request, test: 'hello' },
+  context: { request },
 }));
+
+const router = express.Router();
 
 router.post('/', gql);
 router.get('/', gql);

@@ -1,4 +1,3 @@
-// const getErrorMessage = text => (/{/.test(text) ? JSON.parse(text).errors[0].message : text);
 import fetchQuery from './fetch-query';
 
 const QUERY = `
@@ -18,23 +17,6 @@ const MUTATION = `
     add(name: $placeName)
   }
 `;
-
-// export const fetchQuery = ({ query, variables }) => {
-//   return fetch('/graphql', {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: JSON.stringify({ query, variables }),
-//   }).then(res => {
-//     if (res.ok) {
-//       return res.json();
-//     }
-//     // Handle errors and rethrow
-//     return res.text().then(text => {
-//       const message = getErrorMessage(text);
-//       throw new Error(`${res.status} - ${message}`);
-//     });
-//   });
-// };
 
 export const sayHello = placeName => fetchQuery({ query: QUERY, variables: { placeName } });
 
