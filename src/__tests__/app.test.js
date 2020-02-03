@@ -1,19 +1,19 @@
 /* eslint-disable no-return-assign */
 import React from 'react';
-import { configure, render, waitForElement, fireEvent, wait, act } from '@testing-library/react';
-import { renderHook } from '@testing-library/react-hooks';
-import AppContainer, { App, useAsyncState } from '../app';
-import { addPlace } from '../fetch-service';
-import AddPlace from '../add-place';
+import { configure, render, waitForElement, fireEvent, wait } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react-hooks';
+import AppContainer, { App, useAsyncState, STATUS } from '../app';
+import { addPlanet } from '../fetch-service';
+import AddPlanet from '../add-planet';
 
 configure({ asyncUtilTimeout: 100 });
 
 jest.mock('../fetch-service', () => {
-  const places = ['World', 'Mars'];
+  const planets = ['World', 'Mars'];
   return {
-    sayHello: jest.fn(place => Promise.resolve({ data: { place } })),
-    getPlaces: jest.fn().mockResolvedValue({ data: { places } }),
-    addPlace: jest.fn(newPlace => Promise.resolve({ data: { add: [...places, newPlace] } })),
+    sayHello: jest.fn(planet => Promise.resolve({ data: { planet } })),
+    getPlanets: jest.fn().mockResolvedValue({ data: { planets } }),
+    addPlanet: jest.fn(newPlanet => Promise.resolve({ data: { add: [...planets, newPlanet] } })),
   };
 });
 
@@ -26,23 +26,23 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-xdescribe('App', () => {
+describe('App', () => {
   describe('App presenter', () => {
-    it('is loading if loading is true', () => {
-      const { container } = render(<App loading />);
+    it('is loading if status is LOADING', () => {
+      const { container } = render(<App status={STATUS.LOADING} />);
       expect(container.textContent).toMatch(/loading/i);
     });
 
-    it('displays error if error is true', () => {
-      const { container } = render(<App loading={false} error="gah" />);
+    it('displays error if status is ERROR', () => {
+      const { container } = render(<App status={STATUS.ERROR} errorMessage="gah" />);
       expect(container.textContent).toMatch(/gah/i);
     });
 
-    it('displays buttons and input if loading is false', () => {
-      const { container } = render(<App loading={false} />);
+    it('displays buttons and input if status is IDLE', () => {
+      const { container } = render(<App status={STATUS.IDLE} />);
       expect(container.textContent).not.toMatch(/loading/i);
       expect(container.textContent).toMatch(/click a button/i);
-      expect(container.textContent).toMatch(/add place/i);
+      expect(container.textContent).toMatch(/add planet/i);
     });
   });
 
@@ -69,46 +69,46 @@ xdescribe('App', () => {
       await waitForElement(() => getByText(/hello, world/i));
     });
 
-    it('adding a place adds a new button', async () => {
+    it('adding a planet adds a new button', async () => {
       const { getByPlaceholderText, getByText } = render(<AppContainer />);
       await waitForElement(() => getByText(/Click a button to say hello/i));
-      const input = getByPlaceholderText(/add a new place/i);
+      const input = getByPlaceholderText(/add a new planet/i);
       fireEvent.change(input, { target: { value: 'Jupiter' } });
-      fireEvent.click(getByText(/add place/i));
+      fireEvent.click(getByText(/add planet/i));
       // should add button optimistically
       const jupiterButton = getByText(/say hello to jupiter/i);
       fireEvent.click(jupiterButton);
       await waitForElement(() => getByText(/hello, jupiter/i));
     });
 
-    it('error when adding a place removes pending place, displays error', async () => {
-      addPlace.mockRejectedValue(new Error('poo'));
+    it('error when adding a planet removes pending planet, displays error', async () => {
+      addPlanet.mockRejectedValue(new Error('poo'));
       const { getByPlaceholderText, queryByText } = render(<AppContainer />);
       await waitForElement(() => queryByText(/Click a button to say hello/i));
-      const input = getByPlaceholderText(/add a new place/i);
+      const input = getByPlaceholderText(/add a new planet/i);
       fireEvent.change(input, { target: { value: 'Jupiter' } });
-      fireEvent.click(queryByText(/add place/i));
+      fireEvent.click(queryByText(/add planet/i));
       // should add button optimistically
       expect(queryByText(/say hello to jupiter/i)).toBeTruthy();
       await wait(() => {
         expect(queryByText(/say hello to jupiter/i)).toBeNull();
-        expect(queryByText(/pioo/i)).toBeTruthy();
+        expect(queryByText(/poo/i)).toBeTruthy();
       });
     });
 
-    it('changing input value clears addPlaceError', async () => {
-      const { container, findByPlaceholderText } = render(<AppContainer addPlaceError="poo" />);
-      const input = await findByPlaceholderText(/add a new place/i);
+    it('changing input value clears addPlanetError', async () => {
+      const { container, findByPlaceholderText } = render(<AppContainer addPlanetError="poo" />);
+      const input = await findByPlaceholderText(/add a new planet/i);
       expect(container.textContent).toMatch(/poo/i);
       fireEvent.change(input, { target: { value: 'nuts' } });
       expect(container.textContent).not.toMatch(/poo/i);
     });
 
-    it('add place button is disabled if place already exists', async () => {
+    it('add planet button is disabled if planet already exists', async () => {
       const { getByPlaceholderText, getByText } = render(<AppContainer />);
       await waitForElement(() => getByText(/Click a button to say hello/i));
-      const input = getByPlaceholderText(/add a new place/i);
-      const addButton = getByText(/add place/i);
+      const input = getByPlaceholderText(/add a new planet/i);
+      const addButton = getByText(/add planet/i);
       expect(input.value).toBe('');
       expect(addButton.disabled).toBe(true);
       expect(getByText(/say hello to world/i)).toBeTruthy();
@@ -119,9 +119,9 @@ xdescribe('App', () => {
     });
   });
 
-  describe('AddPlace', () => {
+  describe('AddPlanet', () => {
     it('displays error if provided', () => {
-      const { container } = render(<AddPlace error="poo" />);
+      const { container } = render(<AddPlanet error="poo" />);
       expect(container.textContent).toMatch(/poo/i);
     });
   });
@@ -129,15 +129,15 @@ xdescribe('App', () => {
   xdescribe('useAsyncState (vanilla)', () => {
     const Comp = ({ cache, children }) => children({ ...useAsyncState(null, cache) });
 
-    it('gets places on mount', () => {
+    it('gets planets on mount', () => {
       let loading;
-      let places;
-      render(<Comp>{value => ({ loading, places } = value) && null}</Comp>);
+      let planets;
+      render(<Comp>{value => ({ loading, planets } = value) && null}</Comp>);
       expect(loading).toBe(true);
-      expect(places).toEqual([]);
+      expect(planets).toEqual([]);
       return wait(() => {
         expect(loading).toBe(false);
-        expect(places).toEqual(['World', 'Mars']);
+        expect(planets).toEqual(['World', 'Mars']);
       });
     });
 
@@ -168,17 +168,15 @@ xdescribe('App', () => {
   });
 
   describe('useAsyncState (react-hooks testing library)', () => {
-    it('gets places on mount', async () => {
-      const {
-        result: { current },
-      } = renderHook(() => useAsyncState());
+    it('gets planets on mount', async () => {
+      const { result } = renderHook(() => useAsyncState());
 
-      expect(current.loading).toBe(true);
-      expect(current.places).toEqual([]);
+      expect(result.current.status).toBe(STATUS.LOADING);
+      expect(result.current.planets).toEqual([]);
 
       await wait(() => {
-        expect(current.loading).toBe(false);
-        expect(current.places).toEqual(['World', 'Mars']);
+        expect(result.current.status).toBe(STATUS.IDLE);
+        expect(result.current.planets).toEqual(['World', 'Mars']);
       });
     });
 
@@ -188,9 +186,9 @@ xdescribe('App', () => {
       expect(result.current.helloTarget).toBe('');
 
       act(() => result.current.onSayHello('World'));
-      expect(result.current.loading).toBe(true);
+      expect(result.current.status).toBe(STATUS.LOADING);
       return wait(() => {
-        expect(result.current.loading).toBe(false);
+        expect(result.current.status).toBe(STATUS.IDLE);
         expect(result.current.helloTarget).toBe('World');
       });
     });
@@ -201,7 +199,7 @@ xdescribe('App', () => {
       expect(result.current.helloTarget).toBe('');
       act(() => result.current.onSayHello('Mars'));
       // Should synchronously change back to Mars
-      expect(result.current.loading).toBe(false);
+      expect(result.current.status).toBe(STATUS.IDLE);
       expect(result.current.helloTarget).toBe('Mars');
     });
   });

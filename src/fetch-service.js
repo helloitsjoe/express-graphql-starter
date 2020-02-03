@@ -1,25 +1,25 @@
 import fetchQuery from './fetch-query';
 
 const QUERY = `
-  query SayHello($placeName: String!) {
-    place(name: $placeName)
+  query SayHello($planetName: String!) {
+    planet(name: $planetName)
   }
 `;
 
-const PLACES = `
+const PLANETS = `
   query {
-    places
+    planets
   }
 `;
 
 const MUTATION = `
-  mutation AddNewTarget($placeName: String!) {
-    add(name: $placeName)
+  mutation AddNewTarget($planetName: String!) {
+    addPlanet(name: $planetName)
   }
 `;
 
-export const sayHello = placeName => fetchQuery({ query: QUERY, variables: { placeName } });
+export const sayHello = planetName => fetchQuery({ query: QUERY, variables: { planetName } });
 
-export const getPlaces = () => fetchQuery({ query: PLACES });
+export const getPlanets = () => fetchQuery({ query: PLANETS });
 
-export const addPlace = placeName => fetchQuery({ query: MUTATION, variables: { placeName } });
+export const addPlanet = planetName => fetchQuery({ query: MUTATION, variables: { planetName } });

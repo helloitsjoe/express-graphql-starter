@@ -1,36 +1,35 @@
 const { buildSchema } = require('graphql');
 
-const places = ['World', 'Mars'];
+const planets = ['World', 'Mars'];
 
 const planetSchema = buildSchema(`
   type Query {
-    place(name: String!): String
-    places: [String]
+    planet(name: String!): String
+    planets: [String]
   }
 
   type Mutation {
-    add(name: String!): [String]
+    addPlanet(name: String!): [String]
   }
 `);
 
-// TODO: Rename places to planets
 const planetRoot = {
-  place: args => {
+  planet: args => {
     return new Promise(resolve => {
       setTimeout(() => {
-        const placeIsKnown = places.includes(args.name);
-        if (!placeIsKnown) return resolve(`I don't know where ${args.name} is!`);
+        const planetIsKnown = planets.includes(args.name);
+        if (!planetIsKnown) return resolve(`I don't know where ${args.name} is!`);
         return resolve(args.name);
       }, 500);
     });
   },
-  places,
-  add: args => {
-    return new Promise((resolve, reject) => {
+  planets,
+  addPlanet: args => {
+    return new Promise(resolve => {
       setTimeout(() => {
-        places.push(args.name);
+        planets.push(args.name);
         // return reject(new Error('nooo'));
-        return resolve(places);
+        return resolve(planets);
       }, 500);
     });
   },

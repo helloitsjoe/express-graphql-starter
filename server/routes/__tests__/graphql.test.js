@@ -63,13 +63,15 @@ test('movies API test', async () => {
   expect(allMoviesHaveVillains).toBe(true);
 });
 
-test('planets', async () => {
+test('planets API test', async () => {
   const query = `
     query {
-      places
+      planet(name: "Mars")
+      planets
     }
   `;
   const res = await axios.post(graphqlUrl, { query }).catch(handleAxiosError);
-  const { places } = res.data.data;
-  expect(places.length).toBeGreaterThan(0);
+  const { planets, planet } = res.data.data;
+  expect(planets.length).toBeGreaterThan(0);
+  expect(planet).toBe('Mars');
 });

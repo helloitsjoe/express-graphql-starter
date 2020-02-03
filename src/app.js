@@ -1,16 +1,17 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { sayHello, addPlace, getPlaces } from './fetch-service';
-import AddPlace from './add-place';
+import { sayHello, addPlanet, getPlanets } from './fetch-service';
+import AddPlanet from './add-planet';
 
-const STATUS = {
+export const STATUS = {
   IDLE: 'IDLE',
   LOADING: 'LOADING',
   SUCCESS: 'SUCCESS',
   ERROR: 'ERROR',
+  PENDING: 'PENDING',
 };
 
-const { IDLE, LOADING, SUCCESS, ERROR } = STATUS;
+const { IDLE, LOADING, SUCCESS, ERROR, PENDING } = STATUS;
 
 const defaultCache = new Map();
 
@@ -23,45 +24,44 @@ export const useAsyncState = (initialStateOverrides, cache = defaultCache) => {
         case 'fetch_success':
           console.log('success', a.payload);
           cache.set(a.payload, true);
-          return { ...s, loading: false, error: '', helloTarget: a.payload };
-        case 'fetch_places_success':
-          console.log('fetch places success:', a.payload);
-          return { ...s, loading: false, error: '', places: a.payload };
-        case 'add_place_pending':
+          return { ...s, status: IDLE, errorMessage: '', helloTarget: a.payload };
+        case 'fetch_planets_success':
+          console.log('fetch planets success:', a.payload);
+          return { ...s, status: IDLE, errorMessage: '', planets: a.payload };
+        case 'add_planet_pending':
           return {
             ...s,
-            loading: false,
-            error: '',
-            places: s.places.concat(a.payload),
-            pendingPlace: a.payload,
+            status: PENDING,
+            planets: s.planets.concat(a.payload),
+            pendingPlanet: a.payload,
           };
-        case 'add_place_success':
-          console.log('add place success:', a.payload);
-          return { ...s, loading: false, error: '', pendingPlace: '' };
-        case 'add_place_error':
-          console.error('add place error', a.payload);
+        case 'add_planet_success':
+          console.log('add planet success:', a.payload);
+          return { ...s, status: IDLE, pendingPlanet: '' };
+        case 'add_planet_error':
+          console.error('add planet error', a.payload);
           return {
             ...s,
-            loading: false,
-            addPlaceError: a.payload,
-            places: s.places.filter(place => console.log(place) || place !== s.pendingPlace),
-            pendingPlace: '',
+            status: IDLE,
+            addPlanetError: a.payload,
+            planets: s.planets.filter(planet => console.log(planet) || planet !== s.pendingPlanet),
+            pendingPlanet: '',
           };
         case 'fetch_error':
-          return { ...s, loading: false, error: a.payload };
+          return { ...s, status: ERROR, errorMessage: a.payload };
         case 'input':
-          return { ...s, addPlaceError: '', value: a.payload };
+          return { ...s, status: IDLE, addPlanetError: '', value: a.payload };
         default:
           return s;
       }
     },
     {
-      status: IDLE,
+      status: LOADING,
       errorMessage: '',
-      addPlaceError: '',
+      addPlanetError: '',
       helloTarget: '',
-      pendingPlace: '',
-      places: [],
+      pendingPlanet: '',
+      planets: [],
       value: '',
       ...initialStateOverrides,
     }
@@ -71,6 +71,8 @@ export const useAsyncState = (initialStateOverrides, cache = defaultCache) => {
     Promise.resolve(result)
       .then(res => {
         console.log('success');
+        console.log(`res.data:`, res.data);
+        console.log(`dataProp:`, dataProp);
         dispatch({ type, payload: res.data[dataProp] });
       })
       .catch(err => {
@@ -80,7 +82,7 @@ export const useAsyncState = (initialStateOverrides, cache = defaultCache) => {
 
   useEffect(() => {
     dispatch({ type: 'fetch' });
-    getPlaces().then(handleFetch('fetch_places_success', 'places'));
+    getPlanets().then(handleFetch('fetch_planets_success', 'planets'));
   }, []);
 
   const handleSayHello = clickValue => {
@@ -89,57 +91,63 @@ export const useAsyncState = (initialStateOverrides, cache = defaultCache) => {
       return;
     }
     dispatch({ type: 'fetch' });
-    sayHello(clickValue).then(handleFetch('fetch_success', 'place'));
+    sayHello(clickValue).then(handleFetch('fetch_success', 'planet'));
   };
 
-  const handleAddPlace = e => {
+  const handleAddPlanet = e => {
     e.preventDefault();
-    dispatch({ type: 'add_place_pending', payload: state.value });
-    addPlace(state.value)
+    dispatch({ type: 'add_planet_pending', payload: state.value });
+    addPlanet(state.value)
       .then(res => {
         if (res.errors && res.errors.length) throw new Error(res.errors[0].message);
-        dispatch({ type: 'add_place_success' });
+        dispatch({ type: 'add_planet_success' });
       })
-      .catch(err => dispatch({ type: 'add_place_error', payload: err.message }));
+      .catch(err => dispatch({ type: 'add_planet_error', payload: err.message }));
   };
 
   const handleInput = e => dispatch({ type: 'input', payload: e.target.value });
 
-  return { ...state, onSayHello: handleSayHello, onInput: handleInput, onAddPlace: handleAddPlace };
+  return {
+    ...state,
+    onSayHello: handleSayHello,
+    onInput: handleInput,
+    onAddPlanet: handleAddPlanet,
+  };
 };
 
 export const App = ({
-  loading,
-  error,
+  // loading,
+  status,
+  errorMessage,
   value,
-  places,
+  planets,
   helloTarget,
   onSayHello,
   onInput,
-  onAddPlace,
-  addPlaceError,
+  onAddPlanet,
+  addPlanetError,
 }) => {
-  if (loading) {
+  if (status === LOADING) {
     return <h3 className="main">Loading...</h3>;
   }
-  if (error) {
-    return <h3 className="error main">Error: {error}</h3>;
+  if (status === ERROR) {
+    return <h3 className="error main">Error: {errorMessage}</h3>;
   }
 
   return (
     <div className="main">
       <h3>{helloTarget ? `Hello, ${helloTarget}!` : 'Click a button to say hello!'}</h3>
-      {places.map(place => (
-        <button key={place} type="button" onClick={() => onSayHello(place)}>
-          Say hello to {place}
+      {planets.map(planet => (
+        <button key={planet} type="button" onClick={() => onSayHello(planet)}>
+          Say hello to {planet}
         </button>
       ))}
-      <AddPlace
-        error={addPlaceError}
-        places={places}
+      <AddPlanet
+        error={addPlanetError}
+        planets={planets}
         value={value}
         onChange={onInput}
-        onSubmit={onAddPlace}
+        onSubmit={onAddPlanet}
       />
     </div>
   );
@@ -148,13 +156,13 @@ export const App = ({
 App.propTypes = {
   loading: PropTypes.bool,
   error: PropTypes.string,
-  addPlaceError: PropTypes.string,
+  addPlanetError: PropTypes.string,
   value: PropTypes.string,
   helloTarget: PropTypes.string,
-  places: PropTypes.arrayOf(PropTypes.string),
+  planets: PropTypes.arrayOf(PropTypes.string),
   onInput: PropTypes.func,
   onSayHello: PropTypes.func,
-  onAddPlace: PropTypes.func,
+  onAddPlanet: PropTypes.func,
 };
 
 App.defaultProps = {
@@ -162,11 +170,11 @@ App.defaultProps = {
   error: '',
   value: '',
   helloTarget: '',
-  addPlaceError: '',
-  places: [],
+  addPlanetError: '',
+  planets: [],
   onInput() {},
   onSayHello() {},
-  onAddPlace() {},
+  onAddPlanet() {},
 };
 
 export default function AppContainer(props) {
