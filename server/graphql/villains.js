@@ -4,6 +4,7 @@ const villainSchema = `
   type Villain {
     name: String!
     powers: [String!]!
+    movies: [Movie!]!
   }
 
   type VillainQuery {

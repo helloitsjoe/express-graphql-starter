@@ -26,7 +26,7 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-describe('App', () => {
+xdescribe('App', () => {
   describe('App presenter', () => {
     it('is loading if status is LOADING', () => {
       const { container } = render(<App status={STATUS.LOADING} />);

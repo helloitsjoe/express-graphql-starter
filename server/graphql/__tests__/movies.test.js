@@ -3,6 +3,7 @@ const { mergeTypes } = require('merge-graphql-schemas');
 const { heroSchema } = require('../heroes');
 const { movieSchema, movieRoot: rootValue } = require('../movies');
 const { villainSchema } = require('../villains');
+const { logGraphqlErrors } = require('../../test-utils');
 
 // Need to merge schemas in this test because movie types refer to Hero/Villain types
 const combinedTypes = mergeTypes([heroSchema, villainSchema, movieSchema], {
@@ -44,4 +45,36 @@ test('random movie', async () => {
   `;
   const res = await graphql({ schema, source, rootValue });
   expect(typeof res.data.randomMovie.name).toBe('string');
+});
+
+test('connects to villains', async () => {
+  const source = `
+    query {
+      movies(castMemberName: "joker") {
+        name
+        villains {
+          name
+          movies {
+            name
+          }
+        }
+      }
+    }
+  `;
+  const res = await graphql({ schema, source, rootValue }).then(logGraphqlErrors);
+  const [movie] = res.data.movies;
+  expect(movie.name).toBe('Batman');
+  expect(movie.villains[0].name).toBe('Joker');
+});
+
+xtest('connects to heroes', async () => {
+  const source = `
+    query {
+      movies(castMemberName: "joker") {
+        name
+      }
+    }
+  `;
+  const res = await graphql({ schema, source, rootValue });
+  expect(res.data.movies[0].name).toBe('Batman');
 });

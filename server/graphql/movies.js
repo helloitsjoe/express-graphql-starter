@@ -16,6 +16,14 @@ const movieSchema = `
 
 const getCastMembers = movie => movie.heroes.concat(movie.villains);
 
+// class Movie {
+//   constructor(name, heroes, villains) {
+//     this.name = name;
+//     this.heroes = heroes;
+//     this.villains = villains;
+//   }
+// }
+
 class Query {
   movies = ({ name, castMemberName } = {}) => {
     const movieByName = name && movies.filter(m => m.name.match(new RegExp(name, 'i')));

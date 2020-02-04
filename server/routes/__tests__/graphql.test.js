@@ -25,7 +25,9 @@ test('hero API test', async () => {
       heroes {
         name
         powers
-        movies
+        movies {
+          name
+        }
       }
     }
   `;

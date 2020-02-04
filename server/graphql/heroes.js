@@ -4,7 +4,7 @@ const heroSchema = `
   type Hero {
     name(shouldUppercase: Boolean): String!
     powers: [String!]!
-    movies: [String!]!
+    movies: [Movie!]!
   }
 
   type Query {
@@ -28,6 +28,7 @@ const heroesResolver = ({ name, power } = {}) => {
       return shouldUppercase ? h.name.toUpperCase() : h.name;
     },
     powers: h.powers,
+    // TODO: Connect this to Movie type
     movies: h.movies,
   }));
 };
