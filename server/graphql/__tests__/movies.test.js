@@ -19,7 +19,7 @@ test('by name', async () => {
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue });
+  const res = await graphql({ schema, source, rootValue }).then(logGraphqlErrors);
   expect(res.data.movies[0].name).toBe('Batman');
 });
 
@@ -64,7 +64,8 @@ test('connects to villains', async () => {
   const res = await graphql({ schema, source, rootValue }).then(logGraphqlErrors);
   const [movie] = res.data.movies;
   expect(movie.name).toBe('Batman');
-  expect(movie.villains[0].name).toBe('Joker');
+  const joker = movie.villains.find(v => v.name === 'The Joker');
+  expect(joker.movies.length).toBeGreaterThan(0);
 });
 
 xtest('connects to heroes', async () => {
