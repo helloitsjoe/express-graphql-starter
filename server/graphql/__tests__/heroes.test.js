@@ -1,19 +1,29 @@
 const { graphql, buildSchema } = require('graphql');
+const { mergeTypes } = require('merge-graphql-schemas');
 const { heroSchema, heroRootObject } = require('../heroes');
+const { villainSchema } = require('../villains');
+const { movieSchema } = require('../movies');
+const { logGraphqlErrors } = require('../../test-utils');
 
-const schema = buildSchema(heroSchema);
+const schema = buildSchema(mergeTypes([heroSchema, villainSchema, movieSchema]));
 
 test('get hero by name', async () => {
   const source = `
     query {
       heroes(name: "indiana jones") {
         name
+        powers
+        movies {
+          name
+        }
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue: heroRootObject });
+  const res = await graphql({ schema, source, rootValue: heroRootObject }).then(logGraphqlErrors);
   const [indy] = res.data.heroes;
   expect(indy.name).toBe('Indiana Jones');
+  expect(indy.powers).toEqual(['whip', 'intelligence']);
+  expect(indy.movies.length).toBeGreaterThan(0);
 });
 
 test('uppercase name', async () => {
