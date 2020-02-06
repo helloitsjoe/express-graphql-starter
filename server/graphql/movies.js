@@ -1,9 +1,9 @@
-const { movies } = require('./data');
-// const { makeHero } = require('./heroes');
-// const { Villain } = require('./villains');
+import { movies } from './data';
+import { Villain } from './villains';
+import { makeHero } from './heroes';
 
 // Note that we can use types defined in other files
-const movieSchema = `
+export const movieSchema = `
   type Movie {
     name: String!
     heroes: [Hero!]!
@@ -26,17 +26,16 @@ const getCastMembers = movie => movie.heroes.concat(movie.villains);
 //   }
 // }
 
-const makeMovie = ({ name }) => {
+export const makeMovie = ({ name }) => {
   const movie = movies.find(m => m.name.match(new RegExp(name, 'i')));
-  return movie;
-  // return {
-  //   name,
-  //   heroes: movie.heroes,
-  //   villains: movie.villains,
-  // };
+  return {
+    name: () => movie.name,
+    heroes: () => movie.heroes.map(makeHero),
+    villains: () => movie.villains.map(v => new Villain(v)),
+  };
 };
 
-class Query {
+export class Query {
   movies = ({ name, castMemberName } = {}) => {
     const movieByName = name && movies.filter(m => m.name.match(new RegExp(name, 'i')));
     const movieByCastMember =
@@ -47,7 +46,7 @@ class Query {
 
     const finalMovies = movieByName || movieByCastMember || movies;
 
-    return finalMovies;
+    return finalMovies.map(makeMovie);
   };
 
   randomMovie = () => {
@@ -55,8 +54,4 @@ class Query {
   };
 }
 
-module.exports = {
-  makeMovie,
-  movieRoot: new Query(),
-  movieSchema,
-};
+export const movieRoot = new Query();

@@ -1,8 +1,8 @@
 /* eslint-disable max-classes-per-file */
-const { villains } = require('./data');
-const { makeMovie } = require('./movies');
+import { villains } from './data';
+import { makeMovie } from './movies';
 
-const villainSchema = `
+export const villainSchema = `
   type Villain {
     name(shouldUpperCase: Boolean): String!
     powers: [String!]!
@@ -15,7 +15,7 @@ const villainSchema = `
   }
 `;
 
-class Villain {
+export class Villain {
   constructor({ name, powers, movies }) {
     // When converting to DB call, maybe make call here instead?
     // this.villain = db.fetchVillain(name);
@@ -23,7 +23,7 @@ class Villain {
     // etc
     this._name = name;
     this.powers = powers;
-    this.movies = movies.map(makeMovie);
+    this.movies = () => movies.map(makeMovie);
   }
 
   name = ({ shouldUpperCase }) => (shouldUpperCase ? this._name.toUpperCase() : this._name);
@@ -42,10 +42,4 @@ class VillainQuery {
   randomVillain = () => new Villain(villains[Math.floor(Math.random() * villains.length)]);
 }
 
-const villainRoot = new VillainQuery();
-
-module.exports = {
-  // Villain,
-  villainRoot,
-  villainSchema,
-};
+export const villainRoot = new VillainQuery();

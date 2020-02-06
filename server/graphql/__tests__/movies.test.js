@@ -6,10 +6,11 @@ const { villainSchema } = require('../villains');
 const { logGraphqlErrors } = require('../../test-utils');
 
 // Need to merge schemas in this test because movie types refer to Hero/Villain types
-const combinedTypes = mergeTypes([heroSchema, villainSchema, movieSchema], {
-  all: true,
-});
-const schema = buildSchema(combinedTypes);
+const schema = buildSchema(
+  mergeTypes([heroSchema, villainSchema, movieSchema], {
+    all: true,
+  })
+);
 
 test('by name', async () => {
   const source = `
@@ -68,14 +69,23 @@ test('connects to villains', async () => {
   expect(joker.movies.length).toBeGreaterThan(0);
 });
 
-xtest('connects to heroes', async () => {
+test('connects to heroes', async () => {
   const source = `
     query {
-      movies(castMemberName: "joker") {
+      movies(castMemberName: "magneto") {
         name
+        heroes {
+          name
+          movies {
+            name
+          }
+        }
       }
     }
   `;
   const res = await graphql({ schema, source, rootValue });
-  expect(res.data.movies[0].name).toBe('Batman');
+  const [movie] = res.data.movies;
+  expect(movie.name).toBe('X-Men');
+  const wolverine = movie.heroes.find(h => h.name === 'Wolverine');
+  expect(wolverine.movies.length).toBeGreaterThan(0);
 });

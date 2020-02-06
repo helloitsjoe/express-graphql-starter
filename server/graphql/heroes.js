@@ -1,7 +1,7 @@
-const { heroes } = require('./data');
-const { makeMovie } = require('./movies');
+import { heroes } from './data';
+import { makeMovie } from './movies';
 
-const heroSchema = `
+export const heroSchema = `
   type Hero {
     name(shouldUppercase: Boolean): String!
     powers: [String!]!
@@ -16,7 +16,7 @@ const heroSchema = `
 
 const getRandom = arr => arr[Math.floor(Math.random() * arr.length)];
 
-const makeHero = ({ name, powers, movies }) => {
+export const makeHero = ({ name, powers, movies }) => {
   return {
     // Note: This works, but you can't unit test this resolver anymore
     // because hero.name returns a function instead of a value
@@ -24,7 +24,7 @@ const makeHero = ({ name, powers, movies }) => {
       return shouldUppercase ? name.toUpperCase() : name;
     },
     powers,
-    movies: movies.map(makeMovie),
+    movies: () => movies.map(makeMovie),
   };
 };
 
@@ -37,13 +37,7 @@ const heroesResolver = ({ name, power } = {}) => {
   return finalHeroes.map(makeHero);
 };
 
-const heroRootObject = {
+export const heroRootObject = {
   heroes: heroesResolver,
   randomHero: () => getRandom(heroesResolver()),
-};
-
-module.exports = {
-  // makeHero,
-  heroRootObject,
-  heroSchema,
 };
