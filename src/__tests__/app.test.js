@@ -8,6 +8,14 @@ import AddPlanet from '../add-planet';
 
 configure({ asyncUtilTimeout: 100 });
 
+const origError = console.error;
+console.error = (...args) => {
+  if (args[0].match(/wrong act()|was not wrapped/)) {
+    return;
+  }
+  origError(...args);
+};
+
 jest.mock('../fetch-service', () => {
   const planets = ['World', 'Mars'];
   return {
@@ -34,7 +42,7 @@ xdescribe('App', () => {
     });
 
     it('displays error if status is ERROR', () => {
-      const { container } = render(<App status={STATUS.ERROR} errorMessage="gah" />);
+      const { container } = render(<App status={STATUS.ERROR} error="gah" />);
       expect(container.textContent).toMatch(/gah/i);
     });
 

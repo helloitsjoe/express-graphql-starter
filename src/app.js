@@ -11,7 +11,7 @@ export const STATUS = {
   PENDING: 'PENDING',
 };
 
-const { IDLE, LOADING, SUCCESS, ERROR, PENDING } = STATUS;
+const { IDLE, LOADING, ERROR, PENDING } = STATUS;
 
 const defaultCache = new Map();
 
@@ -116,9 +116,8 @@ export const useAsyncState = (initialStateOverrides, cache = defaultCache) => {
 };
 
 export const App = ({
-  // loading,
   status,
-  errorMessage,
+  error,
   value,
   planets,
   helloTarget,
@@ -131,7 +130,7 @@ export const App = ({
     return <h3 className="main">Loading...</h3>;
   }
   if (status === ERROR) {
-    return <h3 className="error main">Error: {errorMessage}</h3>;
+    return <h3 className="error main">Error: {error}</h3>;
   }
 
   return (
@@ -154,7 +153,7 @@ export const App = ({
 };
 
 App.propTypes = {
-  loading: PropTypes.bool,
+  status: PropTypes.oneOf(Object.values(STATUS)),
   error: PropTypes.string,
   addPlanetError: PropTypes.string,
   value: PropTypes.string,
@@ -166,7 +165,7 @@ App.propTypes = {
 };
 
 App.defaultProps = {
-  loading: true,
+  status: IDLE,
   error: '',
   value: '',
   helloTarget: '',
