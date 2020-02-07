@@ -1,9 +1,9 @@
 const { graphql, buildSchema } = require('graphql');
 const { mergeTypes } = require('merge-graphql-schemas');
-const { heroSchema } = require('../heroes');
-const { villainSchema, villainRoot } = require('../villains');
-const { movieSchema } = require('../movies');
-const { logGraphqlErrors } = require('../../test-utils');
+const { heroSchema } = require('../express-graphql/heroes');
+const { villainSchema, villainRoot } = require('../express-graphql/villains');
+const { movieSchema } = require('../express-graphql/movies');
+const { logGraphqlErrors } = require('../../utils');
 
 const schema = buildSchema(mergeTypes([heroSchema, villainSchema, movieSchema]));
 

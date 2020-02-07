@@ -3,7 +3,7 @@
  */
 const axios = require('axios');
 const makeServer = require('../../makeServer');
-const { handleAxiosError } = require('../../test-utils');
+const { handleAxiosError } = require('../../utils');
 
 const PORT = 1234;
 const rootUrl = `http://localhost:${PORT}`;

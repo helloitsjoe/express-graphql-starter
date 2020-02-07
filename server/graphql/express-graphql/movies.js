@@ -1,4 +1,4 @@
-import { movies } from './data';
+import { movies } from '../data';
 import { Villain } from './villains';
 import { makeHero } from './heroes';
 
@@ -17,14 +17,6 @@ export const movieSchema = `
 `;
 
 const getCastMembers = movie => movie.heroes.concat(movie.villains);
-
-// class Movie {
-//   constructor(name, heroes, villains) {
-//     this.name = name;
-//     this.heroes = heroes;
-//     this.villains = villains;
-//   }
-// }
 
 export const makeMovie = ({ name }) => {
   const movie = movies.find(m => m.name.match(new RegExp(name, 'i')));

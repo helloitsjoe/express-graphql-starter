@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import { villains } from './data';
+import { villains } from '../data';
 import { makeMovie } from './movies';
 
 export const villainSchema = `
@@ -23,10 +23,12 @@ export class Villain {
     // etc
     this._name = name;
     this.powers = powers;
-    this.movies = () => movies.map(makeMovie);
+    this.movies = () => movies.map(movieName => makeMovie({ name: movieName }));
   }
 
-  name = ({ shouldUpperCase }) => (shouldUpperCase ? this._name.toUpperCase() : this._name);
+  name({ shouldUpperCase }) {
+    return shouldUpperCase ? this._name.toUpperCase() : this._name;
+  }
 }
 
 class VillainQuery {

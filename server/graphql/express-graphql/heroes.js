@@ -1,4 +1,4 @@
-import { heroes } from './data';
+import { heroes } from '../data';
 import { makeMovie } from './movies';
 
 export const heroSchema = `
@@ -18,13 +18,9 @@ const getRandom = arr => arr[Math.floor(Math.random() * arr.length)];
 
 export const makeHero = ({ name, powers, movies }) => {
   return {
-    // Note: This works, but you can't unit test this resolver anymore
-    // because hero.name returns a function instead of a value
-    name({ shouldUppercase = false }) {
-      return shouldUppercase ? name.toUpperCase() : name;
-    },
     powers,
-    movies: () => movies.map(makeMovie),
+    name: ({ shouldUppercase = false }) => (shouldUppercase ? name.toUpperCase() : name),
+    movies: () => movies.map(movieName => makeMovie({ name: movieName })),
   };
 };
 

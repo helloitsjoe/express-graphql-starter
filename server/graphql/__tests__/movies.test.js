@@ -1,9 +1,9 @@
 const { graphql, buildSchema } = require('graphql');
 const { mergeTypes } = require('merge-graphql-schemas');
-const { heroSchema } = require('../heroes');
-const { movieSchema, movieRoot: rootValue } = require('../movies');
-const { villainSchema } = require('../villains');
-const { logGraphqlErrors } = require('../../test-utils');
+const { heroSchema } = require('../express-graphql/heroes');
+const { movieSchema, movieRoot: rootValue } = require('../express-graphql/movies');
+const { villainSchema } = require('../express-graphql/villains');
+const { logGraphqlErrors } = require('../../utils');
 
 // Need to merge schemas in this test because movie types refer to Hero/Villain types
 const schema = buildSchema(
@@ -66,7 +66,7 @@ test('connects to villains', async () => {
   const [movie] = res.data.movies;
   expect(movie.name).toBe('Batman');
   const joker = movie.villains.find(v => v.name === 'The Joker');
-  expect(joker.movies.length).toBeGreaterThan(0);
+  expect(joker.movies.find(m => m.name === 'Batman')).toBeTruthy();
 });
 
 test('connects to heroes', async () => {
@@ -87,5 +87,5 @@ test('connects to heroes', async () => {
   const [movie] = res.data.movies;
   expect(movie.name).toBe('X-Men');
   const wolverine = movie.heroes.find(h => h.name === 'Wolverine');
-  expect(wolverine.movies.length).toBeGreaterThan(0);
+  expect(wolverine.movies.find(m => m.name === 'X-Men')).toBeTruthy();
 });
