@@ -10,21 +10,13 @@ export const HeroType = new GraphQLObjectType({
     name: {
       type: GraphQLString,
       args: { shouldUppercase: { type: GraphQLBoolean } },
-      resolve(obj, args) {
-        console.log(`obj:`, obj);
-        console.log(`args:`, args);
-        return heroes.find(hero => hero.name === args.name);
-      },
     },
     powers: { type: new GraphQLList(GraphQLString) },
     movies: { type: new GraphQLList(MovieType) },
   }),
 });
 
-// export const HeroQuery = new GraphQLObjectType({
-//   name: 'Query',
-export const heroRoot = {
-  // fields: {
+export const heroFields = {
   heroes: {
     type: new GraphQLList(HeroType),
     args: {
@@ -47,9 +39,7 @@ export const heroRoot = {
       return getRandom(heroes);
     },
   },
-  // },
 };
-// });
 
 // export const heroSchema = `
 //   type Hero {

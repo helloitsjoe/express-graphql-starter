@@ -8,11 +8,10 @@ const { movieSchema, movieRoot: movie } = require('../graphql/express-graphql/mo
 const { villainSchema, villainRoot: villain } = require('../graphql/express-graphql/villains');
 const { planetSchema, planetRoot } = require('../graphql/express-graphql/planets');
 
-const { heroRoot } = require('../graphql/graphql/heroes');
-const { villainRoot } = require('../graphql/graphql/villains');
-const { movieRoot } = require('../graphql/graphql/movies');
+const { heroFields } = require('../graphql/graphql/heroes');
+const { villainFields } = require('../graphql/graphql/villains');
+const { movieFields } = require('../graphql/graphql/movies');
 
-// TODO: Maybe call buildSchema in each file?
 // const combinedSchemas = buildSchema(
 //   mergeTypes([heroSchema, villainSchema, movieSchema, planetSchema], {
 //     all: true,
@@ -25,9 +24,9 @@ const combinedSchemas = new GraphQLSchema({
   query: new GraphQLObjectType({
     name: 'RootQueryType',
     fields: () => ({
-      ...heroRoot,
-      ...villainRoot,
-      ...movieRoot,
+      ...heroFields,
+      ...villainFields,
+      ...movieFields,
       // ...planetRoot,
     }),
   }),

@@ -3,6 +3,8 @@ import { movies } from '../data';
 import { VillainType } from './villains';
 import { HeroType, makeHero } from './heroes';
 
+const getCastMembers = movie => movie.heroes.concat(movie.villains);
+
 export const MovieType = new GraphQLObjectType({
   name: 'Movie',
   fields: () => ({
@@ -12,22 +14,31 @@ export const MovieType = new GraphQLObjectType({
   }),
 });
 
-// export const MovieQuery = new GraphQLObjectType({
-//   name: 'Query',
-//   fields: {
-export const movieRoot = {
+export const movieFields = {
   movies: {
     type: new GraphQLList(MovieType),
     args: {
       name: { type: GraphQLString },
       castMemberName: { type: GraphQLString },
     },
+    resolve(_, { name, castMemberName }) {
+      const movieByName = name && movies.filter(m => m.name.match(new RegExp(name, 'i')));
+      const movieByCastMember =
+        castMemberName &&
+        movies.filter(m =>
+          getCastMembers(m).some(c => c.name.match(new RegExp(castMemberName, 'i')))
+        );
+
+      const finalMovies = movieByName || movieByCastMember || movies;
+
+      // return finalMovies.map(makeMovie);
+      return finalMovies;
+    },
   },
   randomMovie: {
     type: MovieType,
   },
 };
-// });
 
 // Note that we can use types defined in other files
 // export const movieSchema = `

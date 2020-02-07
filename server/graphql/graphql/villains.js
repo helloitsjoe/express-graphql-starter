@@ -20,10 +20,7 @@ export const VillainType = new GraphQLObjectType({
   }),
 });
 
-// export const VillainQuery = new GraphQLObjectType({
-// name: 'Query',
-// fields: {
-export const villainRoot = {
+export const villainFields = {
   villains: {
     type: new GraphQLList(VillainType),
     args: {
@@ -47,7 +44,6 @@ export const villainRoot = {
     },
   },
 };
-// });
 
 // export const villainSchema = `
 //   type Villain {
