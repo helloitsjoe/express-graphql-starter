@@ -65,7 +65,7 @@ test('movies API test', async () => {
   expect(allMoviesHaveVillains).toBe(true);
 });
 
-test('planets API test', async () => {
+xtest('planets API test', async () => {
   const query = `
     query {
       planet(name: "Mars")

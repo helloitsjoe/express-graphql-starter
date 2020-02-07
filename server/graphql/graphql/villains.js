@@ -7,7 +7,7 @@ import { getRandom } from '../../utils';
 
 export const VillainType = new GraphQLObjectType({
   name: 'Villain',
-  fields: {
+  fields: () => ({
     name: {
       type: GraphQLString,
       args: { shouldUpperCase: { type: GraphQLBoolean } },
@@ -17,36 +17,37 @@ export const VillainType = new GraphQLObjectType({
     },
     powers: { type: new GraphQLList(GraphQLString) },
     movies: { type: new GraphQLList(MovieType) },
-  },
+  }),
 });
 
-export const VillainQuery = new GraphQLObjectType({
-  name: 'Query',
-  fields: {
-    villains: {
-      type: new GraphQLList(VillainType),
-      args: {
-        name: { type: GraphQLString },
-        power: { type: GraphQLString },
-      },
-      resolve(obj, { name, power }) {
-        const byName = name && villains.filter(v => v.name.match(new RegExp(name, 'i')));
-        const byPower = power && villains.filter(v => v.powers.includes(power));
-
-        const finalVillains = byName || byPower || villains;
-
-        // return finalVillains.map(v => new Villain(v));
-        return finalVillains;
-      },
+// export const VillainQuery = new GraphQLObjectType({
+// name: 'Query',
+// fields: {
+export const villainRoot = {
+  villains: {
+    type: new GraphQLList(VillainType),
+    args: {
+      name: { type: GraphQLString },
+      power: { type: GraphQLString },
     },
-    randomVillain: {
-      type: HeroType,
-      resolver() {
-        return getRandom(villains);
-      },
+    resolve(obj, { name, power }) {
+      const byName = name && villains.filter(v => v.name.match(new RegExp(name, 'i')));
+      const byPower = power && villains.filter(v => v.powers.includes(power));
+
+      const finalVillains = byName || byPower || villains;
+
+      // return finalVillains.map(v => new Villain(v));
+      return finalVillains;
     },
   },
-});
+  randomVillain: {
+    type: VillainType,
+    resolve() {
+      return getRandom(villains);
+    },
+  },
+};
+// });
 
 // export const villainSchema = `
 //   type Villain {

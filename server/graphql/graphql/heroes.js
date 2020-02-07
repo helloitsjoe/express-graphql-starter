@@ -6,47 +6,50 @@ import { getRandom } from '../../utils';
 // When is fields an object vs a function?
 export const HeroType = new GraphQLObjectType({
   name: 'Hero',
-  fields: {
+  fields: () => ({
     name: {
       type: GraphQLString,
       args: { shouldUppercase: { type: GraphQLBoolean } },
       resolve(obj, args) {
         console.log(`obj:`, obj);
         console.log(`args:`, args);
+        return heroes.find(hero => hero.name === args.name);
       },
     },
     powers: { type: new GraphQLList(GraphQLString) },
     movies: { type: new GraphQLList(MovieType) },
-  },
+  }),
 });
 
-export const HeroQuery = new GraphQLObjectType({
-  name: 'Query',
-  fields: {
-    heroes: {
-      type: new GraphQLList(HeroType),
-      args: {
-        name: { type: GraphQLString },
-        power: { type: new GraphQLList(GraphQLString) },
-      },
-      resolver(obj, { name, power }) {
-        const heroesByName = name && heroes.filter(h => h.name.match(new RegExp(name, 'i')));
-        const heroesByPower = power && heroes.filter(h => h.powers.includes(power));
-
-        const finalHeroes = heroesByName || heroesByPower || heroes;
-
-        // return finalHeroes.map(makeHero);
-        return finalHeroes;
-      },
+// export const HeroQuery = new GraphQLObjectType({
+//   name: 'Query',
+export const heroRoot = {
+  // fields: {
+  heroes: {
+    type: new GraphQLList(HeroType),
+    args: {
+      name: { type: GraphQLString },
+      power: { type: new GraphQLList(GraphQLString) },
     },
-    randomHero: {
-      type: HeroType,
-      resolver() {
-        return getRandom(heroes);
-      },
+    resolve(obj, { name, power }) {
+      const heroesByName = name && heroes.filter(h => h.name.match(new RegExp(name, 'i')));
+      const heroesByPower = power && heroes.filter(h => h.powers.includes(power));
+
+      const finalHeroes = heroesByName || heroesByPower || heroes;
+
+      // return finalHeroes.map(makeHero);
+      return finalHeroes;
     },
   },
-});
+  randomHero: {
+    type: HeroType,
+    resolver() {
+      return getRandom(heroes);
+    },
+  },
+  // },
+};
+// });
 
 // export const heroSchema = `
 //   type Hero {

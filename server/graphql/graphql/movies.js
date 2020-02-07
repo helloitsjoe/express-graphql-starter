@@ -1,32 +1,33 @@
 import { GraphQLObjectType, GraphQLString, GraphQLList } from 'graphql';
 import { movies } from '../data';
-// import { Villain } from '../express-graphql/villains';
+import { VillainType } from './villains';
 import { HeroType, makeHero } from './heroes';
 
 export const MovieType = new GraphQLObjectType({
   name: 'Movie',
-  fields: {
+  fields: () => ({
     name: { type: GraphQLString },
-    // heroes: { type: new GraphQLList(HeroType) },
-    // villains: { type: new GraphQLList(VillainType)},
-  },
+    heroes: { type: new GraphQLList(HeroType) },
+    villains: { type: new GraphQLList(VillainType) },
+  }),
 });
 
-export const MovieQuery = new GraphQLObjectType({
-  name: 'Query',
-  fields: {
-    movies: {
-      type: new GraphQLList(MovieType),
-      args: {
-        name: { type: GraphQLString },
-        castMemberName: { type: GraphQLString },
-      },
-    },
-    randomMovie: {
-      type: MovieType,
+// export const MovieQuery = new GraphQLObjectType({
+//   name: 'Query',
+//   fields: {
+export const movieRoot = {
+  movies: {
+    type: new GraphQLList(MovieType),
+    args: {
+      name: { type: GraphQLString },
+      castMemberName: { type: GraphQLString },
     },
   },
-});
+  randomMovie: {
+    type: MovieType,
+  },
+};
+// });
 
 // Note that we can use types defined in other files
 // export const movieSchema = `

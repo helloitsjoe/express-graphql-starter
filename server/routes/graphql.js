@@ -1,6 +1,6 @@
 const express = require('express');
 const gqlHTTP = require('express-graphql');
-const { buildSchema } = require('graphql');
+const { buildSchema, GraphQLSchema, GraphQLObjectType } = require('graphql');
 const { mergeTypes } = require('merge-graphql-schemas');
 
 const { heroSchema, heroRootObject: hero } = require('../graphql/express-graphql/heroes');
@@ -8,23 +8,34 @@ const { movieSchema, movieRoot: movie } = require('../graphql/express-graphql/mo
 const { villainSchema, villainRoot: villain } = require('../graphql/express-graphql/villains');
 const { planetSchema, planetRoot } = require('../graphql/express-graphql/planets');
 
-// const { HeroQuery } = require('../graphql/graphql/heroes');
-// const { VillainQuery } = require('../graphql/graphql/villains');
-// const { MovieQuery } = require('../graphql/graphql/movies');
+const { heroRoot } = require('../graphql/graphql/heroes');
+const { villainRoot } = require('../graphql/graphql/villains');
+const { movieRoot } = require('../graphql/graphql/movies');
 
 // TODO: Maybe call buildSchema in each file?
-const combinedSchemas = buildSchema(
-  mergeTypes([heroSchema, villainSchema, movieSchema, planetSchema], {
-    all: true,
-  })
-);
+// const combinedSchemas = buildSchema(
+//   mergeTypes([heroSchema, villainSchema, movieSchema, planetSchema], {
+//     all: true,
+//   })
+// );
 
-// const combinedSchemas = mergeTypes([HeroQuery, VillainQuery, MovieQuery]);
-// console.log(`combinedSchemas:`, combinedSchemas);
+// const query = mergeTypes([HeroQuery, VillainQuery, MovieQuery]);
+// console.log(`query:`, query);
+const combinedSchemas = new GraphQLSchema({
+  query: new GraphQLObjectType({
+    name: 'RootQueryType',
+    fields: () => ({
+      ...heroRoot,
+      ...villainRoot,
+      ...movieRoot,
+      // ...planetRoot,
+    }),
+  }),
+});
 
 const gql = gqlHTTP(request => ({
   schema: combinedSchemas,
-  rootValue: { ...hero, ...villain, ...movie, ...planetRoot },
+  // rootValue: { ...hero, ...villain, ...movie, ...planetRoot },
   graphiql: true,
   context: { request },
 }));
