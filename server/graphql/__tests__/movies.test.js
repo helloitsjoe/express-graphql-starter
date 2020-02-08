@@ -1,16 +1,6 @@
-const { graphql, buildSchema } = require('graphql');
-const { mergeTypes } = require('merge-graphql-schemas');
-const { heroSchema } = require('../express-graphql/heroes');
-const { movieSchema, movieRoot: rootValue } = require('../express-graphql/movies');
-const { villainSchema } = require('../express-graphql/villains');
+const { graphql } = require('graphql');
+const { schema, rootValue } = require('../rootSchemas');
 const { logGraphqlErrors } = require('../../utils');
-
-// Need to merge schemas in this test because movie types refer to Hero/Villain types
-const schema = buildSchema(
-  mergeTypes([heroSchema, villainSchema, movieSchema], {
-    all: true,
-  })
-);
 
 test('by name', async () => {
   const source = `

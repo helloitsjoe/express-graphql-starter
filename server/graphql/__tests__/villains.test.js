@@ -1,11 +1,6 @@
-const { graphql, buildSchema } = require('graphql');
-const { mergeTypes } = require('merge-graphql-schemas');
-const { heroSchema } = require('../express-graphql/heroes');
-const { villainSchema, villainRoot } = require('../express-graphql/villains');
-const { movieSchema } = require('../express-graphql/movies');
-const { logGraphqlErrors } = require('../../utils');
-
-const schema = buildSchema(mergeTypes([heroSchema, villainSchema, movieSchema]));
+import { graphql } from 'graphql';
+import { schema, rootValue } from '../rootSchemas';
+import { logGraphqlErrors } from '../../utils';
 
 test('get villain by name', async () => {
   const source = `
@@ -15,15 +10,19 @@ test('get villain by name', async () => {
         powers
         movies {
           name
+          villains {
+            name
+          }
         }
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue: villainRoot }).then(logGraphqlErrors);
+  const res = await graphql({ schema, source, rootValue }).then(logGraphqlErrors);
   const [magneto] = res.data.villains;
   expect(magneto.name).toBe('Magneto');
   expect(magneto.powers).toEqual(['magnetism']);
-  expect(magneto.movies.length).toBeGreaterThan(0);
+  const xMen = magneto.movies.find(m => m.name.match(/x-men/i));
+  expect(xMen.villains.some(h => h.name.match(/magneto/i))).toBe(true);
 });
 
 test('uppercase name', async () => {
@@ -34,7 +33,7 @@ test('uppercase name', async () => {
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue: villainRoot }).then(logGraphqlErrors);
+  const res = await graphql({ schema, source, rootValue }).then(logGraphqlErrors);
   const [magneto] = res.data.villains;
   expect(magneto.name).toBe('MAGNETO');
 });
@@ -48,7 +47,7 @@ test('get villain by power', async () => {
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue: villainRoot });
+  const res = await graphql({ schema, source, rootValue });
   expect(res.data.villains.every(v => v.powers.includes('magnetism'))).toBe(true);
 });
 
@@ -63,6 +62,6 @@ test('get random villain', async () => {
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue: villainRoot }).then(logGraphqlErrors);
+  const res = await graphql({ schema, source, rootValue }).then(logGraphqlErrors);
   expect(typeof res.data.randomVillain.name).toBe('string');
 });

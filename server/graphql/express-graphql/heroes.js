@@ -33,7 +33,7 @@ const heroesResolver = ({ name, power } = {}) => {
   return finalHeroes.map(makeHero);
 };
 
-export const heroRootObject = {
+export const heroRoot = {
   heroes: heroesResolver,
   randomHero: () => getRandom(heroesResolver()),
 };
