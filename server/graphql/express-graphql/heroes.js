@@ -1,5 +1,6 @@
 import { heroes } from '../data';
 import { makeMovie } from './movies';
+import { matchName } from '../../utils';
 
 export const heroSchema = `
   type Hero {
@@ -25,7 +26,7 @@ export const makeHero = ({ name, powers, movies }) => {
 };
 
 const heroesResolver = ({ name, power } = {}) => {
-  const heroesByName = name && heroes.filter(h => h.name.match(new RegExp(name, 'i')));
+  const heroesByName = name && heroes.filter(h => matchName(h, name));
   const heroesByPower = power && heroes.filter(h => h.powers.includes(power));
 
   const finalHeroes = heroesByName || heroesByPower || heroes;

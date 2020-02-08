@@ -19,6 +19,7 @@ const expressSchemas = buildSchema(
   })
 );
 
+// TODO: Maybe use a switch? See swapi-demo
 const combinedSchemas = new GraphQLSchema({
   query: new GraphQLObjectType({
     name: 'RootQueryType',

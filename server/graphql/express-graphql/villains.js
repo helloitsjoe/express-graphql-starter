@@ -1,6 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import { villains } from '../data';
 import { makeMovie } from './movies';
+import { matchName } from '../../utils';
 
 export const villainSchema = `
   type Villain {
@@ -33,7 +34,7 @@ export class Villain {
 
 class VillainQuery {
   villains = ({ name, power }) => {
-    const byName = name && villains.filter(v => v.name.match(new RegExp(name, 'i')));
+    const byName = name && villains.filter(v => matchName(v, name));
     const byPower = power && villains.filter(v => v.powers.includes(power));
 
     const finalVillains = byName || byPower || villains;

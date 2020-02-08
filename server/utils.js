@@ -3,10 +3,14 @@ export const handleAxiosError = e => console.error('ERROR', e.response.data.erro
 
 export const logGraphqlErrors = res => {
   if (res.errors && res.errors.length) {
-    console.error(res.errors[0].message);
-    throw new Error(res.errors[0].message);
+    const [error] = res.errors;
+    const message = `${error.message}: ${error.location}`;
+    console.error(message);
+    throw new Error(message);
   }
   return res;
 };
 
 export const getRandom = arr => arr[Math.floor(Math.random() * arr.length)];
+
+export const matchName = (obj, name) => obj.name.match(new RegExp(name, 'i'));

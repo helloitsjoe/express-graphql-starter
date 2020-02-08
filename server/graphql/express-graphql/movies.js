@@ -1,6 +1,7 @@
 import { movies } from '../data';
 import { Villain } from './villains';
 import { makeHero } from './heroes';
+import { matchName } from '../../utils';
 
 // Note that we can use types defined in other files
 export const movieSchema = `
@@ -19,7 +20,7 @@ export const movieSchema = `
 const getCastMembers = movie => movie.heroes.concat(movie.villains);
 
 export const makeMovie = ({ name }) => {
-  const movie = movies.find(m => m.name.match(new RegExp(name, 'i')));
+  const movie = movies.find(m => matchName(m, name));
   return {
     name: () => movie.name,
     heroes: () => movie.heroes.map(makeHero),
@@ -29,12 +30,10 @@ export const makeMovie = ({ name }) => {
 
 export class Query {
   movies = ({ name, castMemberName } = {}) => {
-    const movieByName = name && movies.filter(m => m.name.match(new RegExp(name, 'i')));
+    const movieByName = name && movies.filter(m => matchName(m, name));
     const movieByCastMember =
       castMemberName &&
-      movies.filter(m =>
-        getCastMembers(m).some(c => c.name.match(new RegExp(castMemberName, 'i')))
-      );
+      movies.filter(m => getCastMembers(m).some(c => matchName(c, castMemberName)));
 
     const finalMovies = movieByName || movieByCastMember || movies;
 

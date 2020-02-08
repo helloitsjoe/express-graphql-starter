@@ -1,21 +1,9 @@
-/* eslint-disable max-classes-per-file */
 import { GraphQLObjectType, GraphQLString, GraphQLBoolean, GraphQLList } from 'graphql';
-import { villains } from '../data';
+import data from '../data';
 import { MovieType, makeMovie } from './movies';
 import { HeroType } from './heroes';
-import { getRandom } from '../../utils';
-
-export class Villain {
-  constructor({ name, powers, movies }) {
-    // When converting to DB call, maybe make call here instead?
-    // this.villain = db.fetchVillain(name);
-    // this.powers = this.villain.powers;
-    // etc
-    this.name = name;
-    this.powers = powers;
-    this.movies = () => movies.map(movieName => makeMovie({ name: movieName }));
-  }
-}
+import { Villain } from '../models';
+import { getRandom, matchName } from '../../utils';
 
 export const VillainType = new GraphQLObjectType({
   name: 'Villain',
@@ -40,18 +28,19 @@ export const villainFields = {
       power: { type: GraphQLString },
     },
     resolve(obj, { name, power }) {
-      const byName = name && villains.filter(v => v.name.match(new RegExp(name, 'i')));
-      const byPower = power && villains.filter(v => v.powers.includes(power));
+      // Naive implementation
+      const villains = data.villains
+        .filter(v => !name || matchName(v, name))
+        .filter(v => !power || v.powers.includes(power))
+        .map(v => new Villain(v));
 
-      const finalVillains = byName || byPower || villains;
-
-      return finalVillains.map(v => new Villain(v));
+      return villains;
     },
   },
   randomVillain: {
     type: VillainType,
     resolve() {
-      return getRandom(villains);
+      return getRandom(data.villains);
     },
   },
 };

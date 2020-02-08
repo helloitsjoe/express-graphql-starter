@@ -1,15 +1,8 @@
 import { GraphQLObjectType, GraphQLString, GraphQLList, GraphQLBoolean } from 'graphql';
-import { heroes } from '../data';
+import data from '../data';
 import { MovieType, makeMovie } from './movies';
-import { getRandom } from '../../utils';
-
-export const makeHero = ({ name, powers, movies }) => {
-  return {
-    powers,
-    name,
-    movies: () => movies.map(movieName => makeMovie({ name: movieName })),
-  };
-};
+import { makeHero } from '../models';
+import { getRandom, matchName } from '../../utils';
 
 export const HeroType = new GraphQLObjectType({
   name: 'Hero',
@@ -34,18 +27,19 @@ export const heroFields = {
       power: { type: new GraphQLList(GraphQLString) },
     },
     resolve(obj, { name, power }) {
-      const heroesByName = name && heroes.filter(h => h.name.match(new RegExp(name, 'i')));
-      const heroesByPower = power && heroes.filter(h => h.powers.includes(power));
+      // Naive implementation
+      const heroes = data.heroes
+        .filter(h => !name || matchName(h, name))
+        .filter(h => !power || h.powers.includes(power))
+        .map(makeHero);
 
-      const finalHeroes = heroesByName || heroesByPower || heroes;
-
-      return finalHeroes.map(makeHero);
+      return heroes;
     },
   },
   randomHero: {
     type: HeroType,
     resolve() {
-      return getRandom(heroes);
+      return getRandom(data.heroes);
     },
   },
 };
