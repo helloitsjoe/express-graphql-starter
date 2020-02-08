@@ -11,6 +11,7 @@ const { planetSchema, planetRoot } = require('../graphql/express-graphql/planets
 const { heroFields } = require('../graphql/graphql/heroes');
 const { villainFields } = require('../graphql/graphql/villains');
 const { movieFields } = require('../graphql/graphql/movies');
+const { planetFields } = require('../graphql/graphql/planets');
 
 // const combinedSchemas = buildSchema(
 //   mergeTypes([heroSchema, villainSchema, movieSchema, planetSchema], {
@@ -18,8 +19,6 @@ const { movieFields } = require('../graphql/graphql/movies');
 //   })
 // );
 
-// const query = mergeTypes([HeroQuery, VillainQuery, MovieQuery]);
-// console.log(`query:`, query);
 const combinedSchemas = new GraphQLSchema({
   query: new GraphQLObjectType({
     name: 'RootQueryType',
@@ -27,7 +26,7 @@ const combinedSchemas = new GraphQLSchema({
       ...heroFields,
       ...villainFields,
       ...movieFields,
-      // ...planetRoot,
+      ...planetFields,
     }),
   }),
 });
