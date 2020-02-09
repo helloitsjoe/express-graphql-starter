@@ -4,11 +4,14 @@ const planets = ['World', 'Mars'];
 
 const planetSchema = buildSchema(`
   type Query {
+    "A single planet"
     planet(name: String!): String
+    "All planets"
     planets: [String]
   }
 
   type Mutation {
+    "Add a new planet"
     addPlanet(name: String!): [String]
   }
 `);

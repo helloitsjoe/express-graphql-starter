@@ -6,13 +6,18 @@ import { matchName, getRandom } from '../../utils';
 // Note that we can use types defined in other files
 export const movieSchema = `
   type Movie {
+    "Movie name"
     name: String!
+    "Heroes in movie"
     heroes: [Hero!]!
+    "Villains in movie"
     villains: [Villain!]!
   }
 
   type Query {
+    "Movies filtered by name or castMemberName"
     movies(name: String, castMemberName: String): [Movie!]!
+    "Get a random movie"
     randomMovie: Movie!
   }
 `;

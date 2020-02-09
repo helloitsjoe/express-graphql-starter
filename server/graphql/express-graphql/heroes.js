@@ -4,13 +4,18 @@ import { matchName } from '../../utils';
 
 export const heroSchema = `
   type Hero {
+    "Hero's name"
     name(shouldUppercase: Boolean): String!
+    "Hero's powers"
     powers: [String!]!
+    "Movies the hero has appeared in"
     movies: [Movie!]!
   }
 
   type Query {
+    "Heroes filtered by name or power"
     heroes(name: String, power: String): [Hero!]!
+    "Get a random hero"
     randomHero: Hero!
   }
 `;

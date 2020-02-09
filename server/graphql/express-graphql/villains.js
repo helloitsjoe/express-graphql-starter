@@ -5,13 +5,18 @@ import { matchName, getRandom } from '../../utils';
 
 export const villainSchema = `
   type Villain {
+    "Villain's name"
     name(shouldUpperCase: Boolean): String!
+    "Villain's powers"
     powers: [String!]!
+    "Movies the villain has appeared in"
     movies: [Movie!]!
   }
 
   type Query {
+    "Villains filtered by name or power"
     villains(name: String, power: String): [Villain!]!
+    "Get a random villain"
     randomVillain: Villain!
   }
 `;
