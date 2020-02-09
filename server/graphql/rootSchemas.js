@@ -11,7 +11,7 @@ import { villainFields } from './graphql/villains';
 import { movieFields } from './graphql/movies';
 import { planetFields } from './graphql/planets';
 
-const USE_EXPRESS = false;
+const USE_EXPRESS = true;
 
 const expressSchemas = buildSchema(
   mergeTypes([heroSchema, villainSchema, movieSchema, planetSchema], {

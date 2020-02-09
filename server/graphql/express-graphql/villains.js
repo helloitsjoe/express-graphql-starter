@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
-import { villains } from '../data';
+import data from '../data';
 import { makeMovie } from './movies';
-import { matchName } from '../../utils';
+import { matchName, getRandom } from '../../utils';
 
 export const villainSchema = `
   type Villain {
@@ -34,15 +34,15 @@ export class Villain {
 
 class VillainQuery {
   villains = ({ name, power }) => {
-    const byName = name && villains.filter(v => matchName(v, name));
-    const byPower = power && villains.filter(v => v.powers.includes(power));
+    const villains = data.villains
+      .filter(v => !name || matchName(v, name))
+      .filter(v => !power || v.powers.includes(power))
+      .map(v => new Villain(v));
 
-    const finalVillains = byName || byPower || villains;
-
-    return finalVillains.map(v => new Villain(v));
+    return villains;
   };
 
-  randomVillain = () => new Villain(villains[Math.floor(Math.random() * villains.length)]);
+  randomVillain = () => new Villain(getRandom(data.villains));
 }
 
 export const villainRoot = new VillainQuery();

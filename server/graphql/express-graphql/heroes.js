@@ -1,4 +1,4 @@
-import { heroes } from '../data';
+import data from '../data';
 import { makeMovie } from './movies';
 import { matchName } from '../../utils';
 
@@ -26,12 +26,12 @@ export const makeHero = ({ name, powers, movies }) => {
 };
 
 const heroesResolver = ({ name, power } = {}) => {
-  const heroesByName = name && heroes.filter(h => matchName(h, name));
-  const heroesByPower = power && heroes.filter(h => h.powers.includes(power));
+  const heroes = data.heroes
+    .filter(h => !name || matchName(h, name))
+    .filter(h => !power || h.powers.includes(power))
+    .map(makeHero);
 
-  const finalHeroes = heroesByName || heroesByPower || heroes;
-
-  return finalHeroes.map(makeHero);
+  return heroes;
 };
 
 export const heroRoot = {
