@@ -1,66 +1,38 @@
 /* eslint-disable import/prefer-default-export */
 import { GraphQLString, GraphQLList } from 'graphql';
 
-const { buildSchema, GraphQLObjectType } = require('graphql');
-
-const planets = ['World', 'Mars'];
+const initialPlanets = ['World', 'Mars'];
+let planets = [...initialPlanets];
 
 export const planetFields = {
   planet: {
     type: GraphQLString,
     args: { name: { type: GraphQLString } },
     resolve(_, { name }) {
-      return new Promise(resolve => {
-        setTimeout(() => {
-          const planetIsKnown = planets.includes(name);
-          if (!planetIsKnown) return resolve(`I don't know where ${name} is!`);
-          return resolve(name);
-        }, 500);
-      });
+      const planetIsKnown = planets.includes(name);
+      if (!planetIsKnown) return Promise.resolve(`I don't know where ${name} is!`);
+      return Promise.resolve(name);
     },
   },
   planets: {
     type: new GraphQLList(GraphQLString),
     resolve() {
-      return planets;
+      return Promise.resolve(planets);
     },
   },
 };
 
-// const planetSchema = `
-//   type Query {
-//     planet(name: String!): String
-//     planets: [String]
-//   }
+export const planetMutationFields = {
+  addPlanet: {
+    type: new GraphQLList(GraphQLString),
+    args: { name: { type: GraphQLString } },
+    resolve(_, { name }) {
+      planets.push(name);
+      return Promise.resolve(planets);
+    },
+  },
+};
 
-//   type Mutation {
-//     addPlanet(name: String!): [String]
-//   }
-// `;
-
-// const planetRoot = {
-//   planet: args => {
-//     return new Promise(resolve => {
-//       setTimeout(() => {
-//         const planetIsKnown = planets.includes(args.name);
-//         if (!planetIsKnown) return resolve(`I don't know where ${args.name} is!`);
-//         return resolve(args.name);
-//       }, 500);
-//     });
-//   },
-//   planets,
-//   addPlanet: args => {
-//     return new Promise(resolve => {
-//       setTimeout(() => {
-//         planets.push(args.name);
-//         // return reject(new Error('nooo'));
-//         return resolve(planets);
-//       }, 500);
-//     });
-//   },
-// };
-
-// module.exports = {
-//   planetRoot,
-//   planetSchema,
-// };
+export const resetPlanets = () => {
+  planets = [...initialPlanets];
+};

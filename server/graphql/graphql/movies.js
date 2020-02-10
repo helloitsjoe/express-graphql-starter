@@ -9,10 +9,11 @@ const getCastMembers = movie => movie.heroes.concat(movie.villains);
 
 export const MovieType = new GraphQLObjectType({
   name: 'Movie',
+  description: 'A Movie',
   fields: () => ({
-    name: { type: GraphQLString },
-    heroes: { type: new GraphQLList(HeroType) },
-    villains: { type: new GraphQLList(VillainType) },
+    name: { type: GraphQLString, description: "The movie's name" },
+    heroes: { type: new GraphQLList(HeroType), description: 'Heroes in the movie' },
+    villains: { type: new GraphQLList(VillainType), description: 'Villains in the movie' },
   }),
 });
 

@@ -9,7 +9,7 @@ import { planetSchema, planetRoot } from './express-graphql/planets';
 import { heroFields } from './graphql/heroes';
 import { villainFields } from './graphql/villains';
 import { movieFields } from './graphql/movies';
-import { planetFields } from './graphql/planets';
+import { planetFields, planetMutationFields } from './graphql/planets';
 
 const USE_EXPRESS = true;
 
@@ -28,6 +28,12 @@ const combinedSchemas = new GraphQLSchema({
       ...villainFields,
       ...movieFields,
       ...planetFields,
+    }),
+  }),
+  mutation: new GraphQLObjectType({
+    name: 'RootMutationType',
+    fields: () => ({
+      ...planetMutationFields,
     }),
   }),
 });

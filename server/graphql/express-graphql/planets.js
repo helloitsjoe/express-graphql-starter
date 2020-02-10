@@ -1,6 +1,7 @@
 const { buildSchema } = require('graphql');
 
-const planets = ['World', 'Mars'];
+const initialPlanets = ['World', 'Mars'];
+let planets = [...initialPlanets];
 
 const planetSchema = buildSchema(`
   type Query {
@@ -18,27 +19,24 @@ const planetSchema = buildSchema(`
 
 const planetRoot = {
   planet: args => {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        const planetIsKnown = planets.includes(args.name);
-        if (!planetIsKnown) return resolve(`I don't know where ${args.name} is!`);
-        return resolve(args.name);
-      }, 500);
-    });
+    const planetIsKnown = planets.includes(args.name);
+    if (!planetIsKnown) return Promise.resolve(`I don't know where ${args.name} is!`);
+    return Promise.resolve(args.name);
   },
   planets,
   addPlanet: args => {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        planets.push(args.name);
-        // return reject(new Error('nooo'));
-        return resolve(planets);
-      }, 500);
-    });
+    planets.push(args.name);
+    // return reject(new Error('nooo'));
+    return Promise.resolve(planets);
   },
+};
+
+const resetPlanets = () => {
+  planets = [...initialPlanets];
 };
 
 module.exports = {
   planetRoot,
   planetSchema,
+  resetPlanets,
 };
