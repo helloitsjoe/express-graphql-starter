@@ -18,8 +18,10 @@ const MUTATION = `
   }
 `;
 
-export const sayHello = planetName => fetchQuery({ query: QUERY, variables: { planetName } });
+export const sayHello = planetName =>
+  fetchQuery({ query: QUERY, variables: { planetName }, shouldError: false });
 
 export const getPlanets = () => fetchQuery({ query: PLANETS });
 
-export const addPlanet = planetName => fetchQuery({ query: MUTATION, variables: { planetName } });
+export const addPlanet = planetName =>
+  fetchQuery({ query: MUTATION, variables: { planetName }, shouldError: false });

@@ -76,7 +76,7 @@ export const useAsyncState = (initialStateOverrides, cache = defaultCache) => {
         dispatch({ type, payload: res.data[dataProp] });
       })
       .catch(err => {
-        console.log('error');
+        console.log('error', err);
         dispatch({ type: 'fetch_error', payload: err.message });
       });
 
@@ -91,7 +91,9 @@ export const useAsyncState = (initialStateOverrides, cache = defaultCache) => {
       return;
     }
     dispatch({ type: 'fetch' });
-    sayHello(clickValue).then(handleFetch('fetch_success', 'planet'));
+    sayHello(clickValue)
+      .then(handleFetch('fetch_success', 'planet'))
+      .catch(err => dispatch({ type: 'add_planet_error', payload: err.message }));
   };
 
   const handleAddPlanet = e => {
