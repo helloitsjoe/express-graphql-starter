@@ -1,6 +1,9 @@
 const { graphql } = require('graphql');
 const { schema, rootValue } = require('../rootSchemas');
 const { logGraphqlErrors } = require('../../utils');
+const data = require('../data');
+
+const contextValue = { data };
 
 test('get hero by name', async () => {
   const source = `
@@ -17,7 +20,7 @@ test('get hero by name', async () => {
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue }).then(logGraphqlErrors);
+  const res = await graphql({ schema, source, rootValue, contextValue }).then(logGraphqlErrors);
   const [indy] = res.data.heroes;
   expect(indy.name).toBe('Indiana Jones');
   expect(indy.powers).toEqual(['whip', 'intelligence']);
@@ -33,7 +36,7 @@ test('uppercase name', async () => {
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue });
+  const res = await graphql({ schema, source, rootValue, contextValue });
   const [indy] = res.data.heroes;
   expect(indy.name).toBe('INDIANA JONES');
 });
@@ -47,7 +50,7 @@ test('get hero by power', async () => {
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue });
+  const res = await graphql({ schema, source, rootValue, contextValue });
   expect(res.data.heroes.every(h => h.powers.includes('strength'))).toBe(true);
 });
 
@@ -62,6 +65,6 @@ test('get random hero', async () => {
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue });
+  const res = await graphql({ schema, source, rootValue, contextValue }).then(logGraphqlErrors);
   expect(typeof res.data.randomHero.name).toBe('string');
 });

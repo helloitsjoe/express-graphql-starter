@@ -1,3 +1,5 @@
+const { matchName } = require('../utils');
+
 const MOVIE = {
   RAIDERS: 'Raiders of the Lost Ark',
   TEMPLE: 'Temple of Doom',
@@ -48,8 +50,15 @@ const createMovie = name => {
 
 const movies = Object.values(MOVIE).map(createMovie);
 
+const fetchHeroes = (name, power) => {
+  const byName = h => !name || matchName(h, name);
+  const byPower = h => !power || h.powers.includes(power);
+  return Promise.resolve(heroes.filter(byName).filter(byPower));
+};
+
 module.exports = {
-  heroes,
+  // heroes,
+  fetchHeroes,
   villains,
   movies,
 };

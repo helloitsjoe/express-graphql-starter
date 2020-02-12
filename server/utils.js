@@ -4,7 +4,7 @@ export const handleAxiosError = e => console.error('ERROR', e.response.data.erro
 export const logGraphqlErrors = res => {
   if (res.errors && res.errors.length) {
     const [error] = res.errors;
-    const message = `${error.message}: ${error.location}`;
+    const message = `${error.message}: at ${JSON.stringify(error.locations)} path: ${error.path}`;
     console.error(message);
     throw new Error(message);
   }
