@@ -7,6 +7,7 @@ let planets = [...initialPlanets];
 export const planetFields = {
   planet: {
     type: GraphQLString,
+    description: 'A planet',
     args: { name: { type: GraphQLString } },
     resolve(_, { name }) {
       const planetIsKnown = planets.includes(name);
@@ -16,6 +17,7 @@ export const planetFields = {
   },
   planets: {
     type: new GraphQLList(GraphQLString),
+    description: 'All planets',
     resolve() {
       return Promise.resolve(planets);
     },
@@ -25,6 +27,7 @@ export const planetFields = {
 export const planetMutationFields = {
   addPlanet: {
     type: new GraphQLList(GraphQLString),
+    description: 'Add a new planet by passing a name',
     args: { name: { type: GraphQLString } },
     resolve(_, { name }) {
       planets.push(name);

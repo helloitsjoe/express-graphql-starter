@@ -20,6 +20,7 @@ export const MovieType = new GraphQLObjectType({
 export const movieFields = {
   movies: {
     type: new GraphQLList(MovieType),
+    description: 'Movies filtered by name or castMemberName',
     args: {
       name: { type: GraphQLString },
       castMemberName: { type: GraphQLString },
@@ -36,6 +37,7 @@ export const movieFields = {
   },
   randomMovie: {
     type: MovieType,
+    description: 'A random movie',
     resolve() {
       return makeMovie(getRandom(data.movies));
     },

@@ -7,22 +7,25 @@ import { getRandom, matchName } from '../../utils';
 
 export const VillainType = new GraphQLObjectType({
   name: 'Villain',
+  description: 'A villain',
   fields: () => ({
     name: {
       type: GraphQLString,
+      description: "The villain's name",
       args: { shouldUpperCase: { type: GraphQLBoolean } },
       resolve({ name }, { shouldUpperCase }) {
         return shouldUpperCase ? name.toUpperCase() : name;
       },
     },
-    powers: { type: new GraphQLList(GraphQLString) },
-    movies: { type: new GraphQLList(MovieType) },
+    powers: { type: new GraphQLList(GraphQLString), description: "The villain's powers" },
+    movies: { type: new GraphQLList(MovieType), description: 'Movies featuring the villain' },
   }),
 });
 
 export const villainFields = {
   villains: {
     type: new GraphQLList(VillainType),
+    description: 'Villains filtered by name or powers',
     args: {
       name: { type: GraphQLString },
       power: { type: GraphQLString },
@@ -39,6 +42,7 @@ export const villainFields = {
   },
   randomVillain: {
     type: VillainType,
+    description: 'A random villain',
     resolve() {
       return getRandom(data.villains);
     },
