@@ -2,7 +2,6 @@ const express = require('express');
 const path = require('path');
 const http = require('http');
 const bodyParser = require('body-parser');
-const index = require('./routes/index');
 const graphql = require('./routes/graphql');
 
 const app = express();
@@ -11,9 +10,10 @@ const server = http.createServer(app);
 const makeServer = async (port = 3000) => {
   app.use(express.static(path.join(__dirname, '../public')));
   app.use(bodyParser.json());
-  // cors
+  // cors?
 
-  app.use('/', index);
+  // This is redundant! app.use(express.static(...)) does the job
+  // app.use('/', index);
   app.use('/graphql', graphql);
 
   // App is already listening
