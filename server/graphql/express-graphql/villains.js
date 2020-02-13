@@ -1,7 +1,6 @@
 /* eslint-disable max-classes-per-file */
-import data from '../data';
-import { makeMovie } from './movies';
-import { matchName, getRandom } from '../../utils';
+import { makeMovie } from '../models';
+import { getRandom } from '../../utils';
 
 export const villainSchema = `
   type Villain {
@@ -21,15 +20,11 @@ export const villainSchema = `
   }
 `;
 
-export class Villain {
+export class VillainType {
   constructor({ name, powers, movies }) {
-    // When converting to DB call, maybe make call here instead?
-    // this.villain = db.fetchVillain(name);
-    // this.powers = this.villain.powers;
-    // etc
     this._name = name;
     this.powers = powers;
-    this.movies = () => movies.map(movieName => makeMovie({ name: movieName }));
+    this.movies = (args, { data }) => movies.map(movieName => makeMovie({ name: movieName, data }));
   }
 
   name({ shouldUpperCase }) {
@@ -38,16 +33,15 @@ export class Villain {
 }
 
 class VillainQuery {
-  villains = ({ name, power }) => {
-    const villains = data.villains
-      .filter(v => !name || matchName(v, name))
-      .filter(v => !power || v.powers.includes(power))
-      .map(v => new Villain(v));
-
-    return villains;
+  villains = async ({ name, power }, { data }) => {
+    const villains = await data.fetchVillains(name, power);
+    return villains.map(v => new VillainType(v));
   };
 
-  randomVillain = () => new Villain(getRandom(data.villains));
+  randomVillain = async (args, { data }) => {
+    const villains = await data.fetchVillains();
+    return new VillainType(getRandom(villains));
+  };
 }
 
 export const villainRoot = new VillainQuery();
