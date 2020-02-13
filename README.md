@@ -1,6 +1,8 @@
 # Express GraphQL Starter
 
-Starter kit for a React app running an Express server with a graphql endpoint
+Starter kit for a React app running an Express server with a graphql endpoint.
+
+Includes examples of setting up a node GraphQL server.
 
 ## Branches
 
