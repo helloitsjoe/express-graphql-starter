@@ -31,11 +31,16 @@ test('random movie', async () => {
     query {
       randomMovie {
         name
+        heroes {
+          name
+        }
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue });
-  expect(typeof res.data.randomMovie.name).toBe('string');
+  const res = await graphql({ schema, source, rootValue, contextValue });
+  const { randomMovie } = res.data;
+  expect(typeof randomMovie.name).toBe('string');
+  expect(randomMovie.heroes.every(h => typeof h.name === 'string')).toBe(true);
 });
 
 test('connects to villains', async () => {

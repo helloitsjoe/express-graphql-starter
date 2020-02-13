@@ -61,10 +61,16 @@ test('get random hero', async () => {
         name
         movies {
           name
+          heroes {
+            name
+          }
         }
       }
     }
   `;
   const res = await graphql({ schema, source, rootValue, contextValue }).then(logGraphqlErrors);
-  expect(typeof res.data.randomHero.name).toBe('string');
+  const { randomHero } = res.data;
+  expect(typeof randomHero.name).toBe('string');
+  const [firstMovie] = randomHero.movies;
+  expect(firstMovie.heroes.some(h => h.name === randomHero.name)).toBe(true);
 });
