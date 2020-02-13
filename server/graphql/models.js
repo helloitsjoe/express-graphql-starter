@@ -1,30 +1,35 @@
-// TODO: Make data async (DB)
-import data from './data';
 import { matchName } from '../utils';
 
-export const makeHero = ({ name }) => {
-  const hero = data.heroes.find(h => matchName(h, name));
+// TODO: Instead of instantiating models with data, have them expose methods that take data
+
+export const makeHero = async ({ name, data }) => {
+  const [hero] = await data.fetchHeroes(name);
   return {
     name: hero.name,
     powers: hero.powers,
-    movies: () => hero.movies.map(movieName => makeMovie({ name: movieName })),
+    movies: hero.movies,
+    // movies: () => hero.movies.map(movieName => makeMovie({ name: movieName, data })),
   };
 };
 
 export class Villain {
-  constructor({ name }) {
-    const villain = data.villains.find(v => matchName(v, name));
+  async init({ name, data }) {
+    const [villain] = await data.fetchVillains(name);
     this.name = villain.name;
     this.powers = villain.powers;
-    this.movies = () => villain.movies.map(movieName => makeMovie({ name: movieName }));
+    this.movies = villain.movies;
+    // this.movies = () => villain.movies.map(movieName => makeMovie({ name: movieName, data }));
+    return this;
   }
 }
 
-export const makeMovie = ({ name }) => {
-  const movie = data.movies.find(m => matchName(m, name));
+export const makeMovie = async ({ name, data }) => {
+  const [movie] = await data.fetchMovies(name);
   return {
-    name,
-    heroes: movie.heroes.map(makeHero),
-    villains: () => movie.villains.map(v => new Villain(v)),
+    name: movie.name,
+    heroes: movie.heroes,
+    villains: movie.villains,
+    // heroes: movie.heroes.map(h => makeHero({ name: h.name, data })),
+    // villains: movie.villains.map(v => new Villain().init({ name: v.name, data })),
   };
 };

@@ -1,8 +1,8 @@
+/* eslint-disable import/no-cycle */
 import { GraphQLObjectType, GraphQLString, GraphQLList, GraphQLBoolean } from 'graphql';
-import data from '../data';
-import { MovieType, makeMovie } from './movies';
-import { makeHero } from '../models';
-import { getRandom, matchName } from '../../utils';
+import { MovieType } from './movies';
+import { makeHero, makeMovie } from '../models';
+import { getRandom } from '../../utils';
 
 export const HeroType = new GraphQLObjectType({
   name: 'Hero',
@@ -12,12 +12,18 @@ export const HeroType = new GraphQLObjectType({
       type: GraphQLString,
       description: "Hero's name",
       args: { shouldUppercase: { type: GraphQLBoolean } },
-      resolve({ name }, { shouldUppercase }) {
+      async resolve({ name }, { shouldUppercase }) {
         return shouldUppercase ? name.toUpperCase() : name;
       },
     },
     powers: { type: new GraphQLList(GraphQLString), description: "Hero's powers" },
-    movies: { type: new GraphQLList(MovieType), description: 'Movies starring the hero' },
+    movies: {
+      type: new GraphQLList(MovieType),
+      description: 'Movies starring the hero',
+      async resolve(hero, args, { data }) {
+        return hero.movies.map(name => makeMovie({ name, data }));
+      },
+    },
   }),
 });
 
@@ -29,21 +35,17 @@ export const heroFields = {
       name: { type: GraphQLString },
       power: { type: new GraphQLList(GraphQLString) },
     },
-    resolve(obj, { name, power }) {
-      // Naive implementation
-      const heroes = data.heroes
-        .filter(h => !name || matchName(h, name))
-        .filter(h => !power || h.powers.includes(power))
-        .map(makeHero);
-
-      return heroes;
+    async resolve(_, { name, power }, { data }) {
+      // TODO: Would it be better to return a model?
+      return data.fetchHeroes(name, power);
     },
   },
   randomHero: {
     type: HeroType,
     description: 'A random hero',
-    resolve() {
-      return getRandom(data.heroes);
+    async resolve(_, __, { data }) {
+      const heroes = await data.fetchHeroes();
+      return getRandom(heroes);
     },
   },
 };

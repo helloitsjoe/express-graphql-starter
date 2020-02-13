@@ -56,9 +56,23 @@ const fetchHeroes = (name, power) => {
   return Promise.resolve(heroes.filter(byName).filter(byPower));
 };
 
+const fetchVillains = (name, power) => {
+  const byName = h => !name || matchName(h, name);
+  const byPower = h => !power || h.powers.includes(power);
+  return Promise.resolve(villains.filter(byName).filter(byPower));
+};
+
+const fetchMovies = (name, castMemberName) => {
+  const byName = m => !name || matchName(m, name);
+  const byCast = m =>
+    !castMemberName || m.heroes.concat(m.villains).some(c => matchName(c, castMemberName));
+  return Promise.resolve(movies.filter(byName).filter(byCast));
+};
+
 module.exports = {
   // heroes,
   fetchHeroes,
-  villains,
-  movies,
+  fetchMovies,
+  fetchVillains,
+  // movies,
 };

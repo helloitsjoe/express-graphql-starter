@@ -1,11 +1,9 @@
+/* eslint-disable import/no-cycle */
 import { GraphQLObjectType, GraphQLString, GraphQLList } from 'graphql';
-import data from '../data';
 import { VillainType } from './villains';
 import { HeroType } from './heroes';
 import { makeMovie } from '../models';
-import { getRandom, matchName } from '../../utils';
-
-const getCastMembers = movie => movie.heroes.concat(movie.villains);
+import { getRandom } from '../../utils';
 
 export const MovieType = new GraphQLObjectType({
   name: 'Movie',
@@ -25,21 +23,19 @@ export const movieFields = {
       name: { type: GraphQLString },
       castMemberName: { type: GraphQLString },
     },
-    resolve(_, { name, castMemberName }) {
-      // Naive implementation
-      const movies = data.movies
-        .filter(m => !name || matchName(m, name))
-        .filter(m => !castMemberName || getCastMembers(m).some(c => matchName(c, castMemberName)))
-        .map(makeMovie);
-
-      return movies;
+    async resolve(_, { name, castMemberName }, { data }) {
+      // TODO: Would it be better to return a model?
+      return data.fetchMovies(name, castMemberName);
+      // return movies.map(m => makeMovie({ name: m.name, data }));
     },
   },
   randomMovie: {
     type: MovieType,
     description: 'A random movie',
-    resolve() {
-      return makeMovie(getRandom(data.movies));
+    async resolve(_, __, { data }) {
+      const movies = await data.fetchMovies();
+      return getRandom(movies);
+      // return makeMovie({ name: getRandom(movies).name, data });
     },
   },
 };

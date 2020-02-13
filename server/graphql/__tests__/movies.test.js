@@ -1,6 +1,9 @@
 const { graphql } = require('graphql');
 const { schema, rootValue } = require('../rootSchemas');
 const { logGraphqlErrors } = require('../../utils');
+const data = require('../data');
+
+const contextValue = { data };
 
 test('by name', async () => {
   const source = `
@@ -10,7 +13,7 @@ test('by name', async () => {
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue }).then(logGraphqlErrors);
+  const res = await graphql({ schema, source, rootValue, contextValue }).then(logGraphqlErrors);
   expect(res.data.movies[0].name).toBe('Batman');
 });
 
@@ -22,7 +25,7 @@ test('by cast member name', async () => {
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue });
+  const res = await graphql({ schema, source, rootValue, contextValue });
   expect(res.data.movies[0].name).toBe('Batman');
 });
 
@@ -57,7 +60,7 @@ test('connects to villains', async () => {
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue }).then(logGraphqlErrors);
+  const res = await graphql({ schema, source, rootValue, contextValue }).then(logGraphqlErrors);
   const [movie] = res.data.movies;
   expect(movie.name).toBe('Batman');
   const joker = movie.villains.find(v => v.name === 'The Joker');
@@ -78,7 +81,7 @@ test('connects to heroes', async () => {
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue });
+  const res = await graphql({ schema, source, rootValue, contextValue });
   const [movie] = res.data.movies;
   expect(movie.name).toBe('X-Men');
   const wolverine = movie.heroes.find(h => h.name === 'Wolverine');

@@ -1,6 +1,9 @@
 import { graphql } from 'graphql';
 import { schema, rootValue } from '../rootSchemas';
 import { logGraphqlErrors } from '../../utils';
+import data from '../data';
+
+const contextValue = { data };
 
 test('get villain by name', async () => {
   const source = `
@@ -17,7 +20,7 @@ test('get villain by name', async () => {
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue }).then(logGraphqlErrors);
+  const res = await graphql({ schema, source, rootValue, contextValue }).then(logGraphqlErrors);
   const [magneto] = res.data.villains;
   expect(magneto.name).toBe('Magneto');
   expect(magneto.powers).toEqual(['magnetism']);
@@ -33,7 +36,7 @@ test('uppercase name', async () => {
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue }).then(logGraphqlErrors);
+  const res = await graphql({ schema, source, rootValue, contextValue }).then(logGraphqlErrors);
   const [magneto] = res.data.villains;
   expect(magneto.name).toBe('MAGNETO');
 });
@@ -47,7 +50,7 @@ test('get villain by power', async () => {
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue });
+  const res = await graphql({ schema, source, rootValue, contextValue });
   expect(res.data.villains.every(v => v.powers.includes('magnetism'))).toBe(true);
 });
 
