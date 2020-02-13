@@ -43,8 +43,8 @@ const createMovie = name => {
   const isInMovie = character => character.movies.includes(name);
   return {
     name,
-    heroes: heroes.filter(isInMovie),
-    villains: villains.filter(isInMovie),
+    heroes: heroes.filter(isInMovie).map(h => h.name),
+    villains: villains.filter(isInMovie).map(v => v.name),
   };
 };
 
@@ -65,7 +65,8 @@ const fetchVillains = (name, power) => {
 const fetchMovies = (name, castMemberName) => {
   const byName = m => !name || matchName(m, name);
   const byCast = m =>
-    !castMemberName || m.heroes.concat(m.villains).some(c => matchName(c, castMemberName));
+    !castMemberName ||
+    m.heroes.concat(m.villains).some(n => matchName({ name: n }, castMemberName));
   return Promise.resolve(movies.filter(byName).filter(byCast));
 };
 

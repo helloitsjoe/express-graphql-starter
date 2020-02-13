@@ -1,5 +1,6 @@
-import { VillainType } from './villains';
-import { heroResolver } from './heroes';
+// import { VillainType } from './villains';
+// import { heroResolver } from './heroes';
+import { makeHero, Villain } from '../models';
 import { getRandom } from '../../utils';
 
 // Note that we can use types defined in other files
@@ -21,24 +22,25 @@ export const movieSchema = `
   }
 `;
 
-export const movieResolver = async ({ name, data }) => {
-  const [movie] = await data.fetchMovies(name);
+export const movieResolver = async ({ name, heroes, villains }) => {
+  // const [movie] = await data.fetchMovies(name);
+  console.log(`heroes:`, heroes);
   return {
-    name: () => movie.name,
-    // TODO: Should this be makeHero/Villain from models.js instead?
-    heroes: () => movie.heroes.map(heroResolver),
-    villains: () => movie.villains.map(v => new VillainType(v)),
+    name,
+    heroes: (args, { data }) => heroes.map(heroName => makeHero({ name: heroName, data })),
+    villains: (args, { data }) =>
+      villains.map(villainName => new Villain().init({ name: villainName, data })),
   };
 };
 
 const moviesResolver = async ({ name, castMemberName } = {}, { data }) => {
   const movies = await data.fetchMovies(name, castMemberName);
-  return movies.map(m => movieResolver({ name: m.name, data }));
+  return movies.map(movieResolver);
 };
 
 const randomMovieResolver = async (args, { data }) => {
   const movies = await data.fetchMovies();
-  return getRandom(movies);
+  return movieResolver(getRandom(movies));
 };
 
 export const movieRoot = {

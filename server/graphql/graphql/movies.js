@@ -2,7 +2,7 @@
 import { GraphQLObjectType, GraphQLString, GraphQLList } from 'graphql';
 import { VillainType } from './villains';
 import { HeroType } from './heroes';
-import { makeMovie } from '../models';
+import { makeMovie, makeHero, Villain } from '../models';
 import { getRandom } from '../../utils';
 
 export const MovieType = new GraphQLObjectType({
@@ -10,8 +10,20 @@ export const MovieType = new GraphQLObjectType({
   description: 'A Movie',
   fields: () => ({
     name: { type: GraphQLString, description: "The movie's name" },
-    heroes: { type: new GraphQLList(HeroType), description: 'Heroes in the movie' },
-    villains: { type: new GraphQLList(VillainType), description: 'Villains in the movie' },
+    heroes: {
+      type: new GraphQLList(HeroType),
+      description: 'Heroes in the movie',
+      async resolve(movie, args, { data }) {
+        return movie.heroes.map(heroName => makeHero({ name: heroName, data }));
+      },
+    },
+    villains: {
+      type: new GraphQLList(VillainType),
+      description: 'Villains in the movie',
+      async resolve(movie, args, { data }) {
+        return movie.villains.map(villainName => new Villain().init({ name: villainName, data }));
+      },
+    },
   }),
 });
 
@@ -26,6 +38,7 @@ export const movieFields = {
     async resolve(_, { name, castMemberName }, { data }) {
       // TODO: Would it be better to return a model?
       return data.fetchMovies(name, castMemberName);
+      // const movies = await data.fetchMovies(name, castMemberName);
       // return movies.map(m => makeMovie({ name: m.name, data }));
     },
   },

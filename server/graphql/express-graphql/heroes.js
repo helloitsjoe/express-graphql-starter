@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-import { makeMovie } from '../models';
+import { makeMovie, makeHero } from '../models';
 import { getRandom } from '../../utils';
 
 export const heroSchema = `
@@ -20,20 +20,19 @@ export const heroSchema = `
   }
 `;
 
-// TODO: Import this from models.js
 export const heroResolver = ({ name, powers, movies }) => {
   return {
     powers,
     name: ({ shouldUppercase = false }) => (shouldUppercase ? name.toUpperCase() : name),
     movies: (args, { data }) => {
       return movies.map(movieName => makeMovie({ name: movieName, data }));
-      // return movies.map(movieName => data.fetchMovies(movieName));
     },
   };
 };
 
 const heroesResolver = async ({ name, power } = {}, { data }) => {
   const heroes = await data.fetchHeroes(name, power);
+  // const heroModels = heroes.map(h => makeHero({ name: h.name, data }));
   return heroes.map(heroResolver);
 };
 

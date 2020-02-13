@@ -40,7 +40,7 @@ test('random movie', async () => {
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue, contextValue });
+  const res = await graphql({ schema, source, rootValue, contextValue }).then(logGraphqlErrors);
   const { randomMovie } = res.data;
   expect(typeof randomMovie.name).toBe('string');
   expect(randomMovie.heroes.every(h => typeof h.name === 'string')).toBe(true);

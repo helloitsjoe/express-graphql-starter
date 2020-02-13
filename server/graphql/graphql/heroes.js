@@ -38,6 +38,7 @@ export const heroFields = {
     async resolve(_, { name, power }, { data }) {
       // TODO: Would it be better to return a model?
       return data.fetchHeroes(name, power);
+      // return heroes.map(h => makeHero({ name: h.name, data }));
     },
   },
   randomHero: {
