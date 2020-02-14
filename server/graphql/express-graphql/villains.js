@@ -20,7 +20,7 @@ export const villainSchema = `
   }
 `;
 
-export class VillainType {
+export class Villain {
   constructor({ name, powers, movies }) {
     this._name = name;
     this.powers = powers;
@@ -35,12 +35,12 @@ export class VillainType {
 class VillainQuery {
   villains = async ({ name, power }, { data }) => {
     const villains = await data.fetchVillains(name, power);
-    return villains.map(v => new VillainType(v));
+    return villains.map(v => new Villain(v));
   };
 
   randomVillain = async (args, { data }) => {
     const villains = await data.fetchVillains();
-    return new VillainType(getRandom(villains));
+    return new Villain(getRandom(villains));
   };
 }
 

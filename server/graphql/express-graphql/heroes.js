@@ -20,25 +20,38 @@ export const heroSchema = `
   }
 `;
 
-export const heroResolver = ({ name, powers, movies }) => {
-  return {
-    powers,
-    name: ({ shouldUppercase = false }) => (shouldUppercase ? name.toUpperCase() : name),
-    movies: (args, { data }) => {
+// export const heroResolver = ({ name, powers, movies }) => {
+//   console.log(`name:`, name);
+//   return {
+//     powers,
+//     name: ({ shouldUppercase = false }) => (shouldUppercase ? name.toUpperCase() : name),
+//     movies: (args, { data }) => {
+//       return movies.map(movieName => makeMovie({ name: movieName, data }));
+//     },
+//   };
+// };
+
+export class Hero {
+  constructor({ name, powers, movies }) {
+    console.log(`name:`, name);
+    this.powers = powers;
+    this.name = ({ shouldUppercase = false }) => (shouldUppercase ? name.toUpperCase() : name);
+    this.movies = (args, { data }) => {
       return movies.map(movieName => makeMovie({ name: movieName, data }));
-    },
-  };
-};
+    };
+  }
+}
 
 const heroesResolver = async ({ name, power } = {}, { data }) => {
   const heroes = await data.fetchHeroes(name, power);
   // const heroModels = heroes.map(h => makeHero({ name: h.name, data }));
-  return heroes.map(heroResolver);
+  return heroes.map(h => new Hero(h));
 };
 
 const randomHeroResolver = async (args, { data }) => {
   const heroes = await data.fetchHeroes();
-  return heroResolver(getRandom(heroes));
+  return new Hero(getRandom(heroes));
+  // return heroResolver(getRandom(heroes));
 };
 
 export const heroRoot = {

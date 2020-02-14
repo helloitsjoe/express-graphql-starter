@@ -22,20 +22,32 @@ export const movieSchema = `
   }
 `;
 
-export const movieResolver = async ({ name, heroes, villains }) => {
-  // const [movie] = await data.fetchMovies(name);
-  console.log(`heroes:`, heroes);
-  return {
-    name,
-    heroes: (args, { data }) => heroes.map(heroName => makeHero({ name: heroName, data })),
-    villains: (args, { data }) =>
-      villains.map(villainName => new Villain().init({ name: villainName, data })),
-  };
-};
+// export const movieResolver = async ({ name, heroes, villains }) => {
+//   // const [movie] = await data.fetchMovies(name);
+//   console.log(`heroes:`, heroes);
+//   console.log(`villains:`, villains);
+//   return {
+//     name,
+//     heroes: (args, { data }) => heroes.map(heroName => makeHero({ name: heroName, data })),
+//     villains: (args, { data }) =>
+//       villains.map(villainName => new Villain().init({ name: villainName, data })),
+//   };
+// };
+
+export class Movie {
+  // async init({ name, heroes, villains }) {
+  constructor({ name, heroes, villains }) {
+    console.log(`heroes:`, heroes);
+    this.name = name;
+    this.heroes = (args, { data }) => heroes.map(heroName => makeHero({ name: heroName, data }));
+    this.villains = (args, { data }) =>
+      villains.map(villainName => new Villain().init({ name: villainName, data }));
+  }
+}
 
 const moviesResolver = async ({ name, castMemberName } = {}, { data }) => {
   const movies = await data.fetchMovies(name, castMemberName);
-  return movies.map(movieResolver);
+  return movies.map(m => new Movie(m));
 };
 
 const randomMovieResolver = async (args, { data }) => {

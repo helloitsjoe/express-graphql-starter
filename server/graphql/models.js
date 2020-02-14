@@ -25,6 +25,7 @@ export class Villain {
 
 export const makeMovie = async ({ name, data }) => {
   const [movie] = await data.fetchMovies(name);
+  console.log(`movie:`, movie);
   return {
     name: movie.name,
     heroes: movie.heroes,
