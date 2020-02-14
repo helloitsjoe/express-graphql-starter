@@ -1,4 +1,5 @@
 import { buildSchema, GraphQLSchema, GraphQLObjectType } from 'graphql';
+import { makeExecutableSchema } from 'graphql-tools';
 import { mergeTypes } from 'merge-graphql-schemas';
 
 import { heroSchema, heroRoot } from './express-graphql/heroes';
@@ -11,16 +12,21 @@ import { villainFields } from './graphql/villains';
 import { movieFields } from './graphql/movies';
 import { planetFields, planetMutationFields } from './graphql/planets';
 
-const USE_EXPRESS = true;
+const USE_GRAPHQL_TOOLS = true;
 
-const expressSchemas = buildSchema(
-  mergeTypes([heroSchema, villainSchema, movieSchema, planetSchema], {
-    all: true,
-  })
-);
+// const expressSchemas = buildSchema(
+//   mergeTypes([heroSchema, villainSchema, movieSchema, planetSchema], {
+//     all: true,
+//   })
+// );
+
+const stringSchema = makeExecutableSchema({
+  typeDefs: [heroSchema, villainSchema, movieSchema, planetSchema],
+  resolvers: { ...heroRoot, ...villainRoot, ...movieRoot, ...planetRoot },
+});
 
 // TODO: Maybe use a switch? See swapi-demo
-const combinedSchemas = new GraphQLSchema({
+const objectSchema = new GraphQLSchema({
   query: new GraphQLObjectType({
     name: 'RootQueryType',
     fields: () => ({
@@ -38,8 +44,8 @@ const combinedSchemas = new GraphQLSchema({
   }),
 });
 
-export const schema = USE_EXPRESS ? expressSchemas : combinedSchemas;
+export const schema = USE_GRAPHQL_TOOLS ? stringSchema : objectSchema;
 
-export const rootValue = USE_EXPRESS
-  ? { ...heroRoot, ...villainRoot, ...movieRoot, ...planetRoot }
-  : null;
+// export const rootValue = USE_GRAPHQL_TOOLS
+//   ? { ...heroRoot, ...villainRoot, ...movieRoot, ...planetRoot }
+//   : null;
