@@ -12,7 +12,7 @@ export const heroSchema = `
     movies: [Movie!]!
   }
 
-  type Query {
+  extend type Query {
     "Heroes filtered by name or power"
     heroes(name: String, power: String): [Hero!]!
     "Get a random hero"

@@ -12,7 +12,7 @@ export const villainSchema = `
     movies: [Movie!]!
   }
 
-  type Query {
+  extend type Query {
     "Villains filtered by name or power"
     villains(name: String, power: String): [Villain!]!
     "Get a random villain"

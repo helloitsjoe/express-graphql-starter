@@ -21,11 +21,19 @@ const USE_GRAPHQL_TOOLS = true;
 // );
 
 const stringSchema = makeExecutableSchema({
-  typeDefs: [heroSchema, villainSchema, movieSchema, planetSchema],
-  resolvers: { ...heroRoot, ...villainRoot, ...movieRoot, ...planetRoot },
+  typeDefs: [
+    `
+  schema {
+    query: Query
+    mutation: Mutation
+  }
+  `,
+    ...heroSchema,
+  ],
+  resolvers: {},
 });
 
-// TODO: Maybe use a switch? See swapi-demo
+// TODO: Maybe use a switch? See s wapi-demo
 const objectSchema = new GraphQLSchema({
   query: new GraphQLObjectType({
     name: 'RootQueryType',

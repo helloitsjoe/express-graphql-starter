@@ -14,7 +14,7 @@ export const movieSchema = `
     villains: [Villain!]!
   }
 
-  type Query {
+  extend type Query {
     "Movies filtered by name or castMemberName"
     movies(name: String, castMemberName: String): [Movie!]!
     "Get a random movie"

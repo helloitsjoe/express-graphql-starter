@@ -3,19 +3,19 @@ const { buildSchema } = require('graphql');
 const initialPlanets = ['World', 'Mars'];
 let planets = [...initialPlanets];
 
-const planetSchema = buildSchema(`
-  type Query {
+const planetSchema = `
+  extend type Query {
     "A single planet"
     planet(name: String!): String
     "All planets"
     planets: [String]
   }
 
-  type Mutation {
+  extend type Mutation {
     "Add a new planet"
     addPlanet(name: String!): [String]
   }
-`);
+`;
 
 const planetRoot = {
   planet: args => {
