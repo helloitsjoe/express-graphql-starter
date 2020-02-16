@@ -1,6 +1,5 @@
-import { buildSchema, GraphQLSchema, GraphQLObjectType } from 'graphql';
+import { GraphQLSchema, GraphQLObjectType } from 'graphql';
 import { makeExecutableSchema } from 'graphql-tools';
-import { mergeTypes } from 'merge-graphql-schemas';
 import merge from 'lodash/merge';
 
 import { heroSchema, heroRoot } from './executable-schema/heroes';
@@ -46,9 +45,5 @@ const objectSchema = new GraphQLSchema({
   }),
 });
 
+// eslint-disable-next-line import/prefer-default-export
 export const schema = USE_EXECUTABLE_SCHEMA ? stringSchema : objectSchema;
-
-export const rootValue = null;
-// export const rootValue = USE_GRAPHQL_TOOLS
-//   ? { ...heroRoot, ...villainRoot, ...movieRoot, ...planetRoot }
-//   : null;

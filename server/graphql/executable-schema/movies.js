@@ -1,5 +1,3 @@
-// import { VillainType } from './villains';
-// import { heroResolver } from './heroes';
 import { makeHero, makeVillain } from '../models';
 import { getRandom } from '../../utils';
 
@@ -22,21 +20,13 @@ export const movieSchema = `
   }
 `;
 
-const moviesResolver = async (_, { name, castMemberName } = {}, { data }) => {
-  const movies = await data.fetchMovies(name, castMemberName);
-  return movies;
-};
-
-const randomMovieResolver = async (_, args, { data }) => {
-  const movies = await data.fetchMovies();
-  return getRandom(movies);
-  // return movieResolver(getRandom(movies));
-};
-
 export const movieRoot = {
   Query: {
-    movies: moviesResolver,
-    randomMovie: randomMovieResolver,
+    movies: (_, args = {}, { data }) => data.fetchMovies(args.name, args.castMemberName),
+    randomMovie: async (_, args, { data }) => {
+      const movies = await data.fetchMovies();
+      return getRandom(movies);
+    },
   },
   Movie: {
     heroes: (movie, args, { data }) => movie.heroes.map(name => makeHero({ name, data })),

@@ -1,7 +1,7 @@
-/* eslint-disable max-classes-per-file */
 import { makeMovie } from '../models';
 import { getRandom } from '../../utils';
 
+// Note that we can use types defined in other files
 export const villainSchema = `
   type Villain {
     "Villain's name"
@@ -20,26 +20,16 @@ export const villainSchema = `
   }
 `;
 
-const villains = async (_, { name, power }, { data }) => {
-  const villainsData = await data.fetchVillains(name, power);
-  return villainsData;
-};
-
-const randomVillain = async (_, args, { data }) => {
-  const villainsData = await data.fetchVillains();
-  return getRandom(villainsData);
-};
-
 export const villainRoot = {
-  // Query: new VillainQuery(),
   Query: {
-    villains,
-    randomVillain,
+    villains: (_, args = {}, { data }) => data.fetchVillains(args.name, args.power),
+    randomVillain: async (_, args, { data }) => {
+      const villainsData = await data.fetchVillains();
+      return getRandom(villainsData);
+    },
   },
   Villain: {
     name: ({ name }, { shouldUpperCase = false }) => (shouldUpperCase ? name.toUpperCase() : name),
-    movies: ({ movies }, args, { data }) => {
-      return movies.map(movieName => makeMovie({ name: movieName, data }));
-    },
+    movies: ({ movies }, args, { data }) => movies.map(name => makeMovie({ name, data })),
   },
 };

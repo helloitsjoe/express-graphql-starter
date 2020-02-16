@@ -1,7 +1,7 @@
-/* eslint-disable import/no-cycle */
-import { makeMovie, makeHero } from '../models';
+import { makeMovie } from '../models';
 import { getRandom } from '../../utils';
 
+// Note that we can use types defined in other files
 export const heroSchema = `
   type Hero {
     "Hero's name"
@@ -20,29 +20,16 @@ export const heroSchema = `
   }
 `;
 
-const heroesResolver = async (_, { name, power } = {}, { data }) => {
-  const heroes = await data.fetchHeroes(name, power);
-  // const heroModels = heroes.map(h => makeHero({ name: h.name, data }));
-  // return heroes.map(heroResolver);
-  // console.log(`heroes:`, heroes);
-  return heroes;
-};
-
-const randomHeroResolver = async (_, args, { data }) => {
-  const heroes = await data.fetchHeroes();
-  return getRandom(heroes);
-};
-
 export const heroRoot = {
   Query: {
-    heroes: heroesResolver,
-    randomHero: randomHeroResolver,
+    heroes: (_, args = {}, { data }) => data.fetchHeroes(args.name, args.power),
+    randomHero: async (_, args, { data }) => {
+      const heroes = await data.fetchHeroes();
+      return getRandom(heroes);
+    },
   },
   Hero: {
-    powers: ({ powers }) => powers,
     name: ({ name }, { shouldUppercase = false }) => (shouldUppercase ? name.toUpperCase() : name),
-    movies: ({ movies }, args, { data }) => {
-      return movies.map(movieName => makeMovie({ name: movieName, data }));
-    },
+    movies: ({ movies }, args, { data }) => movies.map(name => makeMovie({ name, data })),
   },
 };

@@ -27,7 +27,6 @@ const planetRoot = {
   Mutation: {
     addPlanet: (_, args) => {
       planets.push(args.name);
-      // return reject(new Error('nooo'));
       return Promise.resolve(planets);
     },
   },
