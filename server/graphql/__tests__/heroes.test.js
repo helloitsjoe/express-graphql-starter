@@ -20,7 +20,7 @@ test('get hero by name', async () => {
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue, contextValue }).then(logGraphqlErrors);
+  const res = await graphql({ schema, source, contextValue, rootValue }).then(logGraphqlErrors);
   const [indy] = res.data.heroes;
   expect(indy.name).toBe('Indiana Jones');
   expect(indy.powers).toEqual(['whip', 'intelligence']);
@@ -36,7 +36,7 @@ test('uppercase name', async () => {
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue, contextValue });
+  const res = await graphql({ schema, source, rootValue, contextValue }).then(logGraphqlErrors);
   const [indy] = res.data.heroes;
   expect(indy.name).toBe('INDIANA JONES');
 });

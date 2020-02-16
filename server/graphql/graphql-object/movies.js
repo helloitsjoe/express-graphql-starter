@@ -2,7 +2,7 @@
 import { GraphQLObjectType, GraphQLString, GraphQLList } from 'graphql';
 import { VillainType } from './villains';
 import { HeroType } from './heroes';
-import { makeMovie, makeHero, Villain } from '../models';
+import { makeHero, makeVillain } from '../models';
 import { getRandom } from '../../utils';
 
 export const MovieType = new GraphQLObjectType({
@@ -21,7 +21,7 @@ export const MovieType = new GraphQLObjectType({
       type: new GraphQLList(VillainType),
       description: 'Villains in the movie',
       async resolve(movie, args, { data }) {
-        return movie.villains.map(villainName => new Villain().init({ name: villainName, data }));
+        return movie.villains.map(villainName => makeVillain({ name: villainName, data }));
       },
     },
   }),

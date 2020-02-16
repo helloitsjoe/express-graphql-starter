@@ -8,20 +8,17 @@ export const makeHero = async ({ name, data }) => {
     name: hero.name,
     powers: hero.powers,
     movies: hero.movies,
-    // movies: () => hero.movies.map(movieName => makeMovie({ name: movieName, data })),
   };
 };
 
-export class Villain {
-  async init({ name, data }) {
-    const [villain] = await data.fetchVillains(name);
-    this.name = villain.name;
-    this.powers = villain.powers;
-    this.movies = villain.movies;
-    // this.movies = () => villain.movies.map(movieName => makeMovie({ name: movieName, data }));
-    return this;
-  }
-}
+export const makeVillain = async ({ name, data }) => {
+  const [villain] = await data.fetchVillains(name);
+  return {
+    name: villain.name,
+    powers: villain.powers,
+    movies: villain.movies,
+  };
+};
 
 export const makeMovie = async ({ name, data }) => {
   const [movie] = await data.fetchMovies(name);
@@ -29,7 +26,5 @@ export const makeMovie = async ({ name, data }) => {
     name: movie.name,
     heroes: movie.heroes,
     villains: movie.villains,
-    // heroes: movie.heroes.map(h => makeHero({ name: h.name, data })),
-    // villains: movie.villains.map(v => new Villain().init({ name: v.name, data })),
   };
 };

@@ -1,7 +1,7 @@
 /* eslint-disable import/no-cycle */
 import { GraphQLObjectType, GraphQLString, GraphQLList, GraphQLBoolean } from 'graphql';
 import { MovieType } from './movies';
-import { makeHero, makeMovie } from '../models';
+import { makeMovie } from '../models';
 import { getRandom } from '../../utils';
 
 export const HeroType = new GraphQLObjectType({

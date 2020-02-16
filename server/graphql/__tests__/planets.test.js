@@ -1,12 +1,14 @@
 import { graphql } from 'graphql';
 import { schema, rootValue } from '../rootSchemas';
 import { logGraphqlErrors } from '../../utils';
-import { resetPlanets } from '../graphql/planets';
+import { resetPlanets } from '../graphql-object/planets';
 import { resetPlanets as resetPlanetsExpress } from '../express-graphql/planets';
+import { resetPlanets as resetPlanetsExecutable } from '../executable-schema/planets';
 
 afterEach(() => {
   resetPlanets();
   resetPlanetsExpress();
+  resetPlanetsExecutable();
 });
 
 test('get planet by name', async () => {
