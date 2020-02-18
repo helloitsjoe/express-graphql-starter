@@ -1,4 +1,7 @@
-const { buildSchema } = require('graphql');
+// NOTE: graphql's `buildSchema` is very limited. Currently you can't
+// define resolvers for individual types, so you can't do deep queries
+// i.e. Hero -> Movie -> Hero... graphql-tools `makeExecutableSchema`
+// is a better solution.
 
 const initialPlanets = ['World', 'Mars'];
 let planets = [...initialPlanets];
