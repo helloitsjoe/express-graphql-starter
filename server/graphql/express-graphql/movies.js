@@ -1,6 +1,4 @@
-// import { VillainType } from './villains';
-// import { heroResolver } from './heroes';
-import { makeHero, Villain } from '../models';
+import { makeHero, makeVillain } from '../models';
 import { getRandom } from '../../utils';
 
 // Note that we can use types defined in other files
@@ -29,7 +27,7 @@ export const movieResolver = async ({ name, heroes, villains }) => {
     name,
     heroes: (args, { data }) => heroes.map(heroName => makeHero({ name: heroName, data })),
     villains: (args, { data }) =>
-      villains.map(villainName => new Villain().init({ name: villainName, data })),
+      villains.map(villainName => makeVillain({ name: villainName, data })),
   };
 };
 

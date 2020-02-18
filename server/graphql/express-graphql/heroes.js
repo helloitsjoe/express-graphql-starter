@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-import { makeMovie, makeHero } from '../models';
+import { makeMovie } from '../models';
 import { getRandom } from '../../utils';
 
 export const heroSchema = `

@@ -1,5 +1,3 @@
-import { matchName } from '../utils';
-
 // TODO: Instead of instantiating models with data, have them expose methods that take data
 
 export const makeHero = async ({ name, data }) => {
