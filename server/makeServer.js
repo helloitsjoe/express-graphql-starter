@@ -10,10 +10,11 @@ const server = http.createServer(app);
 const makeServer = async (port = 3000) => {
   app.use(express.static(path.join(__dirname, '../public')));
   app.use(bodyParser.json());
-  // cors?
 
   // This is redundant! app.use(express.static(...)) does the job
   // app.use('/', index);
+
+  // TODO: Make sure ApolloServer plays with REST endpoints
 
   // ApolloServer has it's own integration with express :/
   graphql.applyMiddleware({ app });
@@ -26,13 +27,10 @@ const makeServer = async (port = 3000) => {
     server.listen(port, () => {
       if (process.env.NODE_ENV !== 'test') {
         console.log(`Serving site at http://localhost:${port}/`);
-        console.log(
-          `Serving GQL server at http://localhost:${port}${graphql.graphqlPath}`
-        );
+        console.log(`Serving GQL at http://localhost:${port}${graphql.graphqlPath}`);
         // console.log(
         //   `Running GQL API server at http://localhost:${port}/graphql`
         // );
-        // logIPAddress(port);
       }
       return resolve(server);
     });
