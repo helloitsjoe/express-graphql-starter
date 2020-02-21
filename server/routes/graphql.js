@@ -7,13 +7,13 @@ const {
   typeDefs,
   resolvers,
 } = require('../graphql/rootSchemas');
-const data = require('../graphql/data');
+const makeDB = require('../graphql/data');
 
 const graphql = new ApolloServer({
   typeDefs,
   resolvers,
   tracing: true,
-  context: { data },
+  context: { data: makeDB({ delay: 250 }) },
 });
 
 // const gql = gqlHTTP(request => ({

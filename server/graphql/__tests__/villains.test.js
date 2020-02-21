@@ -1,9 +1,9 @@
 import { graphql } from 'graphql';
-import { schema, rootValue } from '../rootSchemas';
+import { schema } from '../rootSchemas';
 import { logGraphqlErrors } from '../../utils';
-import data from '../data';
+import makeDB from '../data';
 
-const contextValue = { data };
+const contextValue = { data: makeDB() };
 
 test('get villain by name', async () => {
   const source = `
@@ -20,7 +20,7 @@ test('get villain by name', async () => {
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue, contextValue }).then(logGraphqlErrors);
+  const res = await graphql({ schema, source, contextValue }).then(logGraphqlErrors);
   const [magneto] = res.data.villains;
   expect(magneto.name).toBe('Magneto');
   expect(magneto.powers).toEqual(['magnetism']);
@@ -36,7 +36,7 @@ test('uppercase name', async () => {
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue, contextValue }).then(logGraphqlErrors);
+  const res = await graphql({ schema, source, contextValue }).then(logGraphqlErrors);
   const [magneto] = res.data.villains;
   expect(magneto.name).toBe('MAGNETO');
 });
@@ -50,7 +50,7 @@ test('get villain by power', async () => {
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue, contextValue });
+  const res = await graphql({ schema, source, contextValue });
   expect(res.data.villains.every(v => v.powers.includes('magnetism'))).toBe(true);
 });
 
@@ -68,7 +68,7 @@ test('get random villain', async () => {
       }
     }
   `;
-  const res = await graphql({ schema, source, rootValue, contextValue }).then(logGraphqlErrors);
+  const res = await graphql({ schema, source, contextValue }).then(logGraphqlErrors);
   const { randomVillain } = res.data;
   expect(typeof randomVillain.name).toBe('string');
   const [firstMovie] = randomVillain.movies;

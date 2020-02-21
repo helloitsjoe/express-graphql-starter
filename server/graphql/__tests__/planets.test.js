@@ -1,5 +1,5 @@
 import { graphql } from 'graphql';
-import { schema, rootValue } from '../rootSchemas';
+import { schema } from '../rootSchemas';
 import { logGraphqlErrors } from '../../utils';
 import { resetPlanets } from '../graphql-object/planets';
 import { resetPlanets as resetPlanetsExpress } from '../express-graphql/planets';
@@ -17,7 +17,7 @@ test('get planet by name', async () => {
       planet(name: "Mars")
     }
   `;
-  const res = await graphql({ schema, source, rootValue }).then(logGraphqlErrors);
+  const res = await graphql({ schema, source }).then(logGraphqlErrors);
   expect(res.data.planet).toBe('Mars');
 });
 
@@ -27,7 +27,7 @@ test('responds for unrecognized planet', async () => {
       planet(name: "Jupiter")
     }
   `;
-  const res = await graphql({ schema, source, rootValue }).then(logGraphqlErrors);
+  const res = await graphql({ schema, source }).then(logGraphqlErrors);
   expect(res.data.planet).toBe("I don't know where Jupiter is!");
 });
 
@@ -37,7 +37,7 @@ test('add planet', async () => {
       addPlanet(name: "Jupiter")
     }
   `;
-  const res = await graphql({ schema, source, rootValue }).then(logGraphqlErrors);
+  const res = await graphql({ schema, source }).then(logGraphqlErrors);
   expect(res.data.addPlanet).toEqual(['World', 'Mars', 'Jupiter']);
 });
 
@@ -47,6 +47,6 @@ test('get all planets', async () => {
       planets
     }
   `;
-  const res = await graphql({ schema, source, rootValue }).then(logGraphqlErrors);
+  const res = await graphql({ schema, source }).then(logGraphqlErrors);
   expect(res.data.planets).toEqual(['World', 'Mars']);
 });
