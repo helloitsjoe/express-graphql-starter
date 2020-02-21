@@ -21,14 +21,7 @@ const Mutation = `
   type Mutation
 `;
 
-export const typeDefs = [
-  Query,
-  Mutation,
-  villainSchema,
-  heroSchema,
-  movieSchema,
-  planetSchema,
-];
+export const typeDefs = [Query, Mutation, villainSchema, heroSchema, movieSchema, planetSchema];
 export const resolvers = merge(heroRoot, villainRoot, movieRoot, planetRoot);
 
 const stringSchema = makeExecutableSchema({

@@ -22,14 +22,14 @@ export const movieSchema = `
 
 export const movieRoot = {
   Query: {
-    movies: (_, args = {}, { data }) => data.fetchMovies(args.name, args.castMemberName),
-    randomMovie: async (_, args, { data }) => {
-      const movies = await data.fetchMovies();
+    movies: (_, args = {}, { db }) => db.fetchMovies(args.name, args.castMemberName),
+    randomMovie: async (_, args, { db }) => {
+      const movies = await db.fetchMovies();
       return getRandom(movies);
     },
   },
   Movie: {
-    heroes: (movie, args, { data }) => movie.heroes.map(name => makeHero({ name, data })),
-    villains: (movie, args, { data }) => movie.villains.map(name => makeVillain({ name, data })),
+    heroes: (movie, args, { db }) => movie.heroes.map(name => makeHero({ name, db })),
+    villains: (movie, args, { db }) => movie.villains.map(name => makeVillain({ name, db })),
   },
 };

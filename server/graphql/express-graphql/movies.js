@@ -26,23 +26,22 @@ export const movieSchema = `
 `;
 
 export const movieResolver = async ({ name, heroes, villains }) => {
-  // const [movie] = await data.fetchMovies(name);
+  // const [movie] = await db.fetchMovies(name);
   console.log(`heroes:`, heroes);
   return {
     name,
-    heroes: (args, { data }) => heroes.map(heroName => makeHero({ name: heroName, data })),
-    villains: (args, { data }) =>
-      villains.map(villainName => makeVillain({ name: villainName, data })),
+    heroes: (args, { db }) => heroes.map(heroName => makeHero({ name: heroName, db })),
+    villains: (args, { db }) => villains.map(villainName => makeVillain({ name: villainName, db })),
   };
 };
 
-const moviesResolver = async ({ name, castMemberName } = {}, { data }) => {
-  const movies = await data.fetchMovies(name, castMemberName);
+const moviesResolver = async ({ name, castMemberName } = {}, { db }) => {
+  const movies = await db.fetchMovies(name, castMemberName);
   return movies.map(movieResolver);
 };
 
-const randomMovieResolver = async (args, { data }) => {
-  const movies = await data.fetchMovies();
+const randomMovieResolver = async (args, { db }) => {
+  const movies = await db.fetchMovies();
   return movieResolver(getRandom(movies));
 };
 

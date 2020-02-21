@@ -13,15 +13,15 @@ export const MovieType = new GraphQLObjectType({
     heroes: {
       type: new GraphQLList(HeroType),
       description: 'Heroes in the movie',
-      async resolve(movie, args, { data }) {
-        return movie.heroes.map(heroName => makeHero({ name: heroName, data }));
+      async resolve(movie, args, { db }) {
+        return movie.heroes.map(heroName => makeHero({ name: heroName, db }));
       },
     },
     villains: {
       type: new GraphQLList(VillainType),
       description: 'Villains in the movie',
-      async resolve(movie, args, { data }) {
-        return movie.villains.map(villainName => makeVillain({ name: villainName, data }));
+      async resolve(movie, args, { db }) {
+        return movie.villains.map(villainName => makeVillain({ name: villainName, db }));
       },
     },
   }),
@@ -35,20 +35,20 @@ export const movieFields = {
       name: { type: GraphQLString },
       castMemberName: { type: GraphQLString },
     },
-    async resolve(_, { name, castMemberName }, { data }) {
+    async resolve(_, { name, castMemberName }, { db }) {
       // TODO: Would it be better to return a model?
-      return data.fetchMovies(name, castMemberName);
-      // const movies = await data.fetchMovies(name, castMemberName);
-      // return movies.map(m => makeMovie({ name: m.name, data }));
+      return db.fetchMovies(name, castMemberName);
+      // const movies = await db.fetchMovies(name, castMemberName);
+      // return movies.map(m => makeMovie({ name: m.name, db }));
     },
   },
   randomMovie: {
     type: MovieType,
     description: 'A random movie',
-    async resolve(_, __, { data }) {
-      const movies = await data.fetchMovies();
+    async resolve(_, __, { db }) {
+      const movies = await db.fetchMovies();
       return getRandom(movies);
-      // return makeMovie({ name: getRandom(movies).name, data });
+      // return makeMovie({ name: getRandom(movies).name, db });
     },
   },
 };

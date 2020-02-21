@@ -20,8 +20,8 @@ export const HeroType = new GraphQLObjectType({
     movies: {
       type: new GraphQLList(MovieType),
       description: 'Movies starring the hero',
-      async resolve(hero, args, { data }) {
-        return hero.movies.map(name => makeMovie({ name, data }));
+      async resolve(hero, args, { db }) {
+        return hero.movies.map(name => makeMovie({ name, db }));
       },
     },
   }),
@@ -35,17 +35,17 @@ export const heroFields = {
       name: { type: GraphQLString },
       power: { type: new GraphQLList(GraphQLString) },
     },
-    async resolve(_, { name, power }, { data }) {
+    async resolve(_, { name, power }, { db }) {
       // TODO: Would it be better to return a model?
-      return data.fetchHeroes(name, power);
-      // return heroes.map(h => makeHero({ name: h.name, data }));
+      return db.fetchHeroes(name, power);
+      // return heroes.map(h => makeHero({ name: h.name, db }));
     },
   },
   randomHero: {
     type: HeroType,
     description: 'A random hero',
-    async resolve(_, __, { data }) {
-      const heroes = await data.fetchHeroes();
+    async resolve(_, __, { db }) {
+      const heroes = await db.fetchHeroes();
       return getRandom(heroes);
     },
   },

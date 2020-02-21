@@ -1,7 +1,7 @@
 // TODO: Instead of instantiating models with data, have them expose methods that take data
 
-export const makeHero = async ({ name, data }) => {
-  const [hero] = await data.fetchHeroes(name);
+export const makeHero = async ({ name, db }) => {
+  const [hero] = await db.fetchHeroes(name);
   return {
     name: hero.name,
     powers: hero.powers,
@@ -9,8 +9,8 @@ export const makeHero = async ({ name, data }) => {
   };
 };
 
-export const makeVillain = async ({ name, data }) => {
-  const [villain] = await data.fetchVillains(name);
+export const makeVillain = async ({ name, db }) => {
+  const [villain] = await db.fetchVillains(name);
   return {
     name: villain.name,
     powers: villain.powers,
@@ -18,8 +18,8 @@ export const makeVillain = async ({ name, data }) => {
   };
 };
 
-export const makeMovie = async ({ name, data }) => {
-  const [movie] = await data.fetchMovies(name);
+export const makeMovie = async ({ name, db }) => {
+  const [movie] = await db.fetchMovies(name);
   return {
     name: movie.name,
     heroes: movie.heroes,

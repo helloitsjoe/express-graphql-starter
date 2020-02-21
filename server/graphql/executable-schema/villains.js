@@ -22,14 +22,14 @@ export const villainSchema = `
 
 export const villainRoot = {
   Query: {
-    villains: (_, args = {}, { data }) => data.fetchVillains(args.name, args.power),
-    randomVillain: async (_, args, { data }) => {
-      const villainsData = await data.fetchVillains();
+    villains: (_, args = {}, { db }) => db.fetchVillains(args.name, args.power),
+    randomVillain: async (_, args, { db }) => {
+      const villainsData = await db.fetchVillains();
       return getRandom(villainsData);
     },
   },
   Villain: {
     name: ({ name }, { shouldUpperCase = false }) => (shouldUpperCase ? name.toUpperCase() : name),
-    movies: ({ movies }, args, { data }) => movies.map(name => makeMovie({ name, data })),
+    movies: ({ movies }, args, { db }) => movies.map(name => makeMovie({ name, db })),
   },
 };

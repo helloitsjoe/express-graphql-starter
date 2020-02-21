@@ -22,14 +22,14 @@ export const heroSchema = `
 
 export const heroRoot = {
   Query: {
-    heroes: (_, args = {}, { data }) => data.fetchHeroes(args.name, args.power),
-    randomHero: async (_, args, { data }) => {
-      const heroes = await data.fetchHeroes();
+    heroes: (_, args = {}, { db }) => db.fetchHeroes(args.name, args.power),
+    randomHero: async (_, args, { db }) => {
+      const heroes = await db.fetchHeroes();
       return getRandom(heroes);
     },
   },
   Hero: {
     name: ({ name }, { shouldUppercase = false }) => (shouldUppercase ? name.toUpperCase() : name),
-    movies: ({ movies }, args, { data }) => movies.map(name => makeMovie({ name, data })),
+    movies: ({ movies }, args, { db }) => movies.map(name => makeMovie({ name, db })),
   },
 };

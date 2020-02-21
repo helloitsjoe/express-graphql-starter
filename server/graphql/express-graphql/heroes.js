@@ -28,20 +28,20 @@ export const heroResolver = ({ name, powers, movies }) => {
   return {
     powers,
     name: ({ shouldUppercase = false }) => (shouldUppercase ? name.toUpperCase() : name),
-    movies: (args, { data }) => {
-      return movies.map(movieName => makeMovie({ name: movieName, data }));
+    movies: (args, { db }) => {
+      return movies.map(movieName => makeMovie({ name: movieName, db }));
     },
   };
 };
 
-const heroesResolver = async ({ name, power } = {}, { data }) => {
-  const heroes = await data.fetchHeroes(name, power);
-  // const heroModels = heroes.map(h => makeHero({ name: h.name, data }));
+const heroesResolver = async ({ name, power } = {}, { db }) => {
+  const heroes = await db.fetchHeroes(name, power);
+  // const heroModels = heroes.map(h => makeHero({ name: h.name, db }));
   return heroes.map(heroResolver);
 };
 
-const randomHeroResolver = async (args, { data }) => {
-  const heroes = await data.fetchHeroes();
+const randomHeroResolver = async (args, { db }) => {
+  const heroes = await db.fetchHeroes();
   return heroResolver(getRandom(heroes));
 };
 

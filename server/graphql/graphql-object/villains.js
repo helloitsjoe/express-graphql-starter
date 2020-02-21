@@ -1,7 +1,7 @@
 /* eslint-disable import/no-cycle */
 import { GraphQLObjectType, GraphQLString, GraphQLBoolean, GraphQLList } from 'graphql';
 import { MovieType } from './movies';
-import { Villain, makeMovie } from '../models';
+import { makeMovie } from '../models';
 import { getRandom } from '../../utils';
 
 export const VillainType = new GraphQLObjectType({
@@ -20,8 +20,8 @@ export const VillainType = new GraphQLObjectType({
     movies: {
       type: new GraphQLList(MovieType),
       description: 'Movies featuring the villain',
-      resolve(villain, args, { data }) {
-        return villain.movies.map(name => makeMovie({ name, data }));
+      resolve(villain, args, { db }) {
+        return villain.movies.map(name => makeMovie({ name, db }));
       },
     },
   }),
@@ -35,17 +35,17 @@ export const villainFields = {
       name: { type: GraphQLString },
       power: { type: GraphQLString },
     },
-    async resolve(obj, { name, power }, { data }) {
+    async resolve(obj, { name, power }, { db }) {
       // TODO: Would it be better to return a model?
-      return data.fetchVillains(name, power);
-      // return villains.map(v => new Villain().init({ name: v.name, data }));
+      return db.fetchVillains(name, power);
+      // return villains.map(v => new Villain().init({ name: v.name, db }));
     },
   },
   randomVillain: {
     type: VillainType,
     description: 'A random villain',
-    async resolve(_, __, { data }) {
-      const villains = await data.fetchVillains();
+    async resolve(_, __, { db }) {
+      const villains = await db.fetchVillains();
       return getRandom(villains);
     },
   },
