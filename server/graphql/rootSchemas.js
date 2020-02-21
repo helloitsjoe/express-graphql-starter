@@ -21,9 +21,19 @@ const Mutation = `
   type Mutation
 `;
 
+export const typeDefs = [
+  Query,
+  Mutation,
+  villainSchema,
+  heroSchema,
+  movieSchema,
+  planetSchema,
+];
+export const resolvers = merge(heroRoot, villainRoot, movieRoot, planetRoot);
+
 const stringSchema = makeExecutableSchema({
-  typeDefs: [Query, Mutation, villainSchema, heroSchema, movieSchema, planetSchema],
-  resolvers: merge(heroRoot, villainRoot, movieRoot, planetRoot),
+  typeDefs,
+  resolvers,
 });
 
 // TODO: Maybe use a switch? See swapi-demo

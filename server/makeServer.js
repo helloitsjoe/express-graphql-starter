@@ -14,7 +14,10 @@ const makeServer = async (port = 3000) => {
 
   // This is redundant! app.use(express.static(...)) does the job
   // app.use('/', index);
-  app.use('/graphql', graphql);
+
+  // ApolloServer has it's own integration with express :/
+  graphql.applyMiddleware({ app });
+  // app.use('/graphql', graphql);
 
   // App is already listening
   if (server.address()) return Promise.resolve(server);
@@ -23,7 +26,12 @@ const makeServer = async (port = 3000) => {
     server.listen(port, () => {
       if (process.env.NODE_ENV !== 'test') {
         console.log(`Serving site at http://localhost:${port}/`);
-        console.log(`Running GQL API server at http://localhost:${port}/graphql`);
+        console.log(
+          `Serving GQL server at http://localhost:${port}${graphql.graphqlPath}`
+        );
+        // console.log(
+        //   `Running GQL API server at http://localhost:${port}/graphql`
+        // );
         // logIPAddress(port);
       }
       return resolve(server);

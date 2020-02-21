@@ -1,18 +1,32 @@
-const express = require('express');
-const gqlHTTP = require('express-graphql');
-const { schema, rootValue } = require('../graphql/rootSchemas');
+// const express = require('express');
+// const gqlHTTP = require('express-graphql');
+const { ApolloServer } = require('apollo-server-express');
+const {
+  // schema,
+  // rootValue,
+  typeDefs,
+  resolvers,
+} = require('../graphql/rootSchemas');
 const data = require('../graphql/data');
 
-const gql = gqlHTTP(request => ({
-  schema,
-  rootValue,
-  graphiql: true,
-  context: { request, data },
-}));
+const graphql = new ApolloServer({
+  typeDefs,
+  resolvers,
+  tracing: true,
+  context: { data },
+});
 
-const router = express.Router();
+// const gql = gqlHTTP(request => ({
+//   schema,
+//   rootValue,
+//   graphiql: true,
+//   context: { request, data },
+// }));
 
-router.post('/', gql);
-router.get('/', gql);
+// const router = express.Router();
 
-module.exports = router;
+// router.post('/', gql);
+// router.get('/', gql);
+
+// module.exports = router;
+module.exports = graphql;
