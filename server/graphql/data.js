@@ -50,16 +50,18 @@ const createMovie = name => {
 
 const movies = Object.values(MOVIE).map(createMovie);
 
+const wait = (ms = 250) => new Promise(resolve => setTimeout(resolve, ms));
+
 const fetchHeroes = (name, power) => {
   const byName = h => !name || matchName(h, name);
   const byPower = h => !power || h.powers.includes(power);
-  return Promise.resolve(heroes.filter(byName).filter(byPower));
+  return wait().then(() => heroes.filter(byName).filter(byPower));
 };
 
 const fetchVillains = (name, power) => {
   const byName = h => !name || matchName(h, name);
   const byPower = h => !power || h.powers.includes(power);
-  return Promise.resolve(villains.filter(byName).filter(byPower));
+  return wait().then(() => villains.filter(byName).filter(byPower));
 };
 
 const fetchMovies = (name, castMemberName) => {
@@ -67,7 +69,7 @@ const fetchMovies = (name, castMemberName) => {
   const byCast = m =>
     !castMemberName ||
     m.heroes.concat(m.villains).some(n => matchName({ name: n }, castMemberName));
-  return Promise.resolve(movies.filter(byName).filter(byCast));
+  return wait().then(() => movies.filter(byName).filter(byCast));
 };
 
 module.exports = {
