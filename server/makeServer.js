@@ -3,6 +3,7 @@ const path = require('path');
 const http = require('http');
 const bodyParser = require('body-parser');
 const graphql = require('./routes/graphql');
+const apolloServer = require('./routes/apolloServer');
 
 const app = express();
 const server = http.createServer(app);
@@ -11,13 +12,10 @@ const makeServer = async (port = 3000) => {
   app.use(express.static(path.join(__dirname, '../public')));
   app.use(bodyParser.json());
 
-  // This is redundant! app.use(express.static(...)) does the job
-  // app.use('/', index);
-
   // TODO: Make sure ApolloServer plays with REST endpoints
 
   // ApolloServer has it's own integration with express :/
-  graphql.applyMiddleware({ app });
+  apolloServer.applyMiddleware({ app });
   // app.use('/graphql', graphql);
 
   // App is already listening
