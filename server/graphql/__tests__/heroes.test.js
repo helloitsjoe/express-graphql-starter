@@ -1,7 +1,7 @@
 import { graphql } from 'graphql';
 import { schema } from '../rootSchemas';
 import { logGraphqlErrors } from '../../utils';
-import makeDB from '../db';
+import { makeDB } from '../db';
 
 const contextValue = { db: makeDB() };
 

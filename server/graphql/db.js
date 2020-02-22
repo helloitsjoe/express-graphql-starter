@@ -1,3 +1,4 @@
+const DataLoader = require('dataloader');
 const data = require('./mockData');
 const { matchName } = require('../utils');
 
@@ -27,4 +28,12 @@ const makeDB = ({ delay } = {}) => {
   return { fetchHeroes, fetchVillains, fetchMovies };
 };
 
-module.exports = makeDB;
+const makeLoaders = (db = makeDB()) => {
+  return {
+    heroes: new DataLoader(db.fetchHeroes),
+    villains: new DataLoader(db.fetchVillains),
+    movies: new DataLoader(db.fetchMovies),
+  };
+};
+
+module.exports = { makeLoaders, makeDB };

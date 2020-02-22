@@ -29,7 +29,7 @@ export class VillainType {
   constructor({ name, powers, movies }) {
     this._name = name;
     this.powers = powers;
-    this.movies = (args, { data }) => movies.map(movieName => makeMovie({ name: movieName, data }));
+    this.movies = (args, { db }) => movies.map(movieName => makeMovie({ name: movieName, db }));
   }
 
   name({ shouldUpperCase }) {
@@ -38,13 +38,13 @@ export class VillainType {
 }
 
 class VillainQuery {
-  villains = async ({ name, power }, { data }) => {
-    const villains = await data.fetchVillains(name, power);
+  villains = async ({ name, power }, { db }) => {
+    const villains = await db.fetchVillains(name, power);
     return villains.map(v => new VillainType(v));
   };
 
-  randomVillain = async (args, { data }) => {
-    const villains = await data.fetchVillains();
+  randomVillain = async (args, { db }) => {
+    const villains = await db.fetchVillains();
     return new VillainType(getRandom(villains));
   };
 }
