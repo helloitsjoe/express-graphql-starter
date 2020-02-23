@@ -8,15 +8,19 @@ const apolloServer = require('./routes/apolloServer');
 const app = express();
 const server = http.createServer(app);
 
+const USE_APOLLO_SERVER = true;
+
 const makeServer = async (port = 3000) => {
   app.use(express.static(path.join(__dirname, '../public')));
   app.use(bodyParser.json());
 
-  // TODO: Make sure ApolloServer plays with REST endpoints
-
-  // ApolloServer has it's own integration with express :/
-  apolloServer.applyMiddleware({ app });
-  // app.use('/graphql', graphql);
+  if (USE_APOLLO_SERVER) {
+    // ApolloServer has it's own integration with express :/
+    apolloServer.applyMiddleware({ app });
+    // TODO: Make sure ApolloServer plays with REST endpoints
+  } else {
+    app.use('/graphql', graphql);
+  }
 
   // App is already listening
   if (server.address()) return Promise.resolve(server);
@@ -25,10 +29,7 @@ const makeServer = async (port = 3000) => {
     server.listen(port, () => {
       if (process.env.NODE_ENV !== 'test') {
         console.log(`Serving site at http://localhost:${port}/`);
-        console.log(`Serving GQL at http://localhost:${port}${apolloServer.graphqlPath}`);
-        // console.log(
-        //   `Running GQL API server at http://localhost:${port}/graphql`
-        // );
+        console.log(`Serving GQL at http://localhost:${port}/graphql`);
       }
       return resolve(server);
     });

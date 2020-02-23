@@ -12,7 +12,7 @@ import { movieFields } from './graphql-object/movies';
 import { villainFields } from './graphql-object/villains';
 import { planetFields, planetMutationFields } from './graphql-object/planets';
 
-const USE_EXECUTABLE_SCHEMA = false;
+const USE_EXECUTABLE_SCHEMA = true;
 
 const Query = `
   type Query
@@ -21,13 +21,10 @@ const Mutation = `
   type Mutation
 `;
 
-export const typeDefs = [Query, Mutation, villainSchema, heroSchema, movieSchema, planetSchema];
-export const resolvers = merge(heroRoot, villainRoot, movieRoot, planetRoot);
+const typeDefs = [Query, Mutation, villainSchema, heroSchema, movieSchema, planetSchema];
+const resolvers = merge(heroRoot, villainRoot, movieRoot, planetRoot);
 
-const stringSchema = makeExecutableSchema({
-  typeDefs,
-  resolvers,
-});
+const stringSchema = makeExecutableSchema({ typeDefs, resolvers });
 
 // TODO: Maybe use a switch? See swapi-demo
 const objectSchema = new GraphQLSchema({

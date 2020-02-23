@@ -36,7 +36,6 @@ export const villainFields = {
       power: { type: GraphQLString },
     },
     async resolve(obj, { name, power }, { db }) {
-      // TODO: Would it be better to return a model?
       return db.fetchVillains(name, power);
       // return villains.map(v => new Villain().init({ name: v.name, db }));
     },

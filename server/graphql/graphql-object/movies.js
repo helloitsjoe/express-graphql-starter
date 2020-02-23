@@ -36,8 +36,8 @@ export const movieFields = {
       castMemberName: { type: GraphQLString },
     },
     async resolve(_, { name, castMemberName }, { db }) {
-      // TODO: Would it be better to return a model?
       return db.fetchMovies(name, castMemberName);
+
       // const movies = await db.fetchMovies(name, castMemberName);
       // return movies.map(m => makeMovie({ name: m.name, db }));
     },

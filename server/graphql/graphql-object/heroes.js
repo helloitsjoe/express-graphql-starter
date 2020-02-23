@@ -36,7 +36,6 @@ export const heroFields = {
       power: { type: new GraphQLList(GraphQLString) },
     },
     async resolve(_, { name, power }, { db }) {
-      // TODO: Would it be better to return a model?
       return db.fetchHeroes(name, power);
       // return heroes.map(h => makeHero({ name: h.name, db }));
     },
