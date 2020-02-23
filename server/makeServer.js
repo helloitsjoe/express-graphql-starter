@@ -25,7 +25,7 @@ const makeServer = async (port = 3000) => {
     server.listen(port, () => {
       if (process.env.NODE_ENV !== 'test') {
         console.log(`Serving site at http://localhost:${port}/`);
-        console.log(`Serving GQL at http://localhost:${port}${graphql.graphqlPath}`);
+        console.log(`Serving GQL at http://localhost:${port}${apolloServer.graphqlPath}`);
         // console.log(
         //   `Running GQL API server at http://localhost:${port}/graphql`
         // );

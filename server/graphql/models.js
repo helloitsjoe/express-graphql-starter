@@ -1,7 +1,5 @@
-// TODO: Instead of instantiating models with data, have them expose methods that take data
-
 export const makeHero = async ({ name, db }) => {
-  const [hero] = await db.fetchHeroes(name);
+  const [hero] = await db.heroLoader.load(name);
   return {
     name: hero.name,
     powers: hero.powers,
@@ -10,7 +8,7 @@ export const makeHero = async ({ name, db }) => {
 };
 
 export const makeVillain = async ({ name, db }) => {
-  const [villain] = await db.fetchVillains(name);
+  const [villain] = await db.villainLoader.load(name);
   return {
     name: villain.name,
     powers: villain.powers,
@@ -19,7 +17,7 @@ export const makeVillain = async ({ name, db }) => {
 };
 
 export const makeMovie = async ({ name, db }) => {
-  const [movie] = await db.fetchMovies(name);
+  const [movie] = await db.movieLoader.load(name);
   return {
     name: movie.name,
     heroes: movie.heroes,

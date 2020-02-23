@@ -29,10 +29,14 @@ const makeDB = ({ delay } = {}) => {
 };
 
 const makeLoaders = (db = makeDB()) => {
+  const batchHeroes = names => Promise.all(names.map(name => db.fetchHeroes(name)));
+  const batchVillains = names => Promise.all(names.map(name => db.fetchVillains(name)));
+  const batchMovies = names => Promise.all(names.map(name => db.fetchMovies(name)));
+
   return {
-    heroes: new DataLoader(db.fetchHeroes),
-    villains: new DataLoader(db.fetchVillains),
-    movies: new DataLoader(db.fetchMovies),
+    heroLoader: new DataLoader(batchHeroes),
+    villainLoader: new DataLoader(batchVillains),
+    movieLoader: new DataLoader(batchMovies),
   };
 };
 

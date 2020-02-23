@@ -23,10 +23,7 @@ export const villainSchema = `
 export const villainRoot = {
   Query: {
     villains: (_, args = {}, { db }) => db.fetchVillains(args.name, args.power),
-    randomVillain: async (_, args, { db }) => {
-      const villainsData = await db.fetchVillains();
-      return getRandom(villainsData);
-    },
+    randomVillain: (_, args, { db }) => db.fetchVillains().then(getRandom),
   },
   Villain: {
     name: ({ name }, { shouldUpperCase = false }) => (shouldUpperCase ? name.toUpperCase() : name),

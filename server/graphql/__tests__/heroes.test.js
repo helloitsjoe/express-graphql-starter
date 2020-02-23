@@ -1,9 +1,9 @@
 import { graphql } from 'graphql';
 import { schema } from '../rootSchemas';
 import { logGraphqlErrors } from '../../utils';
-import { makeDB } from '../db';
+import { makeDB, makeLoaders } from '../db';
 
-const contextValue = { db: makeDB() };
+const contextValue = { db: { ...makeDB(), ...makeLoaders() } };
 
 test('get hero by name', async () => {
   const source = `

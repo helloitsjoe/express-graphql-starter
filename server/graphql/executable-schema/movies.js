@@ -23,10 +23,7 @@ export const movieSchema = `
 export const movieRoot = {
   Query: {
     movies: (_, args = {}, { db }) => db.fetchMovies(args.name, args.castMemberName),
-    randomMovie: async (_, args, { db }) => {
-      const movies = await db.fetchMovies();
-      return getRandom(movies);
-    },
+    randomMovie: (_, args, { db }) => db.fetchMovies().then(getRandom),
   },
   Movie: {
     heroes: (movie, args, { db }) => movie.heroes.map(name => makeHero({ name, db })),
