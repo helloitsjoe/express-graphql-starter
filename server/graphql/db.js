@@ -4,7 +4,7 @@ const { matchName } = require('../utils');
 
 const wait = (ms = 0) => new Promise(resolve => setTimeout(resolve, ms));
 
-const makeDB = ({ delay } = {}) => {
+const makeAPI = ({ delay } = {}) => {
   const fetchHeroes = (name, power) => {
     const byName = h => !name || matchName(h, name);
     const byPower = h => !power || h.powers.includes(power);
@@ -28,16 +28,17 @@ const makeDB = ({ delay } = {}) => {
   return { fetchHeroes, fetchVillains, fetchMovies };
 };
 
-const makeLoaders = (db = makeDB()) => {
-  const batchHeroes = names => Promise.all(names.map(name => db.fetchHeroes(name)));
-  const batchVillains = names => Promise.all(names.map(name => db.fetchVillains(name)));
-  const batchMovies = names => Promise.all(names.map(name => db.fetchMovies(name)));
+const withLoaders = (api = makeAPI()) => {
+  const batchHeroes = names => Promise.all(names.map(name => api.fetchHeroes(name)));
+  const batchVillains = names => Promise.all(names.map(name => api.fetchVillains(name)));
+  const batchMovies = names => Promise.all(names.map(name => api.fetchMovies(name)));
 
   return {
+    ...api,
     heroLoader: new DataLoader(batchHeroes),
     villainLoader: new DataLoader(batchVillains),
     movieLoader: new DataLoader(batchMovies),
   };
 };
 
-module.exports = { makeLoaders, makeDB };
+module.exports = { makeAPI, withLoaders };

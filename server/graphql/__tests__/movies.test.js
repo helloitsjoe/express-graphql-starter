@@ -1,9 +1,9 @@
 import { graphql } from 'graphql';
 import { schema } from '../rootSchemas';
 import { logGraphqlErrors } from '../../utils';
-import { makeDB, makeLoaders } from '../db';
+import { withLoaders, makeAPI } from '../db';
 
-const contextValue = { db: { ...makeDB(), ...makeLoaders() } };
+const contextValue = { db: withLoaders(makeAPI()) };
 
 test('by name', async () => {
   const source = `
