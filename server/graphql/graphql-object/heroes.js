@@ -21,7 +21,7 @@ export const HeroType = new GraphQLObjectType({
       type: new GraphQLList(MovieType),
       description: 'Movies starring the hero',
       async resolve(hero, args, { db }) {
-        return hero.movies.map(name => makeMovie({ name, db }));
+        return hero.movies.map(title => makeMovie({ title, db }));
       },
     },
   }),

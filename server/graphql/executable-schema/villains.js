@@ -27,6 +27,6 @@ export const villainRoot = {
   },
   Villain: {
     name: ({ name }, { shouldUpperCase = false }) => (shouldUpperCase ? name.toUpperCase() : name),
-    movies: ({ movies }, args, { db }) => movies.map(name => makeMovie({ name, db })),
+    movies: ({ movies }, args, { db }) => movies.map(title => makeMovie({ title, db })),
   },
 };

@@ -4,8 +4,8 @@ import { getRandom } from '../../utils';
 // Note that we can use types defined in other files
 export const movieSchema = `
   type Movie {
-    "Movie name"
-    name: String!
+    "Movie title"
+    title: String!
     "Heroes in movie"
     heroes: [Hero!]!
     "Villains in movie"
@@ -13,8 +13,8 @@ export const movieSchema = `
   }
 
   extend type Query {
-    "Movies filtered by name or castMemberName"
-    movies(name: String, castMemberName: String): [Movie!]!
+    "Movies filtered by title or castMemberName"
+    movies(title: String, castMemberName: String): [Movie!]!
     "Get a random movie"
     randomMovie: Movie!
   }
@@ -22,7 +22,7 @@ export const movieSchema = `
 
 export const movieRoot = {
   Query: {
-    movies: (_, args = {}, { db }) => db.fetchMovies(args.name, args.castMemberName),
+    movies: (_, args = {}, { db }) => db.fetchMovies(args.title, args.castMemberName),
     randomMovie: (_, args, { db }) => db.fetchMovies().then(getRandom),
   },
   Movie: {

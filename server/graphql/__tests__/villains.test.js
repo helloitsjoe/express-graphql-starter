@@ -12,7 +12,7 @@ test('get villain by name', async () => {
         name
         powers
         movies {
-          name
+          title
           villains {
             name
           }
@@ -24,7 +24,7 @@ test('get villain by name', async () => {
   const [magneto] = res.data.villains;
   expect(magneto.name).toBe('Magneto');
   expect(magneto.powers).toEqual(['magnetism']);
-  const xMen = magneto.movies.find(m => m.name.match(/x-men/i));
+  const xMen = magneto.movies.find(m => m.title.match(/x-men/i));
   expect(xMen.villains.some(h => h.name.match(/magneto/i))).toBe(true);
 });
 
@@ -60,7 +60,7 @@ test('get random villain', async () => {
       randomVillain {
         name
         movies {
-          name
+          title
           villains {
             name
           }

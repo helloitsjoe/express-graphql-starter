@@ -26,7 +26,7 @@ test('hero API test', async () => {
         name
         powers
         movies {
-          name
+          title
         }
       }
     }
@@ -45,7 +45,7 @@ test('movies API test', async () => {
   const query = `
     query {
       movies {
-        name
+        title
         heroes {
           name
         }
@@ -57,10 +57,10 @@ test('movies API test', async () => {
   `;
   const res = await axios.post(graphqlUrl, { query }).catch(handleAxiosError);
   const { movies } = res.data.data;
-  const allMoviesHaveNames = movies.every(m => typeof m.name === 'string');
+  const allMoviesHaveTitles = movies.every(m => typeof m.title === 'string');
   const allMoviesHaveHeroes = movies.every(m => m.heroes.length > 0);
   const allMoviesHaveVillains = movies.every(m => m.villains.length > 0);
-  expect(allMoviesHaveNames).toBe(true);
+  expect(allMoviesHaveTitles).toBe(true);
   expect(allMoviesHaveHeroes).toBe(true);
   expect(allMoviesHaveVillains).toBe(true);
 });

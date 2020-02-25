@@ -16,10 +16,10 @@ export const makeVillain = async ({ name, db }) => {
   };
 };
 
-export const makeMovie = async ({ name, db }) => {
-  const [movie] = await db.movieLoader.load(name);
+export const makeMovie = async ({ title, db }) => {
+  const [movie] = await db.movieLoader.load(title);
   return {
-    name: movie.name,
+    title: movie.title,
     heroes: movie.heroes,
     villains: movie.villains,
   };

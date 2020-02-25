@@ -37,10 +37,10 @@ const villains = [
   { name: 'Mola Ram', powers: ['dark magic', 'brainwashing'], movies: [TEMPLE] },
 ];
 
-const createMovie = name => {
-  const isInMovie = character => character.movies.includes(name);
+const createMovie = title => {
+  const isInMovie = character => character.movies.includes(title);
   return {
-    name,
+    title,
     heroes: heroes.filter(isInMovie).map(h => h.name),
     villains: villains.filter(isInMovie).map(v => v.name),
   };

@@ -14,3 +14,4 @@ export const logGraphqlErrors = res => {
 export const getRandom = arr => arr[Math.floor(Math.random() * arr.length)];
 
 export const matchName = (obj, name) => obj.name.match(new RegExp(name, 'i'));
+export const matchTitle = (obj, title) => obj.title.match(new RegExp(title, 'i'));

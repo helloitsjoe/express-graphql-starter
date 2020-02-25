@@ -21,7 +21,7 @@ export const VillainType = new GraphQLObjectType({
       type: new GraphQLList(MovieType),
       description: 'Movies featuring the villain',
       resolve(villain, args, { db }) {
-        return villain.movies.map(name => makeMovie({ name, db }));
+        return villain.movies.map(title => makeMovie({ title, db }));
       },
     },
   }),

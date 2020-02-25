@@ -9,19 +9,19 @@ export const MovieType = new GraphQLObjectType({
   name: 'Movie',
   description: 'A Movie',
   fields: () => ({
-    name: { type: GraphQLString, description: "The movie's name" },
+    title: { type: GraphQLString, description: "The movie's title" },
     heroes: {
       type: new GraphQLList(HeroType),
       description: 'Heroes in the movie',
       async resolve(movie, args, { db }) {
-        return movie.heroes.map(heroName => makeHero({ name: heroName, db }));
+        return movie.heroes.map(name => makeHero({ name, db }));
       },
     },
     villains: {
       type: new GraphQLList(VillainType),
       description: 'Villains in the movie',
       async resolve(movie, args, { db }) {
-        return movie.villains.map(villainName => makeVillain({ name: villainName, db }));
+        return movie.villains.map(name => makeVillain({ name, db }));
       },
     },
   }),
@@ -30,16 +30,16 @@ export const MovieType = new GraphQLObjectType({
 export const movieFields = {
   movies: {
     type: new GraphQLList(MovieType),
-    description: 'Movies filtered by name or castMemberName',
+    description: 'Movies filtered by title or castMemberName',
     args: {
-      name: { type: GraphQLString },
+      title: { type: GraphQLString },
       castMemberName: { type: GraphQLString },
     },
-    async resolve(_, { name, castMemberName }, { db }) {
-      return db.fetchMovies(name, castMemberName);
+    async resolve(_, { title, castMemberName }, { db }) {
+      return db.fetchMovies(title, castMemberName);
 
-      // const movies = await db.fetchMovies(name, castMemberName);
-      // return movies.map(m => makeMovie({ name: m.name, db }));
+      // const movies = await db.fetchMovies(title, castMemberName);
+      // return movies.map(m => makeMovie({ title: m.title, db }));
     },
   },
   randomMovie: {
@@ -48,7 +48,7 @@ export const movieFields = {
     async resolve(_, __, { db }) {
       const movies = await db.fetchMovies();
       return getRandom(movies);
-      // return makeMovie({ name: getRandom(movies).name, db });
+      // return makeMovie({ title: getRandom(movies).title, db });
     },
   },
 };

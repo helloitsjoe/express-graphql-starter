@@ -12,7 +12,7 @@ test('get hero by name', async () => {
         name
         powers
         movies {
-          name
+          title
           heroes {
             name
           }
@@ -24,7 +24,7 @@ test('get hero by name', async () => {
   const [indy] = res.data.heroes;
   expect(indy.name).toBe('Indiana Jones');
   expect(indy.powers).toEqual(['whip', 'intelligence']);
-  const raiders = indy.movies.find(m => m.name.match(/raiders/i));
+  const raiders = indy.movies.find(m => m.title.match(/raiders/i));
   expect(raiders.heroes.some(h => h.name.match(/indiana jones/i))).toBe(true);
 });
 
@@ -60,7 +60,7 @@ test('get random hero', async () => {
       randomHero {
         name
         movies {
-          name
+          title
           heroes {
             name
           }
