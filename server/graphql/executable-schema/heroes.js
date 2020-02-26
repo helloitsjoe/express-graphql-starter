@@ -5,7 +5,7 @@ import { getRandom } from '../../utils';
 export const heroSchema = `
   type Hero {
     "Hero's name"
-    name(shouldUppercase: Boolean): String!
+    name(shouldUpperCase: Boolean): String!
     "Hero's powers"
     powers: [String!]!
     "Movies the hero has appeared in"
@@ -26,7 +26,7 @@ export const heroRoot = {
     randomHero: (_, args, { db }) => db.fetchHeroes().then(getRandom),
   },
   Hero: {
-    name: ({ name }, { shouldUppercase = false }) => (shouldUppercase ? name.toUpperCase() : name),
+    name: ({ name }, { shouldUpperCase = false }) => (shouldUpperCase ? name.toUpperCase() : name),
     movies: ({ movies }, args, { db }) => movies.map(title => makeMovie({ title, db })),
   },
 };

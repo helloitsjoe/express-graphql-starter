@@ -1,5 +1,11 @@
 /* eslint-disable import/no-cycle */
-import { GraphQLObjectType, GraphQLString, GraphQLList, GraphQLBoolean } from 'graphql';
+import {
+  GraphQLObjectType,
+  GraphQLString,
+  GraphQLList,
+  GraphQLBoolean,
+  GraphQLNonNull,
+} from 'graphql';
 import { MovieType } from './movies';
 import { makeMovie } from '../models';
 import { getRandom } from '../../utils';
@@ -9,16 +15,19 @@ export const HeroType = new GraphQLObjectType({
   description: 'A hero',
   fields: () => ({
     name: {
-      type: GraphQLString,
+      type: new GraphQLNonNull(GraphQLString),
       description: "Hero's name",
-      args: { shouldUppercase: { type: GraphQLBoolean } },
-      async resolve({ name }, { shouldUppercase }) {
-        return shouldUppercase ? name.toUpperCase() : name;
+      args: { shouldUpperCase: { type: GraphQLBoolean } },
+      async resolve({ name }, { shouldUpperCase }) {
+        return shouldUpperCase ? name.toUpperCase() : name;
       },
     },
-    powers: { type: new GraphQLList(GraphQLString), description: "Hero's powers" },
+    powers: {
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLString))),
+      description: "Hero's powers",
+    },
     movies: {
-      type: new GraphQLList(MovieType),
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(MovieType))),
       description: 'Movies starring the hero',
       async resolve(hero, args, { db }) {
         return hero.movies.map(title => makeMovie({ title, db }));
@@ -29,7 +38,7 @@ export const HeroType = new GraphQLObjectType({
 
 export const heroFields = {
   heroes: {
-    type: new GraphQLList(HeroType),
+    type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(HeroType))),
     description: 'Heroes filtered by name or power',
     args: {
       name: { type: GraphQLString },
@@ -41,7 +50,7 @@ export const heroFields = {
     },
   },
   randomHero: {
-    type: HeroType,
+    type: new GraphQLNonNull(HeroType),
     description: 'A random hero',
     async resolve(_, __, { db }) {
       const heroes = await db.fetchHeroes();

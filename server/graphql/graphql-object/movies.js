@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-import { GraphQLObjectType, GraphQLString, GraphQLList } from 'graphql';
+import { GraphQLObjectType, GraphQLNonNull, GraphQLString, GraphQLList } from 'graphql';
 import { VillainType } from './villains';
 import { HeroType } from './heroes';
 import { makeHero, makeVillain } from '../models';
@@ -9,16 +9,16 @@ export const MovieType = new GraphQLObjectType({
   name: 'Movie',
   description: 'A Movie',
   fields: () => ({
-    title: { type: GraphQLString, description: "The movie's title" },
+    title: { type: new GraphQLNonNull(GraphQLString), description: "The movie's title" },
     heroes: {
-      type: new GraphQLList(HeroType),
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(HeroType))),
       description: 'Heroes in the movie',
       async resolve(movie, args, { db }) {
         return movie.heroes.map(name => makeHero({ name, db }));
       },
     },
     villains: {
-      type: new GraphQLList(VillainType),
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(VillainType))),
       description: 'Villains in the movie',
       async resolve(movie, args, { db }) {
         return movie.villains.map(name => makeVillain({ name, db }));
@@ -29,7 +29,7 @@ export const MovieType = new GraphQLObjectType({
 
 export const movieFields = {
   movies: {
-    type: new GraphQLList(MovieType),
+    type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(MovieType))),
     description: 'Movies filtered by title or castMemberName',
     args: {
       title: { type: GraphQLString },
@@ -43,7 +43,7 @@ export const movieFields = {
     },
   },
   randomMovie: {
-    type: MovieType,
+    type: new GraphQLNonNull(MovieType),
     description: 'A random movie',
     async resolve(_, __, { db }) {
       const movies = await db.fetchMovies();

@@ -5,7 +5,12 @@ const { makeAPI, withLoaders } = require('../graphql/db');
 const server = new ApolloServer({
   schema,
   tracing: true,
-  context: { db: withLoaders(makeAPI({ delay: 250 })) },
+  context: ({ req }) => ({ req, db: withLoaders(makeAPI({ delay: 250 })) }),
+  playground: {
+    settings: {
+      'schema.polling.enable': false,
+    },
+  },
 });
 
 module.exports = server;

@@ -32,7 +32,7 @@ test('uppercase name', async () => {
   const source = `
     query {
       heroes(name: "indiana jones") {
-        name(shouldUppercase: true)
+        name(shouldUpperCase: true)
       }
     }
   `;
