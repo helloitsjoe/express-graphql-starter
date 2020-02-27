@@ -5,10 +5,17 @@ const { matchName, matchTitle } = require('../utils');
 const wait = (ms = 0) => new Promise(resolve => setTimeout(resolve, ms));
 
 const makeAPI = ({ delay } = {}) => {
-  const fetchHeroes = (name, power) => {
-    const byName = h => !name || matchName(h, name);
-    const byPower = h => !power || h.powers.includes(power);
-    return wait(delay).then(() => data.heroes.filter(byName).filter(byPower));
+  const fetchHeroes = (names, power) => {
+    if (names) {
+      const namesArray = [].concat(names);
+      const namesPromises = namesArray.map(name =>
+        wait(delay).then(() => data.heroes.find(h => matchName(h, name)))
+      );
+      return Promise.all(namesPromises);
+    }
+    return wait(delay).then(() => {
+      return power ? data.heroes.filter(h => h.powers.includes(power)) : data.heroes;
+    });
   };
 
   const fetchVillains = (name, power) => {
