@@ -18,10 +18,20 @@ const makeAPI = ({ delay } = {}) => {
     });
   };
 
-  const fetchVillains = (name, power) => {
-    const byName = h => !name || matchName(h, name);
-    const byPower = h => !power || h.powers.includes(power);
-    return wait(delay).then(() => data.villains.filter(byName).filter(byPower));
+  const fetchVillains = (names, power) => {
+    // const byName = h => !name || matchName(h, name);
+    // const byPower = h => !power || h.powers.includes(power);
+    // return wait(delay).then(() => data.villains.filter(byName).filter(byPower));
+    if (names) {
+      const namesArray = [].concat(names);
+      const namesPromises = namesArray.map(name =>
+        wait(delay).then(() => data.villains.find(v => matchName(v, name)))
+      );
+      return Promise.all(namesPromises);
+    }
+    return wait(delay).then(() => {
+      return power ? data.villains.filter(v => v.powers.includes(power)) : data.villains;
+    });
   };
 
   const fetchMovies = (title, castMemberName) => {

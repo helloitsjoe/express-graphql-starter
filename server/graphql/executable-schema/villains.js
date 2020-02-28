@@ -14,7 +14,7 @@ export const villainSchema = `
 
   extend type Query {
     "Villains filtered by name or power"
-    villains(name: String, power: String): [Villain!]!
+    villains(names: [String], power: String): [Villain!]!
     "Get a random villain"
     randomVillain: Villain!
   }
@@ -22,7 +22,7 @@ export const villainSchema = `
 
 export const villainRoot = {
   Query: {
-    villains: (_, args = {}, { db }) => db.fetchVillains(args.name, args.power),
+    villains: (_, args = {}, { db }) => db.fetchVillains(args.names, args.power),
     randomVillain: (_, args, { db }) => db.fetchVillains().then(getRandom),
   },
   Villain: {

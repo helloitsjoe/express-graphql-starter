@@ -1,13 +1,14 @@
-const MOVIE = {
+const MOVIES = {
   RAIDERS: 'Raiders of the Lost Ark',
   TEMPLE: 'Temple of Doom',
   CRUSADE: 'The Last Crusade',
   INCREDIBLES: 'The Incredibles',
   BATMAN: 'Batman',
+  DARK_KNIGHT: 'The Dark Knight Rises',
   X_MEN: 'X-Men',
 };
 
-const { RAIDERS, TEMPLE, CRUSADE, INCREDIBLES, BATMAN, X_MEN } = MOVIE;
+const { RAIDERS, TEMPLE, CRUSADE, INCREDIBLES, BATMAN, X_MEN, DARK_KNIGHT } = MOVIES;
 
 const heroes = [
   { name: 'Mr. Incredible', powers: ['strength', 'invulnerability'], movies: [INCREDIBLES] },
@@ -24,12 +25,12 @@ const heroes = [
     powers: ['whip', 'intelligence'],
     movies: [RAIDERS, TEMPLE, CRUSADE],
   },
-  { name: 'Batman', powers: ['technology'], movies: [BATMAN] },
+  { name: 'Batman', powers: ['technology'], movies: [BATMAN, DARK_KNIGHT] },
   { name: 'Wolverine', powers: ['adamantium', 'healing'], movies: [X_MEN] },
 ];
 
 const villains = [
-  { name: 'Bane', powers: ['strength', 'invulnerability'], movies: [BATMAN] },
+  { name: 'Bane', powers: ['strength', 'invulnerability'], movies: [DARK_KNIGHT] },
   { name: 'The Joker', powers: ['psychology', 'chaos'], movies: [BATMAN] },
   { name: 'Magneto', powers: ['magnetism'], movies: [X_MEN] },
   { name: 'Syndrome', powers: ['technology'], movies: [INCREDIBLES] },
@@ -46,7 +47,7 @@ const createMovie = title => {
   };
 };
 
-const movies = Object.values(MOVIE).map(createMovie);
+const movies = Object.values(MOVIES).map(createMovie);
 
 module.exports = {
   heroes,

@@ -8,7 +8,7 @@ const contextValue = { db: withLoaders(makeAPI()) };
 test('get villain by name', async () => {
   const source = `
     query {
-      villains(name: "magneto") {
+      villains(names: ["magneto"]) {
         name
         powers
         movies {
@@ -28,10 +28,39 @@ test('get villain by name', async () => {
   expect(xMen.villains.some(h => h.name.match(/magneto/i))).toBe(true);
 });
 
+test('get multiple villains by name', async () => {
+  const source = `
+    query {
+      villains(names: ["magneto", "bane"]) {
+        name
+        powers
+        movies {
+          title
+          villains {
+            name
+          }
+        }
+      }
+    }
+  `;
+  const res = await graphql({ schema, source, contextValue }).then(logGraphqlErrors);
+  const [magneto, bane] = res.data.villains;
+
+  expect(magneto.name).toBe('Magneto');
+  expect(magneto.powers).toEqual(['magnetism']);
+  const xMen = magneto.movies.find(m => m.title.match(/x-men/i));
+  expect(xMen.villains.some(h => h.name.match(/magneto/i))).toBe(true);
+
+  expect(bane.name).toBe('Bane');
+  expect(bane.powers).toEqual(['strength', 'invulnerability']);
+  const batman = bane.movies.find(m => m.title.match(/dark knight/i));
+  expect(batman.villains.some(h => h.name.match(/bane/i))).toBe(true);
+});
+
 test('uppercase name', async () => {
   const source = `
     query {
-      villains(name: "Magneto") {
+      villains(names: ["Magneto"]) {
         name(shouldUpperCase: true)
       }
     }
