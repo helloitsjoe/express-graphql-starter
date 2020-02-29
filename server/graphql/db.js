@@ -19,9 +19,6 @@ const makeAPI = ({ delay } = {}) => {
   };
 
   const fetchVillains = (names, power) => {
-    // const byName = h => !name || matchName(h, name);
-    // const byPower = h => !power || h.powers.includes(power);
-    // return wait(delay).then(() => data.villains.filter(byName).filter(byPower));
     if (names) {
       const namesArray = [].concat(names);
       const namesPromises = namesArray.map(name =>
@@ -34,12 +31,22 @@ const makeAPI = ({ delay } = {}) => {
     });
   };
 
-  const fetchMovies = (title, castMemberName) => {
-    const byTitle = m => !title || matchTitle(m, title);
-    const byCast = m =>
-      !castMemberName ||
-      m.heroes.concat(m.villains).some(n => matchName({ name: n }, castMemberName));
-    return wait(delay).then(() => data.movies.filter(byTitle).filter(byCast));
+  const fetchMovies = (titles, castMemberName) => {
+    if (titles) {
+      const titlesArray = [].concat(titles);
+      const titlesPromises = titlesArray.map(title =>
+        wait(delay).then(() => data.movies.find(m => matchTitle(m, title)))
+      );
+      return Promise.all(titlesPromises);
+    }
+    return wait(delay).then(() => {
+      if (castMemberName) {
+        const byCast = m =>
+          m.heroes.concat(m.villains).some(name => matchName({ name }, castMemberName));
+        return data.movies.filter(byCast);
+      }
+      return data.movies;
+    });
   };
 
   return { fetchHeroes, fetchVillains, fetchMovies };

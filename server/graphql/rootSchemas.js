@@ -12,7 +12,7 @@ import { movieFields } from './graphql-object/movies';
 import { villainFields } from './graphql-object/villains';
 import { planetFields, planetMutationFields } from './graphql-object/planets';
 
-const USE_EXECUTABLE_SCHEMA = true;
+const USE_EXECUTABLE_SCHEMA = false;
 
 const Query = `
   type Query

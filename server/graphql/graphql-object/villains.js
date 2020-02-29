@@ -41,11 +41,11 @@ export const villainFields = {
     type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(VillainType))),
     description: 'Villains filtered by name or powers',
     args: {
-      name: { type: GraphQLString },
+      names: { type: new GraphQLList(GraphQLString) },
       power: { type: GraphQLString },
     },
-    async resolve(obj, { name, power }, { db }) {
-      return db.fetchVillains(name, power);
+    async resolve(obj, { names, power }, { db }) {
+      return db.fetchVillains(names, power);
       // return villains.map(v => new Villain().init({ name: v.name, db }));
     },
   },

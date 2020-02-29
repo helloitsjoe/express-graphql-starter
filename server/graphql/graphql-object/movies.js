@@ -30,13 +30,13 @@ export const MovieType = new GraphQLObjectType({
 export const movieFields = {
   movies: {
     type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(MovieType))),
-    description: 'Movies filtered by title or castMemberName',
+    description: 'Movies filtered by titles or castMemberName',
     args: {
-      title: { type: GraphQLString },
+      titles: { type: new GraphQLList(GraphQLString) },
       castMemberName: { type: GraphQLString },
     },
-    async resolve(_, { title, castMemberName }, { db }) {
-      return db.fetchMovies(title, castMemberName);
+    async resolve(_, { titles, castMemberName }, { db }) {
+      return db.fetchMovies(titles, castMemberName);
 
       // const movies = await db.fetchMovies(title, castMemberName);
       // return movies.map(m => makeMovie({ title: m.title, db }));

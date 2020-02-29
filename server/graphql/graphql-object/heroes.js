@@ -41,11 +41,11 @@ export const heroFields = {
     type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(HeroType))),
     description: 'Heroes filtered by name or power',
     args: {
-      name: { type: GraphQLString },
+      names: { type: new GraphQLList(GraphQLString) },
       power: { type: new GraphQLList(GraphQLString) },
     },
-    async resolve(_, { name, power }, { db }) {
-      return db.fetchHeroes(name, power);
+    async resolve(_, { names, power }, { db }) {
+      return db.fetchHeroes(names, power);
       // return heroes.map(h => makeHero({ name: h.name, db }));
     },
   },

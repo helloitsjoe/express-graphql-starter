@@ -8,13 +8,41 @@ const contextValue = { db: withLoaders(makeAPI()) };
 test('by name', async () => {
   const source = `
     query {
-      movies(title: "batman") {
+      movies(titles: ["batman"]) {
         title
+        heroes {
+          name
+        }
       }
     }
   `;
   const res = await graphql({ schema, source, contextValue }).then(logGraphqlErrors);
-  expect(res.data.movies[0].title).toBe('Batman');
+  expect(res.data.movies.length).toBe(1);
+  const [batman] = res.data.movies;
+  expect(batman.title).toBe('Batman');
+  expect(batman.heroes[0].name).toBe('Batman');
+});
+
+test('multiple movies by name', async () => {
+  const source = `
+    query {
+      movies(titles: ["batman", "temple of doom"]) {
+        title
+        heroes {
+          name
+        }
+      }
+    }
+  `;
+  const res = await graphql({ schema, source, contextValue }).then(logGraphqlErrors);
+  expect(res.data.movies.length).toBe(2);
+  const [batman, temple] = res.data.movies;
+
+  expect(batman.title).toBe('Batman');
+  expect(batman.heroes[0].name).toBe('Batman');
+
+  expect(temple.title).toBe('Temple of Doom');
+  expect(temple.heroes[0].name).toBe('Indiana Jones');
 });
 
 test('by cast member name', async () => {

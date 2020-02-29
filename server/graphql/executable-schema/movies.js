@@ -14,7 +14,7 @@ export const movieSchema = `
 
   extend type Query {
     "Movies filtered by title or castMemberName"
-    movies(title: String, castMemberName: String): [Movie!]!
+    movies(titles: [String], castMemberName: String): [Movie!]!
     "Get a random movie"
     randomMovie: Movie!
   }
@@ -22,7 +22,7 @@ export const movieSchema = `
 
 export const movieRoot = {
   Query: {
-    movies: (_, args = {}, { db }) => db.fetchMovies(args.title, args.castMemberName),
+    movies: (_, args = {}, { db }) => db.fetchMovies(args.titles, args.castMemberName),
     randomMovie: (_, args, { db }) => db.fetchMovies().then(getRandom),
   },
   Movie: {
