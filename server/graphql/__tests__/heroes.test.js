@@ -5,30 +5,7 @@ import { withLoaders, makeAPI } from '../db';
 
 const contextValue = { db: withLoaders(makeAPI()) };
 
-test('get hero by name', async () => {
-  const source = `
-    query {
-      heroes(names: ["indiana jones"]) {
-        name
-        powers
-        movies {
-          title
-          heroes {
-            name
-          }
-        }
-      }
-    }
-  `;
-  const res = await graphql({ schema, source, contextValue }).then(logGraphqlErrors);
-  const [indy] = res.data.heroes;
-  expect(indy.name).toBe('Indiana Jones');
-  expect(indy.powers).toEqual(['whip', 'intelligence']);
-  const raiders = indy.movies.find(m => m.title.match(/raiders/i));
-  expect(raiders.heroes.some(h => h.name.match(/indiana jones/i))).toBe(true);
-});
-
-test('get multiple heroes by name', async () => {
+test('get heroes by name', async () => {
   const source = `
     query {
       heroes(names: ["indiana jones", "Batman"]) {
@@ -69,17 +46,44 @@ test('uppercase name', async () => {
   expect(indy.name).toBe('INDIANA JONES');
 });
 
+test('get all heroes', async () => {
+  const source = `
+    query {
+      allHeroes {
+        name
+        powers
+        movies {
+          title
+          heroes {
+            name
+          }
+          villains {
+            name
+          }
+        }
+      }
+    }
+  `;
+  const res = await graphql({ schema, source, contextValue }).then(logGraphqlErrors);
+  const { allHeroes } = res.data;
+  expect(allHeroes.length).toBe(8);
+  expect(allHeroes.every(h => h.powers.length > 0)).toBe(true);
+  expect(allHeroes.every(h => h.movies.length > 0)).toBe(true);
+  expect(allHeroes.every(h => h.movies.every(m => m.heroes.length > 0))).toBe(true);
+  expect(allHeroes.every(h => h.movies.every(m => m.villains.length > 0))).toBe(true);
+});
+
 test('get hero by power', async () => {
   const source = `
     query {
-      heroes(power: "strength") {
+      allHeroes(power: "strength") {
         name
         powers
       }
     }
   `;
-  const res = await graphql({ schema, source, contextValue });
-  expect(res.data.heroes.every(h => h.powers.includes('strength'))).toBe(true);
+  const res = await graphql({ schema, source, contextValue }).then(logGraphqlErrors);
+  expect(res.data.allHeroes.every(h => h.powers.includes('strength'))).toBe(true);
 });
 
 test('get random hero', async () => {
