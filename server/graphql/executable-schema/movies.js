@@ -22,8 +22,8 @@ export const movieSchema = `
 
 export const movieRoot = {
   Query: {
-    movies: (_, args = {}, { db }) => db.fetchMovies(args.titles, args.castMemberName),
-    randomMovie: (_, args, { db }) => db.fetchMovies().then(getRandom),
+    movies: (_, args = {}, { db }) => db.movie.fetch(args.titles, args.castMemberName),
+    randomMovie: (_, args, { db }) => db.movie.fetch().then(getRandom),
   },
   Movie: {
     heroes: (movie, args, { db }) => movie.heroes.map(name => makeHero({ name, db })),

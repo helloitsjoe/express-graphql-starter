@@ -24,9 +24,9 @@ export const heroSchema = `
 
 export const heroRoot = {
   Query: {
-    heroes: (_, { names } = {}, { db }) => db.fetchHeroes(names),
-    allHeroes: (_, { power } = {}, { db }) => db.fetchHeroes(null, power),
-    randomHero: (_, args, { db }) => db.fetchHeroes().then(getRandom),
+    heroes: (_, { names } = {}, { db }) => db.hero.fetch(names),
+    allHeroes: (_, { power } = {}, { db }) => db.hero.fetch(null, power),
+    randomHero: (_, args, { db }) => db.hero.fetch().then(getRandom),
   },
   Hero: {
     name: ({ name }, { shouldUpperCase = false }) => (shouldUpperCase ? name.toUpperCase() : name),

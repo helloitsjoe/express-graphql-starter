@@ -22,8 +22,8 @@ export const villainSchema = `
 
 export const villainRoot = {
   Query: {
-    villains: (_, args = {}, { db }) => db.fetchVillains(args.names, args.power),
-    randomVillain: (_, args, { db }) => db.fetchVillains().then(getRandom),
+    villains: (_, args = {}, { db }) => db.villain.fetch(args.names, args.power),
+    randomVillain: (_, args, { db }) => db.villain.fetch().then(getRandom),
   },
   Villain: {
     name: ({ name }, { shouldUpperCase = false }) => (shouldUpperCase ? name.toUpperCase() : name),

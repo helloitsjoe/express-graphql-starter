@@ -1,9 +1,9 @@
 import { graphql } from 'graphql';
 import { schema } from '../rootSchemas';
 import { logGraphqlErrors } from '../../utils';
-import { withLoaders, makeAPI } from '../db';
+import { makeAPI } from '../db';
 
-const contextValue = { db: withLoaders(makeAPI()) };
+const contextValue = { db: makeAPI() };
 
 test('get villain by name', async () => {
   const source = `
