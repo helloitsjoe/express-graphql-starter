@@ -53,7 +53,7 @@ test('by cast member name', async () => {
       }
     }
   `;
-  const res = await graphql({ schema, source, contextValue });
+  const res = await graphql({ schema, source, contextValue }).then(logGraphqlErrors);
   expect(res.data.movies[0].title).toBe('Batman');
 });
 

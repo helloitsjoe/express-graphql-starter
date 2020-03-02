@@ -1,3 +1,6 @@
+const DataStore = require('nedb');
+const util = require('util');
+
 const MOVIES = {
   RAIDERS: 'Raiders of the Lost Ark',
   TEMPLE: 'Temple of Doom',
@@ -49,8 +52,54 @@ const createMovie = title => {
 
 const movies = Object.values(MOVIES).map(createMovie);
 
-module.exports = {
-  heroes,
-  villains,
-  movies,
-};
+const heroDB = new DataStore();
+const villainDB = new DataStore();
+const movieDB = new DataStore();
+
+heroDB.insert(heroes);
+villainDB.insert(villains);
+movieDB.insert(movies);
+
+const pfy = (db, method) => util.promisify(db[method].bind(db));
+
+const wait = (ms = 0) => new Promise(resolve => setTimeout(resolve, ms));
+
+// delay for showing DataLoader's effect
+module.exports = ({ delay } = {}) => ({
+  heroes: {
+    find: ({ name, power }) => {
+      const search = {
+        ...(name && { name: { $regex: new RegExp(name, 'i') } }),
+        ...(power && { power: { $regex: new RegExp(power, 'i') } }),
+      };
+      return wait(delay).then(() => pfy(heroDB, 'find')(search));
+    },
+  },
+  villains: {
+    find: ({ name, power }) => {
+      const search = {
+        ...(name && { name: { $regex: new RegExp(name, 'i') } }),
+        ...(power && { power: { $regex: new RegExp(power, 'i') } }),
+      };
+      return wait(delay).then(() => pfy(villainDB, 'find')(search));
+    },
+  },
+  movies: {
+    find: ({ title, castMemberName }) =>
+      wait(delay).then(() => {
+        if (title) {
+          return pfy(movieDB, 'find')({ title: { $regex: new RegExp(title, 'i') } });
+        }
+        if (castMemberName) {
+          return pfy(movieDB, 'find')({
+            $where() {
+              return this.heroes
+                .concat(this.villains)
+                .some(name => name.match(new RegExp(castMemberName, 'i')));
+            },
+          });
+        }
+        return pfy(movieDB, 'find')({});
+      }),
+  },
+});
