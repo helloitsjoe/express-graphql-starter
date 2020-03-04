@@ -1,5 +1,5 @@
 export const makeHero = async ({ name, db }) => {
-  const [hero] = await db.hero.nameLoader.load(name);
+  const hero = await db.hero.nameLoader.load(name);
   return {
     name: hero.name,
     powers: hero.powers,

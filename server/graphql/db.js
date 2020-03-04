@@ -3,19 +3,12 @@ const makeData = require('./mockData');
 
 const makeAPI = (db = makeData()) => {
   const makeHero = () => {
-    const fetch = (names, power) => {
-      if (names) {
-        const namesArray = [].concat(names);
-        const namesPromises = namesArray.map(name => db.heroes.find({ name }));
-        return Promise.all(namesPromises).then(ea => ea.flat());
-      }
-      // TODO: Reduce this duplication here and in db
-      return power ? db.heroes.find({ power }) : db.heroes.find({});
-    };
+    const fetch = names => db.heroes.findOne({ names });
+    const fetchAll = power => db.heroes.find({ power });
 
-    const nameLoader = new DataLoader(names => Promise.all(names.map(name => fetch(name))));
+    const nameLoader = new DataLoader(names => fetch(names));
 
-    return { fetch, nameLoader };
+    return { fetch, fetchAll, nameLoader };
   };
 
   const makeVillain = () => {

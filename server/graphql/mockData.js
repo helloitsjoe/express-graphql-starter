@@ -67,13 +67,25 @@ const wait = (ms = 0) => new Promise(resolve => setTimeout(resolve, ms));
 // delay for showing DataLoader's effect
 module.exports = ({ delay } = {}) => ({
   heroes: {
-    find: ({ name, power }) => {
-      const search = {
-        ...(name && { name: { $regex: new RegExp(name, 'i') } }),
-        ...(power && { power: { $regex: new RegExp(power, 'i') } }),
-      };
+    find: ({ power }) => {
+      const search = power ? { power: { $regex: new RegExp(power, 'i') } } : {};
       return wait(delay).then(() => pfy(heroDB, 'find')(search));
     },
+    findOne: ({ names }) =>
+      wait(delay).then(() => {
+        const search = { name: { $regex: new RegExp(names.join('|'), 'i') } };
+        return pfy(heroDB, 'find')(search).then(foundHeroes => {
+          // Put heroes back in order because 'find' compares against regex
+          return names.reduce((acc, name) => {
+            foundHeroes.forEach(hero => {
+              if (hero.name.match(new RegExp(name, 'i'))) {
+                acc.push(hero);
+              }
+            });
+            return acc;
+          }, []);
+        });
+      }),
   },
   villains: {
     find: ({ name, power }) => {

@@ -22,7 +22,7 @@ afterAll(() => {
 test('hero API test', async () => {
   const query = `
     query {
-      heroes {
+      allHeroes {
         name
         powers
         movies {
@@ -32,10 +32,10 @@ test('hero API test', async () => {
     }
   `;
   const res = await axios.post(graphqlUrl, { query }).catch(handleAxiosError);
-  const { heroes } = res.data.data;
-  const allHeroesHaveNames = heroes.every(h => typeof h.name === 'string');
-  const allHeroesHavePowers = heroes.every(h => h.powers.length > 0);
-  const allHeroesHaveMovies = heroes.every(h => h.movies.length > 0);
+  const { allHeroes } = res.data.data;
+  const allHeroesHaveNames = allHeroes.every(h => typeof h.name === 'string');
+  const allHeroesHavePowers = allHeroes.every(h => h.powers.length > 0);
+  const allHeroesHaveMovies = allHeroes.every(h => h.movies.length > 0);
   expect(allHeroesHaveNames).toBe(true);
   expect(allHeroesHavePowers).toBe(true);
   expect(allHeroesHaveMovies).toBe(true);

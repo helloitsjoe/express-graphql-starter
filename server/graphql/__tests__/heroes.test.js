@@ -33,6 +33,20 @@ test('get heroes by name', async () => {
   expect(movie.heroes.some(h => h.name.match(/batman/i))).toBe(true);
 });
 
+test('returns heroes in order', async () => {
+  const source = `
+    query {
+      heroes(names: ["Batman", "indiana jones"]) {
+        name
+      }
+    }
+  `;
+  const res = await graphql({ schema, source, contextValue }).then(logGraphqlErrors);
+  const [batman, indy] = res.data.heroes;
+  expect(batman.name).toBe('Batman');
+  expect(indy.name).toBe('Indiana Jones');
+});
+
 test('uppercase name', async () => {
   const source = `
     query {
