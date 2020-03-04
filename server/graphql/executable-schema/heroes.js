@@ -14,7 +14,9 @@ export const heroSchema = `
 
   extend type Query {
     "Heroes by name"
-    heroes(names: [String]): [Hero!]!
+    hero(name: String): Hero!
+    "Fetch multiple heroes by providing an array of ids"
+    heroes(ids: [Int]): [Hero!]!
     "All heroes, optionally filtered by power"
     allHeroes(power: String): [Hero!]!
     "Get a random hero"
@@ -24,7 +26,8 @@ export const heroSchema = `
 
 export const heroRoot = {
   Query: {
-    heroes: (_, { names } = {}, { db }) => db.hero.fetch(names),
+    hero: (_, { name } = {}, { db }) => db.hero.fetchByName(name),
+    heroes: (_, { ids } = {}, { db }) => db.hero.fetchByIds(ids),
     allHeroes: (_, { power } = {}, { db }) => db.hero.fetchAll(power),
     randomHero: (_, args, { db }) => db.hero.fetchAll().then(getRandom),
   },

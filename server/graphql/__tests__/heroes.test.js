@@ -5,10 +5,10 @@ import { makeAPI } from '../db';
 
 const contextValue = { db: makeAPI() };
 
-test('get heroes by name', async () => {
+test('get hero by name', async () => {
   const source = `
     query {
-      heroes(names: ["indiana jones", "Batman"]) {
+      hero(name: "indiana jones") {
         name
         powers
         movies {
@@ -21,43 +21,37 @@ test('get heroes by name', async () => {
     }
   `;
   const res = await graphql({ schema, source, contextValue }).then(logGraphqlErrors);
-  const [indy, batman] = res.data.heroes;
+  const indy = res.data.hero;
   expect(indy.name).toBe('Indiana Jones');
   expect(indy.powers).toEqual(['whip', 'intelligence']);
   const raiders = indy.movies.find(m => m.title.match(/raiders/i));
   expect(raiders.heroes.some(h => h.name.match(/indiana jones/i))).toBe(true);
-
-  expect(batman.name).toBe('Batman');
-  expect(batman.powers).toEqual(['technology']);
-  const movie = batman.movies.find(m => m.title.match(/batman/i));
-  expect(movie.heroes.some(h => h.name.match(/batman/i))).toBe(true);
 });
 
-test('returns heroes in order', async () => {
+test('get heroes by ids', async () => {
   const source = `
     query {
-      heroes(names: ["Batman", "indiana jones"]) {
+      heroes(ids: [1, 2]) {
         name
       }
     }
   `;
   const res = await graphql({ schema, source, contextValue }).then(logGraphqlErrors);
-  const [batman, indy] = res.data.heroes;
-  expect(batman.name).toBe('Batman');
-  expect(indy.name).toBe('Indiana Jones');
+  const { heroes } = res.data;
+  expect(heroes[0].name).toBe('Indiana Jones');
+  expect(heroes[1].name).toBe('Batman');
 });
 
 test('uppercase name', async () => {
   const source = `
     query {
-      heroes(names: ["indiana jones"]) {
+      hero(name: "indiana jones") {
         name(shouldUpperCase: true)
       }
     }
   `;
   const res = await graphql({ schema, source, contextValue }).then(logGraphqlErrors);
-  const [indy] = res.data.heroes;
-  expect(indy.name).toBe('INDIANA JONES');
+  expect(res.data.hero.name).toBe('INDIANA JONES');
 });
 
 test('get all heroes', async () => {
