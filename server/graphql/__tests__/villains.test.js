@@ -8,7 +8,7 @@ const contextValue = { db: makeAPI() };
 test('get villain by name', async () => {
   const source = `
     query {
-      villains(names: ["magneto"]) {
+      villain(name: "magneto") {
         name
         powers
         movies {
@@ -21,17 +21,17 @@ test('get villain by name', async () => {
     }
   `;
   const res = await graphql({ schema, source, contextValue }).then(logGraphqlErrors);
-  const [magneto] = res.data.villains;
+  const magneto = res.data.villain;
   expect(magneto.name).toBe('Magneto');
   expect(magneto.powers).toEqual(['magnetism']);
   const xMen = magneto.movies.find(m => m.title.match(/x-men/i));
   expect(xMen.villains.some(h => h.name.match(/magneto/i))).toBe(true);
 });
 
-test('get multiple villains by name', async () => {
+test('get villains by id', async () => {
   const source = `
     query {
-      villains(names: ["magneto", "bane"]) {
+      villains(ids: [9, 10]) {
         name
         powers
         movies {
@@ -60,27 +60,54 @@ test('get multiple villains by name', async () => {
 test('uppercase name', async () => {
   const source = `
     query {
-      villains(names: ["Magneto"]) {
+      villain(name: "Magneto") {
         name(shouldUpperCase: true)
       }
     }
   `;
   const res = await graphql({ schema, source, contextValue }).then(logGraphqlErrors);
-  const [magneto] = res.data.villains;
+  const magneto = res.data.villain;
   expect(magneto.name).toBe('MAGNETO');
+});
+
+test('get all villains', async () => {
+  const source = `
+    query {
+      allVillains {
+        name
+        powers
+        movies {
+          title
+          heroes {
+            name
+          }
+          villains {
+            name
+          }
+        }
+      }
+    }
+  `;
+  const res = await graphql({ schema, source, contextValue }).then(logGraphqlErrors);
+  const { allVillains } = res.data;
+  expect(allVillains.length).toBe(6);
+  expect(allVillains.every(v => v.powers.length > 0)).toBe(true);
+  expect(allVillains.every(v => v.movies.length > 0)).toBe(true);
+  expect(allVillains.every(v => v.movies.every(m => m.heroes.length > 0))).toBe(true);
+  expect(allVillains.every(v => v.movies.every(m => m.villains.length > 0))).toBe(true);
 });
 
 test('get villain by power', async () => {
   const source = `
     query {
-      villains(power: "magnetism") {
+      allVillains(power: "magnetism") {
         name
         powers
       }
     }
   `;
   const res = await graphql({ schema, source, contextValue });
-  expect(res.data.villains.every(v => v.powers.includes('magnetism'))).toBe(true);
+  expect(res.data.allVillains.every(v => v.powers.includes('magnetism'))).toBe(true);
 });
 
 test('get random villain', async () => {

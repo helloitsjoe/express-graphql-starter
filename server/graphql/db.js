@@ -13,6 +13,17 @@ defaultMovieDB.insert(movies);
 
 const wait = (ms = 0) => new Promise(resolve => setTimeout(resolve, ms));
 
+const sortByIdOrder = (ids, foundCharacters) => {
+  return ids.reduce((acc, id) => {
+    foundCharacters.forEach(foundCharacter => {
+      if (id === foundCharacter.id) {
+        acc.push(foundCharacter);
+      }
+    });
+    return acc;
+  }, []);
+};
+
 const makeAPI = ({
   heroDB = defaultHeroDB,
   villainDB = defaultVillainDB,
@@ -24,20 +35,13 @@ const makeAPI = ({
     const find = util.promisify(heroDB.find.bind(heroDB));
     const findOne = util.promisify(heroDB.findOne.bind(heroDB));
 
-    const fetchByName = name => findOne({ name: { $regex: new RegExp(name, 'i') } });
+    const fetchByName = name =>
+      wait(delay).then(() => findOne({ name: { $regex: new RegExp(name, 'i') } }));
+
     const fetchByIds = ids => {
       return wait(delay)
         .then(() => find({ id: { $in: ids } }))
-        .then(foundHeroes => {
-          return ids.reduce((acc, id) => {
-            foundHeroes.forEach(foundHero => {
-              if (id === foundHero.id) {
-                acc.push(foundHero);
-              }
-            });
-            return acc;
-          }, []);
-        });
+        .then(foundHeroes => sortByIdOrder(ids, foundHeroes));
     };
     const fetchAll = power => {
       const search = power ? { power: { $regex: new RegExp(power, 'i') } } : {};
@@ -49,31 +53,27 @@ const makeAPI = ({
     return { fetchByName, fetchByIds, fetchAll, nameLoader };
   };
 
-  // TODO: Convert like hero
   const makeVillain = () => {
-    const dbFind = util.promisify(villainDB.find.bind(villainDB));
+    const find = util.promisify(villainDB.find.bind(villainDB));
+    const findOne = util.promisify(villainDB.findOne.bind(villainDB));
 
-    // TODO: Consolidate find and fetch
-    const find = ({ name, power }) => {
-      const search = {
-        ...(name && { name: { $regex: new RegExp(name, 'i') } }),
-        ...(power && { power: { $regex: new RegExp(power, 'i') } }),
-      };
-      return wait(delay).then(() => dbFind(search));
+    const fetchByName = name =>
+      wait(delay).then(() => findOne({ name: { $regex: new RegExp(name, 'i') } }));
+
+    const fetchByIds = ids => {
+      return wait(delay)
+        .then(() => find({ id: { $in: ids } }))
+        .then(foundVillains => sortByIdOrder(ids, foundVillains));
     };
 
-    const fetch = (names, power) => {
-      if (names) {
-        const namesArray = [].concat(names);
-        const namesPromises = namesArray.map(name => find({ name }));
-        return Promise.all(namesPromises).then(ea => ea.flat());
-      }
-      return power ? find({ power }) : find({});
+    const fetchAll = power => {
+      const search = power ? { power: { $regex: new RegExp(power, 'i') } } : {};
+      return wait(delay).then(() => find(search));
     };
 
-    const nameLoader = new DataLoader(names => Promise.all(names.map(name => fetch(name))));
+    const nameLoader = new DataLoader(names => Promise.all(names.map(fetchByName)));
 
-    return { fetch, nameLoader };
+    return { fetchByName, fetchByIds, fetchAll, nameLoader };
   };
 
   // TODO: Convert like hero
