@@ -76,43 +76,30 @@ const makeAPI = ({
     return { fetchByName, fetchByIds, fetchAll, nameLoader };
   };
 
-  // TODO: Convert like hero
   const makeMovie = () => {
-    const dbFind = util.promisify(movieDB.find.bind(movieDB));
+    const find = util.promisify(movieDB.find.bind(movieDB));
+    const findOne = util.promisify(movieDB.findOne.bind(movieDB));
 
-    // TODO: Consolidate find and fetch
-    const find = ({ title, castMemberName }) =>
-      wait(delay).then(() => {
-        if (title) {
-          return dbFind({ title: { $regex: new RegExp(title, 'i') } });
-        }
-        if (castMemberName) {
-          return dbFind({
-            $where() {
-              return this.heroes
-                .concat(this.villains)
-                .some(name => name.match(new RegExp(castMemberName, 'i')));
-            },
-          });
-        }
-        return dbFind({});
-      });
+    const fetchByTitle = title =>
+      wait(delay).then(() => findOne({ title: { $regex: new RegExp(title, 'i') } }));
 
-    const fetch = (titles, castMemberName) => {
-      if (titles) {
-        const titlesArray = [].concat(titles);
-        const titlesPromises = titlesArray.map(title => find({ title }));
-        return Promise.all(titlesPromises).then(ea => ea.flat());
+    const fetchByIds = ids =>
+      wait(delay)
+        .then(() => find({ id: { $in: ids } }))
+        .then(foundMovies => sortByIdOrder(ids, foundMovies));
+
+    const fetchAll = castMemberName => {
+      function searchFn() {
+        const cast = [...this.heroes, ...this.villains];
+        return cast.some(name => name.match(new RegExp(castMemberName, 'i')));
       }
-      if (castMemberName) {
-        return find({ castMemberName });
-      }
-      return find({});
+      const search = castMemberName ? { $where: searchFn } : {};
+      return wait(delay).then(() => find(search));
     };
 
-    const titleLoader = new DataLoader(titles => Promise.all(titles.map(title => fetch(title))));
+    const titleLoader = new DataLoader(titles => Promise.all(titles.map(fetchByTitle)));
 
-    return { fetch, titleLoader };
+    return { fetchAll, fetchByTitle, fetchByIds, titleLoader };
   };
 
   return { hero: makeHero(), villain: makeVillain(), movie: makeMovie() };

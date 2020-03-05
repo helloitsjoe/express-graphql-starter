@@ -17,7 +17,7 @@ export const makeVillain = async ({ name, db }) => {
 };
 
 export const makeMovie = async ({ title, db }) => {
-  const [movie] = await db.movie.titleLoader.load(title);
+  const movie = await db.movie.titleLoader.load(title);
   return {
     title: movie.title,
     heroes: movie.heroes,
