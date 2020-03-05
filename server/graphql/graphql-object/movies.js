@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-import { GraphQLObjectType, GraphQLNonNull, GraphQLString, GraphQLList } from 'graphql';
+import { GraphQLObjectType, GraphQLNonNull, GraphQLString, GraphQLList, GraphQLInt } from 'graphql';
 import { VillainType } from './villains';
 import { HeroType } from './heroes';
 import { makeHero, makeVillain } from '../models';
@@ -28,25 +28,42 @@ export const MovieType = new GraphQLObjectType({
 });
 
 export const movieFields = {
+  movie: {
+    type: new GraphQLNonNull(MovieType),
+    description: 'Get a movie by title',
+    args: {
+      title: { type: GraphQLString },
+    },
+    async resolve(_, { title }, { db }) {
+      return db.movie.fetchByTitle(title);
+    },
+  },
   movies: {
     type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(MovieType))),
-    description: 'Movies filtered by titles or castMemberName',
+    description: 'Get a list of movies by ids',
+    args: {
+      ids: { type: new GraphQLList(GraphQLInt) },
+    },
+    async resolve(_, { ids }, { db }) {
+      return db.movie.fetchByIds(ids);
+    },
+  },
+  allMovies: {
+    type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(MovieType))),
+    description: 'All movies, optionally filtered by castMemberName',
     args: {
       titles: { type: new GraphQLList(GraphQLString) },
       castMemberName: { type: GraphQLString },
     },
-    async resolve(_, { titles, castMemberName }, { db }) {
-      return db.fetchMovies(titles, castMemberName);
-
-      // const movies = await db.fetchMovies(title, castMemberName);
-      // return movies.map(m => makeMovie({ title: m.title, db }));
+    async resolve(_, { castMemberName }, { db }) {
+      return db.movie.fetchAll(castMemberName);
     },
   },
   randomMovie: {
     type: new GraphQLNonNull(MovieType),
     description: 'A random movie',
     async resolve(_, __, { db }) {
-      const movies = await db.fetchMovies();
+      const movies = await db.movie.fetchAll();
       return getRandom(movies);
       // return makeMovie({ title: getRandom(movies).title, db });
     },
