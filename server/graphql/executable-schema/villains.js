@@ -1,4 +1,3 @@
-import { makeMovie } from '../models';
 import { getRandom } from '../../utils';
 
 // Note that we can use types defined in other files
@@ -33,6 +32,6 @@ export const villainRoot = {
   },
   Villain: {
     name: ({ name }, { shouldUpperCase = false }) => (shouldUpperCase ? name.toUpperCase() : name),
-    movies: ({ movies }, args, { db }) => movies.map(title => makeMovie({ title, db })),
+    movies: ({ movies }, args, { db }) => movies.map(title => db.movie.titleLoader.load(title)),
   },
 };

@@ -10,35 +10,37 @@ const MOVIES = {
 
 const { RAIDERS, TEMPLE, CRUSADE, INCREDIBLES, BATMAN, X_MEN, DARK_KNIGHT } = MOVIES;
 
-let currentId = 1;
-
 const heroes = [
   {
+    id: 1,
     name: 'Indiana Jones',
     powers: ['whip', 'intelligence'],
     movies: [RAIDERS, TEMPLE, CRUSADE],
   },
-  { name: 'Batman', powers: ['technology'], movies: [BATMAN, DARK_KNIGHT] },
-  { name: 'Mr. Incredible', powers: ['strength', 'invulnerability'], movies: [INCREDIBLES] },
-  { name: 'Mrs. Incredible', powers: ['stretch', 'strength'], movies: [INCREDIBLES] },
-  { name: 'Dash', powers: ['speed'], movies: [INCREDIBLES] },
-  { name: 'Violet', powers: ['invisibility'], movies: [INCREDIBLES] },
+  { id: 2, name: 'Batman', powers: ['technology'], movies: [BATMAN, DARK_KNIGHT] },
+  { id: 3, name: 'Mr. Incredible', powers: ['strength', 'invulnerability'], movies: [INCREDIBLES] },
+  { id: 4, name: 'Mrs. Incredible', powers: ['stretch', 'strength'], movies: [INCREDIBLES] },
+  { id: 5, name: 'Dash', powers: ['speed'], movies: [INCREDIBLES] },
+  { id: 6, name: 'Violet', powers: ['invisibility'], movies: [INCREDIBLES] },
   {
+    id: 7,
     name: 'Jack-Jack',
     powers: ['fire', 'transformation', 'teleportation', 'strength', 'stretch'],
     movies: [INCREDIBLES],
   },
-  { name: 'Wolverine', powers: ['adamantium', 'healing'], movies: [X_MEN] },
-].map(ea => ({ ...ea, id: currentId++ }));
+  { id: 8, name: 'Wolverine', powers: ['adamantium', 'healing'], movies: [X_MEN] },
+];
 
 const villains = [
-  { name: 'Magneto', powers: ['magnetism'], movies: [X_MEN] },
-  { name: 'Bane', powers: ['strength', 'invulnerability'], movies: [DARK_KNIGHT] },
-  { name: 'The Joker', powers: ['psychology', 'chaos'], movies: [BATMAN] },
-  { name: 'Syndrome', powers: ['technology'], movies: [INCREDIBLES] },
-  { name: 'Nazis', powers: ['facism'], movies: [RAIDERS, CRUSADE] },
-  { name: 'Mola Ram', powers: ['dark magic', 'brainwashing'], movies: [TEMPLE] },
-].map(ea => ({ ...ea, id: currentId++ }));
+  { id: 9, name: 'Magneto', powers: ['magnetism'], movies: [X_MEN] },
+  { id: 10, name: 'Bane', powers: ['strength', 'invulnerability'], movies: [DARK_KNIGHT] },
+  { id: 11, name: 'The Joker', powers: ['psychology', 'chaos'], movies: [BATMAN] },
+  { id: 12, name: 'Syndrome', powers: ['technology'], movies: [INCREDIBLES] },
+  { id: 13, name: 'Nazis', powers: ['facism'], movies: [RAIDERS, CRUSADE] },
+  { id: 14, name: 'Mola Ram', powers: ['dark magic', 'brainwashing'], movies: [TEMPLE] },
+];
+
+let currentId = 15;
 
 const createMovie = title => {
   const isInMovie = character => character.movies.includes(title);
