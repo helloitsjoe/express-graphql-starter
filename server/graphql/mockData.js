@@ -1,6 +1,3 @@
-const DataStore = require('nedb');
-const util = require('util');
-
 const MOVIES = {
   RAIDERS: 'Raiders of the Lost Ark',
   TEMPLE: 'Temple of Doom',
@@ -13,7 +10,15 @@ const MOVIES = {
 
 const { RAIDERS, TEMPLE, CRUSADE, INCREDIBLES, BATMAN, X_MEN, DARK_KNIGHT } = MOVIES;
 
+let currentId = 1;
+
 const heroes = [
+  {
+    name: 'Indiana Jones',
+    powers: ['whip', 'intelligence'],
+    movies: [RAIDERS, TEMPLE, CRUSADE],
+  },
+  { name: 'Batman', powers: ['technology'], movies: [BATMAN, DARK_KNIGHT] },
   { name: 'Mr. Incredible', powers: ['strength', 'invulnerability'], movies: [INCREDIBLES] },
   { name: 'Mrs. Incredible', powers: ['stretch', 'strength'], movies: [INCREDIBLES] },
   { name: 'Dash', powers: ['speed'], movies: [INCREDIBLES] },
@@ -23,14 +28,8 @@ const heroes = [
     powers: ['fire', 'transformation', 'teleportation', 'strength', 'stretch'],
     movies: [INCREDIBLES],
   },
-  {
-    name: 'Indiana Jones',
-    powers: ['whip', 'intelligence'],
-    movies: [RAIDERS, TEMPLE, CRUSADE],
-  },
-  { name: 'Batman', powers: ['technology'], movies: [BATMAN, DARK_KNIGHT] },
   { name: 'Wolverine', powers: ['adamantium', 'healing'], movies: [X_MEN] },
-];
+].map(ea => ({ ...ea, id: currentId++ }));
 
 const villains = [
   { name: 'Bane', powers: ['strength', 'invulnerability'], movies: [DARK_KNIGHT] },
@@ -39,7 +38,7 @@ const villains = [
   { name: 'Syndrome', powers: ['technology'], movies: [INCREDIBLES] },
   { name: 'Nazis', powers: ['facism'], movies: [RAIDERS, CRUSADE] },
   { name: 'Mola Ram', powers: ['dark magic', 'brainwashing'], movies: [TEMPLE] },
-];
+].map(ea => ({ ...ea, id: currentId++ }));
 
 const createMovie = title => {
   const isInMovie = character => character.movies.includes(title);
@@ -47,71 +46,63 @@ const createMovie = title => {
     title,
     heroes: heroes.filter(isInMovie).map(h => h.name),
     villains: villains.filter(isInMovie).map(v => v.name),
+    id: currentId++,
   };
 };
 
 const movies = Object.values(MOVIES).map(createMovie);
 
-const heroDB = new DataStore();
-const villainDB = new DataStore();
-const movieDB = new DataStore();
-
-heroDB.insert(heroes);
-villainDB.insert(villains);
-movieDB.insert(movies);
-
-const pfy = (db, method) => util.promisify(db[method].bind(db));
-
-const wait = (ms = 0) => new Promise(resolve => setTimeout(resolve, ms));
+module.exports = { heroes, villains, movies };
 
 // delay for showing DataLoader's effect
-module.exports = ({ delay } = {}) => ({
-  heroes: {
-    find: ({ power }) => {
-      const search = power ? { power: { $regex: new RegExp(power, 'i') } } : {};
-      return wait(delay).then(() => pfy(heroDB, 'find')(search));
-    },
-    findOne: ({ names }) =>
-      wait(delay).then(() => {
-        const search = { name: { $regex: new RegExp(names.join('|'), 'i') } };
-        return pfy(heroDB, 'find')(search).then(foundHeroes => {
-          // Put heroes back in order because 'find' compares against regex
-          return names.reduce((acc, name) => {
-            foundHeroes.forEach(hero => {
-              if (hero.name.match(new RegExp(name, 'i'))) {
-                acc.push(hero);
-              }
-            });
-            return acc;
-          }, []);
-        });
-      }),
-  },
-  villains: {
-    find: ({ name, power }) => {
-      const search = {
-        ...(name && { name: { $regex: new RegExp(name, 'i') } }),
-        ...(power && { power: { $regex: new RegExp(power, 'i') } }),
-      };
-      return wait(delay).then(() => pfy(villainDB, 'find')(search));
-    },
-  },
-  movies: {
-    find: ({ title, castMemberName }) =>
-      wait(delay).then(() => {
-        if (title) {
-          return pfy(movieDB, 'find')({ title: { $regex: new RegExp(title, 'i') } });
-        }
-        if (castMemberName) {
-          return pfy(movieDB, 'find')({
-            $where() {
-              return this.heroes
-                .concat(this.villains)
-                .some(name => name.match(new RegExp(castMemberName, 'i')));
-            },
-          });
-        }
-        return pfy(movieDB, 'find')({});
-      }),
-  },
-});
+// module.exports = ({ delay } = {}) => ({
+//   heroes: {
+//     find: ({ power }) => {
+//       const search = power ? { power: { $regex: new RegExp(power, 'i') } } : {};
+//       return wait(delay).then(() => pfy(heroDB, 'find')(search));
+//     },
+//     findOne: ({ name, ids }) =>
+//       wait(delay).then(() => {
+//         if (name) {
+//           return pfy(heroDB, 'findOne')({ name: { $regex: new RegExp(name, 'i') } });
+//         }
+//         return pfy(heroDB, 'find')({ id: { $in: ids } }).then(foundHeroes => {
+//           return ids.reduce((acc, id) => {
+//             foundHeroes.forEach(foundHero => {
+//               if (id === foundHero.id) {
+//                 acc.push(foundHero);
+//               }
+//             });
+//             return acc;
+//           }, []);
+//         });
+//       }),
+//   },
+//   villains: {
+//     find: ({ name, power }) => {
+//       const search = {
+//         ...(name && { name: { $regex: new RegExp(name, 'i') } }),
+//         ...(power && { power: { $regex: new RegExp(power, 'i') } }),
+//       };
+//       return wait(delay).then(() => pfy(villainDB, 'find')(search));
+//     },
+//   },
+//   movies: {
+//     find: ({ title, castMemberName }) =>
+//       wait(delay).then(() => {
+//         if (title) {
+//           return pfy(movieDB, 'find')({ title: { $regex: new RegExp(title, 'i') } });
+//         }
+//         if (castMemberName) {
+//           return pfy(movieDB, 'find')({
+//             $where() {
+//               return this.heroes
+//                 .concat(this.villains)
+//                 .some(name => name.match(new RegExp(castMemberName, 'i')));
+//             },
+//           });
+//         }
+//         return pfy(movieDB, 'find')({});
+//       }),
+//   },
+// });
