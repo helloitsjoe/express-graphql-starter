@@ -8,7 +8,7 @@ export const makeHero = async ({ name, db }) => {
 };
 
 export const makeVillain = async ({ name, db }) => {
-  const [villain] = await db.villain.nameLoader.load(name);
+  const villain = await db.villain.nameLoader.load(name);
   return {
     name: villain.name,
     powers: villain.powers,
@@ -17,7 +17,7 @@ export const makeVillain = async ({ name, db }) => {
 };
 
 export const makeMovie = async ({ title, db }) => {
-  const [movie] = await db.movie.titleLoader.load(title);
+  const movie = await db.movie.titleLoader.load(title);
   return {
     title: movie.title,
     heroes: movie.heroes,

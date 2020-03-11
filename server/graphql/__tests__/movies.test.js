@@ -5,10 +5,10 @@ import { makeAPI } from '../db';
 
 const contextValue = { db: makeAPI() };
 
-test('by name', async () => {
+test('by title', async () => {
   const source = `
     query {
-      movies(titles: ["batman"]) {
+      movie(title: "batman") {
         title
         heroes {
           name
@@ -17,16 +17,15 @@ test('by name', async () => {
     }
   `;
   const res = await graphql({ schema, source, contextValue }).then(logGraphqlErrors);
-  expect(res.data.movies.length).toBe(1);
-  const [batman] = res.data.movies;
+  const batman = res.data.movie;
   expect(batman.title).toBe('Batman');
   expect(batman.heroes[0].name).toBe('Batman');
 });
 
-test('multiple movies by name', async () => {
+test('multiple movies by id', async () => {
   const source = `
     query {
-      movies(titles: ["batman", "temple of doom"]) {
+      movies(ids: [15, 16]) {
         title
         heroes {
           name
@@ -36,10 +35,10 @@ test('multiple movies by name', async () => {
   `;
   const res = await graphql({ schema, source, contextValue }).then(logGraphqlErrors);
   expect(res.data.movies.length).toBe(2);
-  const [batman, temple] = res.data.movies;
+  const [raiders, temple] = res.data.movies;
 
-  expect(batman.title).toBe('Batman');
-  expect(batman.heroes[0].name).toBe('Batman');
+  expect(raiders.title).toBe('Raiders of the Lost Ark');
+  expect(raiders.heroes[0].name).toBe('Indiana Jones');
 
   expect(temple.title).toBe('Temple of Doom');
   expect(temple.heroes[0].name).toBe('Indiana Jones');
@@ -48,13 +47,13 @@ test('multiple movies by name', async () => {
 test('by cast member name', async () => {
   const source = `
     query {
-      movies(castMemberName: "joker") {
+      allMovies(castMemberName: "joker") {
         title
       }
     }
   `;
   const res = await graphql({ schema, source, contextValue }).then(logGraphqlErrors);
-  expect(res.data.movies[0].title).toBe('Batman');
+  expect(res.data.allMovies[0].title).toBe('Batman');
 });
 
 test('random movie', async () => {
@@ -77,7 +76,7 @@ test('random movie', async () => {
 test('connects to villains', async () => {
   const source = `
     query {
-      movies(castMemberName: "joker") {
+      allMovies(castMemberName: "joker") {
         title
         villains {
           name
@@ -89,7 +88,7 @@ test('connects to villains', async () => {
     }
   `;
   const res = await graphql({ schema, source, contextValue }).then(logGraphqlErrors);
-  const [movie] = res.data.movies;
+  const [movie] = res.data.allMovies;
   expect(movie.title).toBe('Batman');
   const joker = movie.villains.find(v => v.name === 'The Joker');
   expect(joker.movies.find(m => m.title === 'Batman')).toBeTruthy();
@@ -98,7 +97,7 @@ test('connects to villains', async () => {
 test('connects to heroes', async () => {
   const source = `
     query {
-      movies(castMemberName: "magneto") {
+      allMovies(castMemberName: "magneto") {
         title
         heroes {
           name
@@ -110,7 +109,7 @@ test('connects to heroes', async () => {
     }
   `;
   const res = await graphql({ schema, source, contextValue });
-  const [movie] = res.data.movies;
+  const [movie] = res.data.allMovies;
   expect(movie.title).toBe('X-Men');
   const wolverine = movie.heroes.find(h => h.name === 'Wolverine');
   expect(wolverine.movies.find(m => m.title === 'X-Men')).toBeTruthy();

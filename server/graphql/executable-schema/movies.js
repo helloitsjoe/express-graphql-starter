@@ -13,8 +13,12 @@ export const movieSchema = `
   }
 
   extend type Query {
-    "Movies filtered by title or castMemberName"
-    movies(titles: [String], castMemberName: String): [Movie!]!
+    "Find movie by title"
+    movie(title: String!): Movie!
+    "Find movies by an array of ids"
+    movies(ids: [Int]): [Movie!]!
+    "All movies optionally filtered by castMemberName"
+    allMovies(castMemberName: String): [Movie!]!
     "Get a random movie"
     randomMovie: Movie!
   }
@@ -22,8 +26,10 @@ export const movieSchema = `
 
 export const movieRoot = {
   Query: {
-    movies: (_, args = {}, { db }) => db.movie.fetch(args.titles, args.castMemberName),
-    randomMovie: (_, args, { db }) => db.movie.fetch().then(getRandom),
+    movie: (_, { title }, { db }) => db.movie.fetchByTitle(title),
+    movies: (_, { ids }, { db }) => db.movie.fetchByIds(ids),
+    allMovies: (_, { castMemberName }, { db }) => db.movie.fetchAll(castMemberName),
+    randomMovie: (_, args, { db }) => db.movie.fetchAll().then(getRandom),
   },
   Movie: {
     heroes: (movie, args, { db }) => movie.heroes.map(name => makeHero({ name, db })),

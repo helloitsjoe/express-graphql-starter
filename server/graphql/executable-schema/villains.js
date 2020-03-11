@@ -13,8 +13,12 @@ export const villainSchema = `
   }
 
   extend type Query {
-    "Villains filtered by name or power"
-    villains(names: [String], power: String): [Villain!]!
+    "Get villain by name (case insensitive)"
+    villain(name: String): Villain!
+    "Get villains by ids"
+    villains(ids: [Int]): [Villain!]!
+    "Get all villains, optionally filtered by power"
+    allVillains(power: String) : [Villain!]!
     "Get a random villain"
     randomVillain: Villain!
   }
@@ -22,8 +26,10 @@ export const villainSchema = `
 
 export const villainRoot = {
   Query: {
-    villains: (_, args = {}, { db }) => db.villain.fetch(args.names, args.power),
-    randomVillain: (_, args, { db }) => db.villain.fetch().then(getRandom),
+    villain: (_, { name }, { db }) => db.villain.fetchByName(name),
+    villains: (_, { ids }, { db }) => db.villain.fetchByIds(ids),
+    allVillains: (_, { power }, { db }) => db.villain.fetchAll(power),
+    randomVillain: (_, args, { db }) => db.villain.fetchAll().then(getRandom),
   },
   Villain: {
     name: ({ name }, { shouldUpperCase = false }) => (shouldUpperCase ? name.toUpperCase() : name),
