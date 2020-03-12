@@ -1,5 +1,10 @@
 /* eslint-disable import/prefer-default-export */
-export const handleAxiosError = e => console.error('ERROR', e.response.data.errors[0].message);
+export const handleAxiosError = e => {
+  const { message, stack } = e.response.data.errors[0];
+  console.log(`e.response.data.errors:`, e.response.data.errors);
+  console.error('ERROR', message);
+  console.error('Stack trace:', stack);
+};
 
 export const logGraphqlErrors = res => {
   if (res.errors && res.errors.length) {
