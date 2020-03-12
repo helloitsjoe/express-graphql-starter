@@ -5,6 +5,7 @@ import {
   GraphQLString,
   GraphQLBoolean,
   GraphQLList,
+  GraphQLInt,
 } from 'graphql';
 import { MovieType } from './movies';
 import { makeMovie } from '../models';
@@ -37,23 +38,41 @@ export const VillainType = new GraphQLObjectType({
 });
 
 export const villainFields = {
+  villain: {
+    type: new GraphQLNonNull(VillainType),
+    description: 'Get villain by name',
+    args: {
+      name: { type: new GraphQLNonNull(GraphQLString) },
+    },
+    async resolve(_, { name }, { db }) {
+      return db.villain.fetchByName(name);
+    },
+  },
   villains: {
     type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(VillainType))),
-    description: 'Villains filtered by name or powers',
+    description: 'Get villains by ids',
     args: {
-      names: { type: new GraphQLList(GraphQLString) },
+      ids: { type: new GraphQLList(GraphQLInt) },
+    },
+    async resolve(obj, { ids }, { db }) {
+      return db.villain.fetchByIds(ids);
+    },
+  },
+  allVillains: {
+    type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(VillainType))),
+    description: 'All villains, optionally filtered by power',
+    args: {
       power: { type: GraphQLString },
     },
-    async resolve(obj, { names, power }, { db }) {
-      return db.fetchVillains(names, power);
-      // return villains.map(v => new Villain().init({ name: v.name, db }));
+    async resolve(obj, { power }, { db }) {
+      return db.villain.fetchAll(power);
     },
   },
   randomVillain: {
     type: new GraphQLNonNull(VillainType),
     description: 'A random villain',
     async resolve(_, __, { db }) {
-      const villains = await db.fetchVillains();
+      const villains = await db.villain.fetchAll();
       return getRandom(villains);
     },
   },

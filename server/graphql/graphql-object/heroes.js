@@ -5,6 +5,7 @@ import {
   GraphQLList,
   GraphQLBoolean,
   GraphQLNonNull,
+  GraphQLInt,
 } from 'graphql';
 import { MovieType } from './movies';
 import { makeMovie } from '../models';
@@ -37,23 +38,41 @@ export const HeroType = new GraphQLObjectType({
 });
 
 export const heroFields = {
+  hero: {
+    type: new GraphQLNonNull(HeroType),
+    description: 'Get Hero by name',
+    args: {
+      name: { type: new GraphQLNonNull(GraphQLString) },
+    },
+    async resolve(_, { name }, { db }) {
+      return db.hero.fetchByName(name);
+    },
+  },
   heroes: {
     type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(HeroType))),
-    description: 'Heroes filtered by name or power',
+    description: 'Get a list of heroes by ids',
     args: {
-      names: { type: new GraphQLList(GraphQLString) },
+      ids: { type: new GraphQLList(GraphQLInt) },
+    },
+    async resolve(_, { ids }, { db }) {
+      return db.hero.fetchByIds(ids);
+    },
+  },
+  allHeroes: {
+    type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(HeroType))),
+    description: 'All heroes, optionally filtered by power',
+    args: {
       power: { type: new GraphQLList(GraphQLString) },
     },
-    async resolve(_, { names, power }, { db }) {
-      return db.fetchHeroes(names, power);
-      // return heroes.map(h => makeHero({ name: h.name, db }));
+    async resolve(_, { power }, { db }) {
+      return db.hero.fetchAll(power);
     },
   },
   randomHero: {
     type: new GraphQLNonNull(HeroType),
     description: 'A random hero',
     async resolve(_, __, { db }) {
-      const heroes = await db.fetchHeroes();
+      const heroes = await db.hero.fetchAll();
       return getRandom(heroes);
     },
   },

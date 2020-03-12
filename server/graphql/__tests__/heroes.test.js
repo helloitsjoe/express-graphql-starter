@@ -3,6 +3,10 @@ import { schema } from '../rootSchemas';
 import { logGraphqlErrors } from '../../utils';
 import { makeAPI } from '../db';
 
+// makeAPI automatically populates hero, villain, and movie DBs
+// and also allows for them to be passed in. Right now the default
+// data is mock data, but if the default were to use a real DB,
+// we could inject mock data here.
 const contextValue = { db: makeAPI() };
 
 test('get hero by name', async () => {
