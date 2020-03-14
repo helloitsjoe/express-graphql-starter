@@ -1,20 +1,12 @@
 /* eslint-disable no-return-assign */
 import React from 'react';
-import { configure, render, waitForElement, fireEvent, wait } from '@testing-library/preact';
+import { act, configure, render, fireEvent, wait } from '@testing-library/preact';
 // import { renderHook, act } from '@testing-library/react-hooks';
 import AppContainer, { App, useAsyncState, STATUS } from '../app';
 import { addPlanet } from '../fetch-service';
 import AddPlanet from '../add-planet';
 
-// configure({ asyncUtilTimeout: 100 });
-
-const origError = console.error;
-console.error = (...args) => {
-  if (args[0].match(/wrong act()|was not wrapped/)) {
-    return;
-  }
-  origError(...args);
-};
+configure({ asyncUtilTimeout: 100 });
 
 jest.mock('../fetch-service', () => {
   const planets = ['World', 'Mars'];
@@ -27,7 +19,7 @@ jest.mock('../fetch-service', () => {
 
 beforeEach(() => {
   // silence logs
-  // console.log = jest.fn();
+  console.log = jest.fn();
 });
 
 afterEach(() => {
@@ -56,46 +48,45 @@ describe('App', () => {
 
   describe('AppContainer', () => {
     it('loading screen', async () => {
-      const { container, getByText } = render(<AppContainer />);
+      const { container, findByText } = render(<AppContainer />);
       expect(container.textContent).toMatch(/loading/i);
-      await waitForElement(() => getByText(/Click a button to say hello/i));
+      await findByText(/Click a button to say hello/i);
     });
 
     it('gets initial buttons', async () => {
-      const { getByText } = render(<AppContainer />);
-      await waitForElement(() => [
-        getByText(/say hello to world/i),
-        getByText(/say hello to mars/i),
-      ]);
+      const { queryByText } = render(<AppContainer />);
+      await wait(() => {
+        expect(queryByText(/say hello to world/i)).toBeTruthy();
+        expect(queryByText(/say hello to mars/i)).toBeTruthy();
+      });
     });
 
     it('updates main text to button value', async () => {
-      const { getByText, findByText } = render(<AppContainer />);
-      await waitForElement(() => getByText(/Click a button to say hello/i));
+      const { findByText } = render(<AppContainer />);
+      await findByText(/Click a button to say hello/i);
       const worldButton = await findByText(/say hello to world/i);
       fireEvent.click(worldButton);
-      await waitForElement(() => getByText(/hello, world/i));
+      await findByText(/hello, world/i);
     });
 
-    fit('adding a planet adds a new button', async () => {
-      const { debug, getByPlaceholderText, getByText } = render(<AppContainer />);
-      await waitForElement(() => getByText(/Click a button to say hello/i));
+    it('adding a planet adds a new button', async () => {
+      const { getByPlaceholderText, getByText, findByText } = render(<AppContainer />);
+      await findByText(/Click a button to say hello/i);
       const input = getByPlaceholderText(/add a new planet/i);
-      fireEvent.change(input, { target: { value: 'Jupiter' } });
-      debug(input);
+      fireEvent.input(input, { target: { value: 'Jupiter' } });
       fireEvent.click(getByText(/add planet/i));
       // should add button optimistically
       const jupiterButton = getByText(/say hello to jupiter/i);
       fireEvent.click(jupiterButton);
-      await waitForElement(() => getByText(/hello, jupiter/i));
+      await findByText(/hello, jupiter/i);
     });
 
     it('error when adding a planet removes pending planet, displays error', async () => {
       addPlanet.mockRejectedValue(new Error('poo'));
-      const { getByPlaceholderText, queryByText } = render(<AppContainer />);
-      await waitForElement(() => queryByText(/Click a button to say hello/i));
+      const { findByText, getByPlaceholderText, queryByText } = render(<AppContainer />);
+      await findByText(/Click a button to say hello/i);
       const input = getByPlaceholderText(/add a new planet/i);
-      fireEvent.change(input, { target: { value: 'Jupiter' } });
+      fireEvent.input(input, { target: { value: 'Jupiter' } });
       fireEvent.click(queryByText(/add planet/i));
       // should add button optimistically
       expect(queryByText(/say hello to jupiter/i)).toBeTruthy();
@@ -109,21 +100,21 @@ describe('App', () => {
       const { container, findByPlaceholderText } = render(<AppContainer addPlanetError="poo" />);
       const input = await findByPlaceholderText(/add a new planet/i);
       expect(container.textContent).toMatch(/poo/i);
-      fireEvent.change(input, { target: { value: 'nuts' } });
+      fireEvent.input(input, { target: { value: 'nuts' } });
       expect(container.textContent).not.toMatch(/poo/i);
     });
 
     it('add planet button is disabled if planet already exists', async () => {
-      const { getByPlaceholderText, getByText } = render(<AppContainer />);
-      await waitForElement(() => getByText(/Click a button to say hello/i));
+      const { getByPlaceholderText, findByText, getByText } = render(<AppContainer />);
+      await findByText(/Click a button to say hello/i);
       const input = getByPlaceholderText(/add a new planet/i);
       const addButton = getByText(/add planet/i);
       expect(input.value).toBe('');
       expect(addButton.disabled).toBe(true);
       expect(getByText(/say hello to world/i)).toBeTruthy();
-      fireEvent.change(input, { target: { value: 'Worl' } });
+      fireEvent.input(input, { target: { value: 'Worl' } });
       expect(addButton.disabled).toBe(false);
-      fireEvent.change(input, { target: { value: 'World' } });
+      fireEvent.input(input, { target: { value: 'World' } });
       expect(addButton.disabled).toBe(true);
     });
   });
@@ -135,17 +126,17 @@ describe('App', () => {
     });
   });
 
-  xdescribe('useAsyncState (vanilla)', () => {
+  describe('useAsyncState (vanilla)', () => {
     const Comp = ({ cache, children }) => children({ ...useAsyncState(null, cache) });
 
     it('gets planets on mount', () => {
-      let loading;
+      let status;
       let planets;
-      render(<Comp>{value => ({ loading, planets } = value) && null}</Comp>);
-      expect(loading).toBe(true);
+      render(<Comp>{value => ({ status, planets } = value) && null}</Comp>);
+      expect(status).toBe('LOADING');
       expect(planets).toEqual([]);
       return wait(() => {
-        expect(loading).toBe(false);
+        expect(status).toBe('IDLE');
         expect(planets).toEqual(['World', 'Mars']);
       });
     });
