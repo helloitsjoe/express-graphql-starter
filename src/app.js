@@ -70,9 +70,9 @@ export const useAsyncState = (initialStateOverrides, cache = defaultCache) => {
   const handleFetch = (type, dataProp) => result =>
     Promise.resolve(result)
       .then(res => {
-        console.log('success');
-        console.log(`res.data:`, res.data);
-        console.log(`dataProp:`, dataProp);
+        // console.log('success');
+        // console.log(`res.data:`, res.data);
+        // console.log(`dataProp:`, dataProp);
         dispatch({ type, payload: res.data[dataProp] });
       })
       .catch(err => {
