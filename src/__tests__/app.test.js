@@ -1,12 +1,12 @@
 /* eslint-disable no-return-assign */
 import React from 'react';
-import { configure, render, waitForElement, fireEvent, wait } from '@testing-library/react';
-import { renderHook, act } from '@testing-library/react-hooks';
+import { configure, render, waitForElement, fireEvent, wait } from '@testing-library/preact';
+// import { renderHook, act } from '@testing-library/react-hooks';
 import AppContainer, { App, useAsyncState, STATUS } from '../app';
 import { addPlanet } from '../fetch-service';
 import AddPlanet from '../add-planet';
 
-configure({ asyncUtilTimeout: 100 });
+// configure({ asyncUtilTimeout: 100 });
 
 const origError = console.error;
 console.error = (...args) => {
@@ -27,14 +27,14 @@ jest.mock('../fetch-service', () => {
 
 beforeEach(() => {
   // silence logs
-  console.log = jest.fn();
+  // console.log = jest.fn();
 });
 
 afterEach(() => {
   jest.clearAllMocks();
 });
 
-xdescribe('App', () => {
+describe('App', () => {
   describe('App presenter', () => {
     it('is loading if status is LOADING', () => {
       const { container } = render(<App status={STATUS.LOADING} />);
@@ -77,11 +77,12 @@ xdescribe('App', () => {
       await waitForElement(() => getByText(/hello, world/i));
     });
 
-    it('adding a planet adds a new button', async () => {
-      const { getByPlaceholderText, getByText } = render(<AppContainer />);
+    fit('adding a planet adds a new button', async () => {
+      const { debug, getByPlaceholderText, getByText } = render(<AppContainer />);
       await waitForElement(() => getByText(/Click a button to say hello/i));
       const input = getByPlaceholderText(/add a new planet/i);
       fireEvent.change(input, { target: { value: 'Jupiter' } });
+      debug(input);
       fireEvent.click(getByText(/add planet/i));
       // should add button optimistically
       const jupiterButton = getByText(/say hello to jupiter/i);
@@ -175,7 +176,8 @@ xdescribe('App', () => {
     });
   });
 
-  describe('useAsyncState (react-hooks testing library)', () => {
+  // Incompatible with @testing-library/preact
+  xdescribe('useAsyncState (react-hooks testing library)', () => {
     it('gets planets on mount', async () => {
       const { result } = renderHook(() => useAsyncState());
 

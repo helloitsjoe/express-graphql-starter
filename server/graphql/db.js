@@ -30,7 +30,6 @@ const makeAPI = ({
   movieDB = defaultMovieDB,
   delay,
 } = {}) => {
-  // TODO: remove empty object as default arg
   const makeHero = () => {
     const find = util.promisify(heroDB.find.bind(heroDB));
     const findOne = util.promisify(heroDB.findOne.bind(heroDB));
