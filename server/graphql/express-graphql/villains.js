@@ -4,7 +4,6 @@
 // is a better solution.
 
 /* eslint-disable max-classes-per-file */
-import { makeMovie } from '../models';
 import { getRandom } from '../../utils';
 
 export const villainSchema = `
@@ -29,7 +28,7 @@ export class VillainType {
   constructor({ name, powers, movies }) {
     this._name = name;
     this.powers = powers;
-    this.movies = (args, { db }) => movies.map(movieName => makeMovie({ name: movieName, db }));
+    this.movies = (args, { db }) => movies.map(movieName => db.movie.titleLoader.load(movieName));
   }
 
   name({ shouldUpperCase }) {

@@ -3,7 +3,6 @@
 // i.e. Hero -> Movie -> Hero... graphql-tools `makeExecutableSchema`
 // is a better solution.
 
-import { makeHero, makeVillain } from '../models';
 import { getRandom } from '../../utils';
 
 // Note that we can use types defined in other files
@@ -30,8 +29,9 @@ export const movieResolver = async ({ name, heroes, villains }) => {
   console.log(`heroes:`, heroes);
   return {
     name,
-    heroes: (args, { db }) => heroes.map(heroName => makeHero({ name: heroName, db })),
-    villains: (args, { db }) => villains.map(villainName => makeVillain({ name: villainName, db })),
+    heroes: (args, { db }) => heroes.map(heroName => db.hero.nameLoader.load(heroName)),
+    villains: (args, { db }) =>
+      villains.map(villainName => db.villain.nameLoader.load(villainName)),
   };
 };
 

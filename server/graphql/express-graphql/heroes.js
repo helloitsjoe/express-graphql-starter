@@ -3,7 +3,6 @@
 // i.e. Hero -> Movie -> Hero... graphql-tools `makeExecutableSchema`
 // is a better solution.
 
-import { makeMovie } from '../models';
 import { getRandom } from '../../utils';
 
 export const heroSchema = `
@@ -29,14 +28,13 @@ export const heroResolver = ({ name, powers, movies }) => {
     powers,
     name: ({ shouldUpperCase = false }) => (shouldUpperCase ? name.toUpperCase() : name),
     movies: (args, { db }) => {
-      return movies.map(movieName => makeMovie({ name: movieName, db }));
+      return movies.map(title => db.movie.titleLoader.load(title));
     },
   };
 };
 
 const heroesResolver = async ({ name, power } = {}, { db }) => {
   const heroes = await db.fetchHeroes(name, power);
-  // const heroModels = heroes.map(h => makeHero({ name: h.name, db }));
   return heroes.map(heroResolver);
 };
 

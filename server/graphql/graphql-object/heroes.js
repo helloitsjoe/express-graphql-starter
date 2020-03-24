@@ -8,7 +8,6 @@ import {
   GraphQLInt,
 } from 'graphql';
 import { MovieType } from './movies';
-import { makeMovie } from '../models';
 import { getRandom } from '../../utils';
 
 export const HeroType = new GraphQLObjectType({
@@ -31,7 +30,7 @@ export const HeroType = new GraphQLObjectType({
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(MovieType))),
       description: 'Movies starring the hero',
       async resolve(hero, args, { db }) {
-        return hero.movies.map(title => makeMovie({ title, db }));
+        return hero.movies.map(title => db.movie.titleLoader.load(title));
       },
     },
   }),
