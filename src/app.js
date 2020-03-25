@@ -16,63 +16,59 @@ const { IDLE, LOADING, ERROR, PENDING } = STATUS;
 const defaultCache = new Map();
 
 export const useAsyncState = (initialStateOverrides, cache = defaultCache) => {
-  const [state, dispatch] = React.useReducer(
-    (s, a) => {
-      switch (a.type) {
-        case 'fetch':
-          return { ...s, status: LOADING };
-        case 'fetch_success':
-          console.log('success', a.payload);
-          cache.set(a.payload, true);
-          return { ...s, status: IDLE, errorMessage: '', helloTarget: a.payload };
-        case 'fetch_planets_success':
-          console.log('fetch planets success:', a.payload);
-          return { ...s, status: IDLE, errorMessage: '', planets: a.payload };
-        case 'add_planet_pending':
-          return {
-            ...s,
-            status: PENDING,
-            planets: s.planets.concat(a.payload),
-            pendingPlanet: a.payload,
-          };
-        case 'add_planet_success':
-          console.log('add planet success:', a.payload);
-          return { ...s, status: IDLE, pendingPlanet: '' };
-        case 'add_planet_error':
-          console.error('add planet error', a.payload);
-          return {
-            ...s,
-            status: IDLE,
-            addPlanetError: a.payload,
-            planets: s.planets.filter(planet => console.log(planet) || planet !== s.pendingPlanet),
-            pendingPlanet: '',
-          };
-        case 'fetch_error':
-          return { ...s, status: ERROR, errorMessage: a.payload };
-        case 'input':
-          return { ...s, status: IDLE, addPlanetError: '', value: a.payload };
-        default:
-          return s;
-      }
-    },
-    {
-      status: LOADING,
-      errorMessage: '',
-      addPlanetError: '',
-      helloTarget: '',
-      pendingPlanet: '',
-      planets: [],
-      value: '',
-      ...initialStateOverrides,
+  const asyncReducer = (s, a) => {
+    switch (a.type) {
+      case 'fetch':
+        return { ...s, status: LOADING };
+      case 'hello_success':
+        console.log('sayHello success', a.payload);
+        cache.set(a.payload, true);
+        return { ...s, status: IDLE, errorMessage: '', helloTarget: a.payload };
+      case 'fetch_planets_success':
+        console.log('fetch planets success:', a.payload);
+        return { ...s, status: IDLE, errorMessage: '', planets: a.payload };
+      case 'add_planet_pending':
+        return {
+          ...s,
+          status: PENDING,
+          planets: s.planets.concat(a.payload),
+          pendingPlanet: a.payload,
+        };
+      case 'add_planet_success':
+        console.log('add planet success:', a.payload);
+        return { ...s, status: IDLE, pendingPlanet: '' };
+      case 'add_planet_error':
+        console.error('add planet error', a.payload);
+        return {
+          ...s,
+          status: IDLE,
+          addPlanetError: a.payload,
+          planets: s.planets.filter(planet => console.log(planet) || planet !== s.pendingPlanet),
+          pendingPlanet: '',
+        };
+      case 'fetch_error':
+        return { ...s, status: ERROR, errorMessage: a.payload };
+      case 'input':
+        return { ...s, status: IDLE, addPlanetError: '', value: a.payload };
+      default:
+        return s;
     }
-  );
+  };
+
+  const [state, dispatch] = React.useReducer(asyncReducer, {
+    status: LOADING,
+    errorMessage: '',
+    addPlanetError: '',
+    helloTarget: '',
+    pendingPlanet: '',
+    planets: [],
+    value: '',
+    ...initialStateOverrides,
+  });
 
   const handleFetch = (type, dataProp) => result =>
     Promise.resolve(result)
       .then(res => {
-        // console.log('success');
-        // console.log(`res.data:`, res.data);
-        // console.log(`dataProp:`, dataProp);
         dispatch({ type, payload: res.data[dataProp] });
       })
       .catch(err => {
@@ -87,12 +83,12 @@ export const useAsyncState = (initialStateOverrides, cache = defaultCache) => {
 
   const handleSayHello = clickValue => {
     if (cache.has(clickValue)) {
-      dispatch({ type: 'fetch_success', payload: clickValue });
+      dispatch({ type: 'hello_success', payload: clickValue });
       return;
     }
     dispatch({ type: 'fetch' });
     sayHello(clickValue)
-      .then(handleFetch('fetch_success', 'planet'))
+      .then(handleFetch('hello_success', 'planet'))
       .catch(err => dispatch({ type: 'add_planet_error', payload: err.message }));
   };
 

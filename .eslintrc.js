@@ -1,5 +1,6 @@
 module.exports = {
-  extends: 'helloitsjoe',
+  // extends: ['preact', 'helloitsjoe'],
+  extends: 'preact',
   rules: {
     'react/jsx-one-expression-per-line': 'off',
   },
