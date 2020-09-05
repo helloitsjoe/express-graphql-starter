@@ -8,9 +8,12 @@ const apolloServer = require('./routes/apolloServer');
 const app = express();
 const server = http.createServer(app);
 
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || 'localhost';
+
 const USE_APOLLO_SERVER = true;
 
-const makeServer = async (port = 3000) => {
+const makeServer = async (port = PORT) => {
   app.use(express.static(path.join(__dirname, '../public')));
   app.use(bodyParser.json());
 
@@ -28,8 +31,8 @@ const makeServer = async (port = 3000) => {
   return new Promise((resolve, reject) => {
     server.listen(port, () => {
       if (process.env.NODE_ENV !== 'test') {
-        console.log(`Serving site at http://localhost:${port}/`);
-        console.log(`Serving GQL at http://localhost:${port}/graphql`);
+        console.log(`Serving site at http://${HOST}:${port}/`);
+        console.log(`Serving GQL at http://${HOST}:${port}/graphql`);
       }
       return resolve(server);
     });

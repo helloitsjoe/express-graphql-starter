@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
+import compose from './react-hooks-compose';
 import { sayHello, addPlanet, getPlanets } from './fetch-service';
 import AddPlanet from './add-planet';
 
@@ -174,6 +175,11 @@ App.defaultProps = {
   onAddPlanet() {},
 };
 
-export default function AppContainer(props) {
-  return <App {...useAsyncState(props)} />;
-}
+export default compose(props => ({
+  Test: () => useAsyncState(props),
+}))(App, { captureProps: true });
+
+// export default function AppContainer(props) {
+//   console.log(`props in container:`, props);
+//   return <App {...useAsyncState(props)} />;
+// }
