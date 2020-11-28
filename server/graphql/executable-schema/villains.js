@@ -23,6 +23,7 @@ export const villainSchema = `
   }
 `;
 
+// TODO: Add DataLoader here?
 export const villainRoot = {
   Query: {
     villain: (_, { name }, { db }) => db.villain.fetchByName(name),

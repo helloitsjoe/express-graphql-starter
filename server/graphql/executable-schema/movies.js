@@ -23,6 +23,7 @@ export const movieSchema = `
   }
 `;
 
+// TODO: Add DataLoader here?
 export const movieRoot = {
   Query: {
     movie: (_, { title }, { db }) => db.movie.fetchByTitle(title),

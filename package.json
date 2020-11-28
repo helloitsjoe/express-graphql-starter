@@ -4,7 +4,7 @@
   "scripts": {
     "start": "nodemon -r esm ./server",
     "watch": "webpack --watch --mode development",
-    "test": "jest --verbose"
+    "test": "jest --verbose --runInBand"
   },
   "dependencies": {
     "apollo-server-express": "^2.10.1",

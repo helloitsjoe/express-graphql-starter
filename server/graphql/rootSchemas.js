@@ -1,3 +1,4 @@
+/* eslint-disable import/prefer-default-export */
 import { GraphQLSchema, GraphQLObjectType } from 'graphql';
 import { makeExecutableSchema } from 'graphql-tools';
 import merge from 'lodash/merge';
@@ -11,8 +12,6 @@ import { heroFields } from './graphql-object/heroes';
 import { movieFields } from './graphql-object/movies';
 import { villainFields } from './graphql-object/villains';
 import { planetFields, planetMutationFields } from './graphql-object/planets';
-
-const USE_EXECUTABLE_SCHEMA = true;
 
 const Query = `
   type Query
@@ -45,5 +44,4 @@ const objectSchema = new GraphQLSchema({
   }),
 });
 
-// eslint-disable-next-line import/prefer-default-export
-export const schema = USE_EXECUTABLE_SCHEMA ? stringSchema : objectSchema;
+export const schema = process.env.OBJECT_SCHEMA ? objectSchema : stringSchema;

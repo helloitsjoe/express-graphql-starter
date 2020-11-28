@@ -23,6 +23,7 @@ export const heroSchema = `
   }
 `;
 
+// TODO: Add DataLoader here?
 export const heroRoot = {
   Query: {
     hero: (_, { name } = {}, { db }) => db.hero.fetchByName(name),

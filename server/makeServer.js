@@ -11,18 +11,16 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || 'localhost';
 
-const USE_APOLLO_SERVER = true;
-
 const makeServer = async (port = PORT) => {
+  // TODO: Auth
   app.use(express.static(path.join(__dirname, '../public')));
   app.use(bodyParser.json());
 
-  if (USE_APOLLO_SERVER) {
-    // ApolloServer has it's own integration with express :/
-    apolloServer.applyMiddleware({ app });
-    // TODO: Make sure ApolloServer plays with REST endpoints
-  } else {
+  if (process.env.EXPRESS_GRAPHQL) {
     app.use('/graphql', graphql);
+  } else {
+    // ApolloServer has it's own integration with express, can't use app.use
+    apolloServer.applyMiddleware({ app });
   }
 
   // App is already listening
