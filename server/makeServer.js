@@ -1,7 +1,7 @@
 const express = require('express');
+const jwt = require('express-jwt');
 const path = require('path');
 const http = require('http');
-const bodyParser = require('body-parser');
 const graphql = require('./routes/graphql');
 const apolloServer = require('./routes/apolloServer');
 
@@ -12,9 +12,10 @@ const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || 'localhost';
 
 const makeServer = async (port = PORT) => {
-  // TODO: Auth
+  // TODO: Register user
   app.use(express.static(path.join(__dirname, '../public')));
-  app.use(bodyParser.json());
+  app.use(express.json());
+  // app.use(jwt({ secret: 'I am so secret!', algorithms: ['HS256'] }));
 
   if (process.env.EXPRESS_GRAPHQL) {
     app.use('/graphql', graphql);
