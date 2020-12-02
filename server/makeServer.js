@@ -1,5 +1,6 @@
 const express = require('express');
-const jwt = require('express-jwt');
+const jwtMiddleware = require('express-jwt');
+const jwt = require('jsonwebtoken');
 const path = require('path');
 const http = require('http');
 const graphql = require('./routes/graphql');
@@ -10,12 +11,27 @@ const server = http.createServer(app);
 
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || 'localhost';
+const SECRET = process.env.SECRET || 'I am so secret!';
 
 const makeServer = async (port = PORT) => {
   // TODO: Register user
   app.use(express.static(path.join(__dirname, '../public')));
   app.use(express.json());
-  // app.use(jwt({ secret: 'I am so secret!', algorithms: ['HS256'] }));
+
+  // Only use auth for post requests
+  if (process.env.NODE_ENV !== 'test') {
+    app.post('/graphql', jwtMiddleware({ secret: SECRET, algorithms: ['HS256'] }));
+  }
+
+  app.get('/register', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/register.html'));
+  });
+
+  app.post('/register', (req, res) => {
+    const token = jwt.sign({ username: req.body.username }, SECRET);
+    res.header('Set-Cookie', `gql-example-token=${token}`);
+    res.json({ token });
+  });
 
   if (process.env.EXPRESS_GRAPHQL) {
     app.use('/graphql', graphql);
