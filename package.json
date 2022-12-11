@@ -14,7 +14,7 @@
     "dataloader": "^2.0.0",
     "debug": "~2.6.9",
     "esm": "^3.2.25",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "express-graphql": "^0.7.1",
     "express-jwt": "^6.0.0",
     "graphql": "^14.5.8",
